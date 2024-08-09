@@ -14,7 +14,7 @@ It can be easily deployed to environments that support Node.js and expose ports 
 
 - Multiple players can connect to the Guided Tour and interact with it in real time.
 
-- The MML-based Guided Tour showcases example MML documents in the defined slots.
+- The MML-based Guided Tour showcases example MML documents and what can be done with MML.
 
 - Players can interact with any of the showcased documents simultaneously.
 
