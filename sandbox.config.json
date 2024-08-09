@@ -1,0 +1,7 @@
+{
+  "template": "node",
+  "node": "20",
+  "container": {
+    "node": "20"
+  }
+}

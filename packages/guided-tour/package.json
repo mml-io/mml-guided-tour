@@ -1,0 +1,24 @@
+{
+  "name": "@mml-guided-tour/mml-doc",
+  "private": true,
+  "scripts": {
+    "build": "tsx ./build.ts --build",
+    "iterate": "tsx ./build.ts --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint -c ./.eslintrc.cjs \"./src/**/*.{js,jsx,ts,tsx}\" --max-warnings 0",
+    "lint:fix": "eslint -c ./.eslintrc.cjs \"./src/**/*.{js,jsx,ts,tsx}\" --fix"
+  },
+  "dependencies": {
+    "@types/react": "18.3.2",
+    "@types/react-dom": "18.3.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@mml-io/mml-react-types": "0.17.1",
+    "@types/proper-lockfile": "^4.1.4",
+    "@types/uuid": "^10.0.0",
+    "proper-lockfile": "^4.1.2",
+    "uuid": "^10.0.0"
+  }
+}

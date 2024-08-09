@@ -1,0 +1,10 @@
+{
+  "version": "0.0.32",
+  "npmClient": "npm",
+  "command": {
+    "bootstrap": {
+      "ignore": "component-*",
+      "npmClientArgs": ["--no-package-lock"]
+    }
+  }
+}
