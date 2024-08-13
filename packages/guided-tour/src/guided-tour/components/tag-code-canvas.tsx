@@ -23,8 +23,8 @@ export function TagCodeCanvas({
   const [imageWidth, setImageWidth] = useState<number>(0);
   const [imageHeight, setImageHeight] = useState<number>(0);
 
-  const [openingTag] = useState<string>(` <${tag}`);
-  const [closingTag] = useState<string>(` ></${tag}>`);
+  const [openingTag] = useState<string>(`<${tag}`);
+  const [closingTag] = useState<string>(`></${tag}>`);
 
   const [imageSrc, setImageSrc] = useState<string>("");
   const [imageEmissive] = useState<number>(emissive);
@@ -52,7 +52,7 @@ export function TagCodeCanvas({
       const value = treatedValue(attributeValue);
       ctx!.fillStyle = attributeColor;
       ctx!.fillText(` ${attribute}`, xOffset, yPos);
-      xOffset += canvasFontSize * (attribute.length + 1) * 0.6;
+      xOffset += canvasFontSize * (attribute.length + 2) * 0.6;
       ctx!.fillStyle = eqColor;
       ctx!.fillText("=", xOffset, yPos);
       xOffset += canvasFontSize * 2 * 0.6;
