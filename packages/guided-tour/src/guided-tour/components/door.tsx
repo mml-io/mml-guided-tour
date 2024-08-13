@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/default
 import React, { useCallback, useState } from "react";
 
-import { DoorButton } from "./door-button";
+import { TwoWayWallButton } from "./two-way-wall-button";
 
 type DoorProps = {
   x: number;
@@ -126,13 +126,13 @@ export function Door({
         {opening && <OpenAnim />}
         {closing && <ClosingAnim />}
       </m-cube>
-      <DoorButton
+      <TwoWayWallButton
         x={!invertButton ? 3.36 : -3.3}
         y={y + 1.37}
         z={-0.2}
         scale={2.5}
         wallThickness={wallThickness}
-        openDoorTime={animDuration * 2 + openTime}
+        reEnableTime={animDuration * 2 + openTime}
         onOpen={() => {
           openDoor();
         }}

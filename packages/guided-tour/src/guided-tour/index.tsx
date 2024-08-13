@@ -5,7 +5,7 @@ import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 
-import { Hallway } from "./hallway";
+import { Hallway } from "./components/hallway";
 import { Room } from "./room";
 
 function App() {

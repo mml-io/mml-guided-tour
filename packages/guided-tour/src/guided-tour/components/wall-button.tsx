@@ -1,25 +1,23 @@
 // eslint-disable-next-line import/default
 import React, { useCallback, useState } from "react";
 
-type DoorButtonProps = {
+type TwoWayWallButtonProps = {
   x: number;
   y: number;
   z: number;
   scale: number;
-  wallThickness: number;
-  openDoorTime: number;
+  reEnableTime: number;
   onOpen: () => void;
 };
 
-export const DoorButton = ({
+export const TwoWayWallButton = ({
   x,
   y,
   z,
   scale,
-  wallThickness,
-  openDoorTime,
+  reEnableTime,
   onOpen,
-}: DoorButtonProps): JSX.Element => {
+}: TwoWayWallButtonProps): JSX.Element => {
   const sfxDuration = 1200;
   const buttonAnimDuration = 350;
   const easing = "easeInOutCubic";
@@ -37,7 +35,6 @@ export const DoorButton = ({
   const sfxURL = "/assets/guidedtour/sfx_button.mp3";
 
   const buttonTravel = 0.05;
-  const thickness = wallThickness / scale;
   const onScale = enabled ? 1 : 0.001;
   const offScale = enabled ? 0.001 : 1;
 
@@ -62,8 +59,8 @@ export const DoorButton = ({
     setAnimating(true);
     setTimeout(() => setAnimating(false), buttonAnimDuration);
     setTimeout(() => setEnabled(false), buttonAnimDuration * 1.1);
-    setTimeout(() => setEnabled(true), openDoorTime);
-  }, [animating, enabled, playSFX, onOpen, openDoorTime]);
+    setTimeout(() => setEnabled(true), reEnableTime);
+  }, [animating, enabled, playSFX, onOpen, reEnableTime]);
 
   const PushAnimation = ({ zStart, zEnd }: { zStart: number; zEnd: number }): JSX.Element => (
     <m-attr-anim
@@ -88,31 +85,10 @@ export const DoorButton = ({
       ></m-audio>
       <m-group x={x} y={y} z={z} sx={scale} sy={scale} sz={scale} onClick={handlePress}>
         <m-model id="front-base" src={baseURL} />
-        <m-model id="back-base" src={baseURL} z={thickness} rx={180} />
         <m-model id="front-on" src={onURL} sx={onScale} sy={onScale} sz={onScale}>
           {animating && <PushAnimation zStart={0.0} zEnd={buttonTravel} />}
         </m-model>
-        <m-model
-          id="back-on"
-          src={onURL}
-          sx={onScale}
-          sy={onScale}
-          sz={onScale}
-          z={thickness}
-          rx={180}
-        >
-          {animating && <PushAnimation zStart={thickness} zEnd={thickness - buttonTravel} />}
-        </m-model>
         <m-model id="front-off" src={offURL} sx={offScale} sy={offScale} sz={offScale}></m-model>
-        <m-model
-          id="back-off"
-          src={offURL}
-          sx={offScale}
-          sy={offScale}
-          sz={offScale}
-          z={thickness}
-          rx={180}
-        ></m-model>
       </m-group>
     </m-group>
   );
