@@ -1,7 +1,6 @@
-/* eslint-disable import/default */
 /*eslint import/no-unresolved: [2, { ignore: ['^mml:'] }]*/
 // import duck from "mml:../duck/index.tsx";
-import React from "react";
+import * as React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 

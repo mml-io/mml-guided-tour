@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/default
-import React from "react";
+import * as React from "react";
 
 import { Room1 } from "./room-1";
 import { Room2 } from "./room-2";

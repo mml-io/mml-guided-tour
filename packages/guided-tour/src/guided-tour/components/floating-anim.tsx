@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/default
-import React from "react";
+import * as React from "react";
 
 export function FloatingAnim({
   attr,
