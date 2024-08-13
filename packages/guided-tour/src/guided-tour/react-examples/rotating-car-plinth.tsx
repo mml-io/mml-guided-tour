@@ -1,4 +1,3 @@
-import { MModelElement } from "@mml-io/mml-react-types";
 // eslint-disable-next-line import/default
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
@@ -10,10 +9,11 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
 
   const [animStart, setAnimStart] = useState<number>(0);
   const [animEnd, setAnimEnd] = useState<number>(360);
-  const [duration, setDuration] = useState<number>(10000);
-
   const [startTime, setStartTime] = useState<number>(now);
   const [pauseTime, setPauseTime] = useState<string | number | undefined>(undefined);
+  const [duration, setDuration] = useState<number>(10000);
+
+  const [carRotation, setCarRotation] = useState<number>(0);
 
   const [rotationSpeed, setRotationSpeed] = useState<number>(1);
   const [pauseRatio, setPauseRatio] = useState<number | undefined>(undefined);
@@ -22,7 +22,6 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
   const maxRotationSpeed = 10;
   const unitDuration = 20000;
 
-  const carRef = useRef<MModelElement | null>(null);
   const mounted = useRef<boolean>(false);
 
   const adjustCarAnim = useCallback(
@@ -53,9 +52,7 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
           ratioThroughRotation = 1 - ratioThroughRotation;
         }
         setPauseRatio(ratioThroughRotation);
-        if (carRef.current) {
-          carRef.current.setAttribute("ry", `${360 * ratioThroughRotation}`);
-        }
+        setCarRotation(360 * ratioThroughRotation);
         setPauseTime(document.timeline.currentTime as number);
       } else {
         setPauseRatio(undefined);
@@ -70,7 +67,6 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
         setDuration(newDuration);
       }
       setRotationSpeed(newRotationSpeed);
-      // updateAttributesLabel();
     },
     [minRotationSpeed, pauseRatio, rotationSpeed, startTime],
   );
@@ -107,7 +103,7 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
   return (
     <m-group x={x} y={y} z={z}>
       <m-model src="/assets/guidedtour/scifi_car_plinth.glb"></m-model>
-      <m-model ref={carRef} src="/assets/guidedtour/scifi_car.glb">
+      <m-model src="/assets/guidedtour/scifi_car.glb" ry={carRotation}>
         <FloatingAnim attr="y" start={0.25} end={0.3} duration={13000} />
         <m-attr-anim
           id="car-anim"
