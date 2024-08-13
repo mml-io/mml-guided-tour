@@ -6,7 +6,7 @@ import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 
 import { Hallway } from "./components/hallway";
-import { Room } from "./room";
+import { RoomsRoot } from "./rooms-root";
 
 function App() {
   const guidedTourYPos = 0;
@@ -20,7 +20,7 @@ function App() {
   for (let z = 0; z < numberOfRooms; z++) {
     const roomAsset = z === 0 ? "/assets/guidedtour/room_1.glb" : "/assets/guidedtour/room.glb";
     const roomZPos = 14 + roomsDepth * z + (spaceBetweenRooms + 0.55) * z;
-    rooms.push(<Room src={roomAsset} x={0} y={guidedTourYPos} z={roomZPos} index={z} />);
+    rooms.push(<RoomsRoot src={roomAsset} x={0} y={guidedTourYPos} z={roomZPos} index={z} />);
 
     if (z < numberOfRooms - 1) {
       rooms.push(<Hallway x={0} y={guidedTourYPos} z={roomZPos + roomsDepth / 2 + 4.2} />);
