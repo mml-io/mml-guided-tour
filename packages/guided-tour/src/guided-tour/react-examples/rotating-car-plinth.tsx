@@ -14,7 +14,6 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
   const [duration, setDuration] = useState<number>(10000);
 
   const [carRotation, setCarRotation] = useState<number>(0);
-
   const [rotationSpeed, setRotationSpeed] = useState<number>(1);
   const [pauseRatio, setPauseRatio] = useState<number | undefined>(undefined);
 
@@ -122,9 +121,15 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
         x="-4.55"
         font-size="18"
       ></m-label>
-      <m-group x={-1} z={-9} ry={-90}>
-        <m-model src="/assets/guidedtour/code_display.glb" sx={0.55} sy={0.55} ry={180}></m-model>
-        <m-group x={-0.3} y={1.84} z={0.2}>
+      <m-group x={3} z={-9} ry={-90}>
+        <m-model
+          src="/assets/guidedtour/code_display.glb"
+          sx={0.6}
+          sy={0.6}
+          sz={0.5}
+          ry={180}
+        ></m-model>
+        <m-group x={-0.3} y={2.03}>
           {animRef.current && animAttributes && (
             <TagCodeCanvas
               tagAttributes={animAttributes}
