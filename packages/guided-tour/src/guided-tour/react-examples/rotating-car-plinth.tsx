@@ -1,15 +1,15 @@
-// eslint-disable-next-line import/default
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { MAttrAnimElement } from "@mml-io/mml-react-types";
+import * as React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { FloatingAnim } from "../components/floating-anim";
+import { TagCodeCanvas } from "../components/tag-code-canvas";
+import { useAttributes } from "../helpers/use-attributes";
 
 export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number }) {
-  const now = document.timeline.currentTime as number;
-  const [labelContent, setLabelContent] = useState<string>("+1");
-
   const [animStart, setAnimStart] = useState<number>(0);
   const [animEnd, setAnimEnd] = useState<number>(360);
-  const [startTime, setStartTime] = useState<number>(now);
+  const [startTime, setStartTime] = useState<number>(document.timeline.currentTime as number);
   const [pauseTime, setPauseTime] = useState<string | number | undefined>(undefined);
   const [duration, setDuration] = useState<number>(10000);
 
@@ -23,6 +23,9 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
   const unitDuration = 20000;
 
   const mounted = useRef<boolean>(false);
+  const animRef = useRef<MAttrAnimElement | null>(null);
+
+  const animAttributes = useAttributes(animRef);
 
   const adjustCarAnim = useCallback(
     (delta: number) => {
@@ -44,8 +47,6 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
         timeElapsed = currentTime - startTime;
         ratioThroughRotation = (timeElapsed % currentDuration) / currentDuration;
       }
-
-      setLabelContent(`${newRotationSpeed > 0 ? "+" : ""}${newRotationSpeed}`);
 
       if (newRotationSpeed === 0) {
         if (rotationSpeed < 0) {
@@ -74,31 +75,9 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
   useEffect(() => {
     if (mounted.current === false) {
       mounted.current = true;
-      adjustCarAnim(+1);
+      adjustCarAnim(0);
     }
   }, [adjustCarAnim]);
-
-  const Label = useCallback(
-    () => (
-      <m-label
-        id="display"
-        color="#505050"
-        font-color="#ffffff"
-        padding="0"
-        alignment="center"
-        content={labelContent}
-        rx="-90"
-        rz="-90"
-        ry="-45"
-        width="0.3"
-        height="0.2"
-        y="0.17"
-        x="-4.55"
-        font-size="18"
-      ></m-label>
-    ),
-    [labelContent],
-  );
 
   return (
     <m-group x={x} y={y} z={z}>
@@ -106,6 +85,7 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
       <m-model src="/assets/guidedtour/scifi_car.glb" ry={carRotation}>
         <FloatingAnim attr="y" start={0.25} end={0.3} duration={13000} />
         <m-attr-anim
+          ref={animRef}
           id="car-anim"
           attr="ry"
           start={animStart}
@@ -126,7 +106,36 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
         src="/assets/guidedtour/scifi_car_plinth_right.glb"
         onClick={() => adjustCarAnim(+1)}
       ></m-model>
-      <Label />
+      <m-label
+        id="rotation-speed-label"
+        color="#505050"
+        font-color="#ffffff"
+        padding="0"
+        alignment="center"
+        content={`${rotationSpeed > 0 ? "+" : ""}${rotationSpeed}`}
+        rx="-90"
+        rz="-90"
+        ry="-45"
+        width="0.3"
+        height="0.2"
+        y="0.17"
+        x="-4.55"
+        font-size="18"
+      ></m-label>
+      <m-group x={-1} z={-9} ry={-90}>
+        <m-model src="/assets/guidedtour/code_display.glb" sx={0.55} sy={0.55} ry={180}></m-model>
+        <m-group x={-0.3} y={1.84} z={0.2}>
+          {animRef.current && animAttributes && (
+            <TagCodeCanvas
+              tagAttributes={animAttributes}
+              fontSize={25}
+              color="#cccc33"
+              emissive={12}
+              tag="m-attr-anim"
+            />
+          )}
+        </m-group>
+      </m-group>
     </m-group>
   );
 }
