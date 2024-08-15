@@ -1,40 +1,48 @@
-import { MAudioElement, MModelElement } from "@mml-io/mml-react-types";
+import { MAttrAnimElement, MAudioElement, MModelElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { useCallback, useMemo, useRef } from "react";
+import { useRef } from "react";
 
+import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { randomArrayElement, randomInt } from "../helpers/js-helpers";
+import { useAttributes } from "../helpers/use-attributes";
 
 export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry: number }) => {
   const racing = useRef(false);
+  const animRef = useRef<MAttrAnimElement | null>(null);
+  const animAttributes = useAttributes(animRef);
+
+  const winner = useRef<string>("");
+  const winnerIndex = useRef<number>(-1);
 
   const raceDuration = 3900;
   const raceSoundDuration = 4000;
-  const countdownSoundDuration = 4000;
+
   const trackLength = 30;
   const carScale = 0.5;
 
-  const colorSaturation = "100%";
-  const colorLightness = "65%";
+  const yellowAnimRef = useRef<MAttrAnimElement | null>(null);
+  const greenAnimRef = useRef<MAttrAnimElement | null>(null);
+  const blueAnimRef = useRef<MAttrAnimElement | null>(null);
+  const pinkAnimRef = useRef<MAttrAnimElement | null>(null);
+  const redAnimRef = useRef<MAttrAnimElement | null>(null);
+  const aimRefs = [yellowAnimRef, greenAnimRef, blueAnimRef, pinkAnimRef, redAnimRef];
 
-  const yellowCarRef = React.useRef<MModelElement | null>(null);
-  const greenCarRef = React.useRef<MModelElement | null>(null);
-  const blueCarRef = React.useRef<MModelElement | null>(null);
-  const pinkCarRef = React.useRef<MModelElement | null>(null);
-  const redCarRef = React.useRef<MModelElement | null>(null);
-  const carRefs = useMemo(() => [yellowCarRef, greenCarRef, blueCarRef, pinkCarRef, redCarRef], []);
+  const yellowCarRef = useRef<MModelElement | null>(null);
+  const greenCarRef = useRef<MModelElement | null>(null);
+  const blueCarRef = useRef<MModelElement | null>(null);
+  const pinkCarRef = useRef<MModelElement | null>(null);
+  const redCarRef = useRef<MModelElement | null>(null);
+  const carRefs = [yellowCarRef, greenCarRef, blueCarRef, pinkCarRef, redCarRef];
 
-  const yellowCarSoundRef = React.useRef<MAudioElement | null>(null);
-  const greenCarSoundRef = React.useRef<MAudioElement | null>(null);
-  const blueCarSoundRef = React.useRef<MAudioElement | null>(null);
-  const pinkCarSoundRef = React.useRef<MAudioElement | null>(null);
-  const redCarSoundRef = React.useRef<MAudioElement | null>(null);
-  const carSoundRefs = useMemo(
-    () => [yellowCarSoundRef, greenCarSoundRef, blueCarSoundRef, pinkCarSoundRef, redCarSoundRef],
-    [],
-  );
+  const yellowSoundRef = useRef<MAudioElement | null>(null);
+  const greenSoundRef = useRef<MAudioElement | null>(null);
+  const blueSoundRef = useRef<MAudioElement | null>(null);
+  const pinkSoundRef = useRef<MAudioElement | null>(null);
+  const redSoundRef = useRef<MAudioElement | null>(null);
+  const carSoundRefs = [yellowSoundRef, greenSoundRef, blueSoundRef, pinkSoundRef, redSoundRef];
 
-  const easings = useMemo(() => ["easeInOutQuad", "easeInOutCubic", "easeInOutQuart"], []);
-  const availableCars = useMemo(() => ["yellow", "green", "blue", "pink", "red"], []);
+  const easings = ["easeInOutQuad", "easeInOutCubic", "easeInOutQuart"];
+  const availableCars = ["yellow", "green", "blue", "pink", "red"];
 
   const availableCarsModels: Record<string, string> = {
     yellow: "/assets/guidedtour/f1_race_car_yellow.glb",
@@ -43,15 +51,22 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
     pink: "/assets/guidedtour/f1_race_car_pink.glb",
     red: "/assets/guidedtour/f1_race_car_red.glb",
   };
-  const carColors = [
-    `hsl(72, ${colorSaturation}, ${colorLightness})`,
-    `hsl(144, ${colorSaturation}, ${colorLightness})`,
-    `hsl(216, ${colorSaturation}, ${colorLightness})`,
-    `hsl(288, ${colorSaturation}, ${colorLightness})`,
-    `hsl(380, ${colorSaturation}, ${colorLightness})`,
-  ];
 
-  const animateCars = useCallback(() => {
+  // const colorSaturation = "100%";
+  // const colorLightness = "65%";
+  // const carColors = [
+  //   `hsl(72, ${colorSaturation}, ${colorLightness})`,
+  //   `hsl(144, ${colorSaturation}, ${colorLightness})`,
+  //   `hsl(216, ${colorSaturation}, ${colorLightness})`,
+  //   `hsl(288, ${colorSaturation}, ${colorLightness})`,
+  //   `hsl(380, ${colorSaturation}, ${colorLightness})`,
+  // ];
+
+  const setAnimRef = React.useCallback((animElement: MAttrAnimElement) => {
+    animRef.current = animElement;
+  }, []);
+
+  const animateCars = () => {
     if (racing.current) return;
     racing.current = true;
     let smallestTime = 999999999999;
@@ -60,38 +75,42 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
     availableCars.forEach((_car, index) => {
       const car = carRefs[index].current;
       const carSound = carSoundRefs[index].current;
-      if (!car || !carSound) return;
+      const animElement = aimRefs[index].current;
+
+      if (!car || !carSound || !animElement) return;
 
       const time = randomInt(raceDuration - raceDuration * 0.1, raceDuration);
       const easing = randomArrayElement(easings);
 
-      const animation = document.createElement("m-attr-anim");
-      animation.setAttribute("attr", "x");
-      animation.setAttribute("start", `${-trackLength / 2 + 1}`);
-      animation.setAttribute("end", `${trackLength / 2 - 1.5}`);
-      animation.setAttribute("start-time", `${now}`);
-      animation.setAttribute("end-time", `${now + time}`);
-      animation.setAttribute("duration", `${time}`);
-      animation.setAttribute("loop", "false");
-      animation.setAttribute("ping-pong", "false");
-      animation.setAttribute("easing", easing);
-      car.appendChild(animation);
+      animElement.setAttribute("attr", "x");
+      animElement.setAttribute("start", `${-trackLength / 2 + 1}`);
+      animElement.setAttribute("end", `${trackLength / 2 - 1.5}`);
+      animElement.setAttribute("start-time", `${now}`);
+      animElement.setAttribute("end-time", `${now + time}`);
+      animElement.setAttribute("duration", `${time}`);
+      animElement.setAttribute("loop", "false");
+      animElement.setAttribute("ping-pong", "false");
+      animElement.setAttribute("easing", easing);
 
       const audioOffset = easing === "easeInOutQuad" ? 50 : easing === "easeInOutCubic" ? 250 : 350;
       carSound.setAttribute("volume", "1");
       carSound.setAttribute("start-time", `${now + audioOffset}`);
       carSound.setAttribute("pause-time", `${now + audioOffset + raceSoundDuration}`);
+
       setTimeout(() => {
         car.setAttribute("x", `${trackLength / 2 - 1.5}`);
-        car.removeChild(animation);
         carSound.setAttribute("volume", "0");
       }, time);
+
       if (time < smallestTime) {
         smallestTime = time;
+        winner.current = `Winner: ${availableCars[index]} (${(time / 1000).toFixed(3)}s)`;
+        winnerIndex.current = index;
+        setAnimRef(animElement);
       }
     });
     setTimeout(() => (racing.current = false), raceDuration + 100);
-  }, [availableCars, carRefs, carSoundRefs, easings]);
+  };
 
   const Cars = () => (
     <m-group id="cars">
@@ -108,6 +127,17 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
           sy={carScale}
           sz={carScale}
         >
+          <m-attr-anim
+            ref={aimRefs[index]}
+            id={`${car}-anim`}
+            attr="x"
+            start={-trackLength / 2 + 1}
+            end={trackLength / 2 - 1.5}
+            start-time={0}
+            duration={0}
+            loop={false}
+            easing="easeInOutQuad"
+          ></m-attr-anim>
           <m-audio
             ref={carSoundRefs[index]}
             src="/assets/guidedtour/sfx_racing.mp3"
@@ -155,6 +185,24 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
     >
       <RaceTrack />
       <Cars />
+      <m-group x={-5} z={4.4} ry={180}>
+        <m-model
+          src="/assets/guidedtour/code_display.glb"
+          sx={0.6}
+          sy={0.6}
+          sz={0.5}
+          ry={180}
+        ></m-model>
+        <m-group x={-0.3} y={2.03}>
+          <TagCodeCanvas
+            tagAttributes={animAttributes}
+            fontSize={25}
+            color="#cccc33"
+            emissive={12}
+            tag="m-attr-anim"
+          />
+        </m-group>
+      </m-group>
     </m-group>
   );
 };
