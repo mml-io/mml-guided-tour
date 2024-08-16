@@ -2,9 +2,10 @@ import { MAttrAnimElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { useRef, useState } from "react";
 
+import { PlayButton } from "../components/play-button";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { randomArrayElement, randomInt } from "../helpers/js-helpers";
-import { useAttributes } from "../helpers/use-attributes";
+// import { useAttributes } from "../helpers/use-attributes";
 
 type PossibleEasings = "easeInOutQuad" | "easeInOutCubic" | "easeInOutQuart";
 type EasingsArray = Array<PossibleEasings>;
@@ -23,20 +24,40 @@ type AudioProps = {
   pauseTime: number;
 };
 
-export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry: number }) => {
+type RaceCarsProps = {
+  x?: number;
+  y?: number;
+  z?: number;
+  ry?: number;
+};
+
+export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
   const racing = useRef(false);
 
   const animRef = useRef<MAttrAnimElement | null>(null);
-  const animAttributes = useAttributes(animRef);
+  // const animAttributes = useAttributes(animRef);
 
   const [animationProps, setAnimationProps] = useState<AnimationProps[]>([]);
   const [audioProps, setAudioProps] = useState<AudioProps[]>([]);
+
+  const [attributes, setAttributes] = useState<Record<string, string>>({});
+  const [winnerIndex, setWinnerIndex] = useState<number>(0);
 
   const raceDuration = 3900;
   const raceSoundDuration = 4000;
 
   const trackLength = 30;
   const carScale = 0.5;
+
+  const colorSaturation = "100%";
+  const colorLightness = "65%";
+  const carColors = [
+    `hsl(72, ${colorSaturation}, ${colorLightness})`,
+    `hsl(144, ${colorSaturation}, ${colorLightness})`,
+    `hsl(216, ${colorSaturation}, ${colorLightness})`,
+    `hsl(288, ${colorSaturation}, ${colorLightness})`,
+    `hsl(380, ${colorSaturation}, ${colorLightness})`,
+  ];
 
   const easings: EasingsArray = ["easeInOutQuad", "easeInOutCubic", "easeInOutQuart"];
   const availableCars = ["yellow", "green", "blue", "pink", "red"];
@@ -58,7 +79,7 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
     const newAudioProps: AudioProps[] = [];
 
     const newAnimationProps = availableCars.map((_car, index) => {
-      const time = randomInt(raceDuration - raceDuration * 0.1, raceDuration);
+      const time = randomInt(raceDuration - raceDuration * 0.15, raceDuration);
       const easing: PossibleEasings = randomArrayElement(easings);
 
       if (time < smallestTime) {
@@ -67,6 +88,15 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
       }
 
       const offset = easing === "easeInOutQuad" ? 50 : easing === "easeInOutCubic" ? 250 : 350;
+
+      setAttributes({
+        attr: "x",
+        start: `${-trackLength / 2 + 1}`,
+        end: `${trackLength / 2 - 1.5}`,
+        "start-time": `${now}`,
+        duration: `${time}`,
+        loop: `${false}`,
+      });
 
       newAudioProps.push({
         volume: 1,
@@ -86,21 +116,17 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
     newAnimationProps[winnerIndex].winner = true;
     setAnimationProps(newAnimationProps);
     setAudioProps(newAudioProps);
+    setWinnerIndex(winnerIndex);
     setTimeout(() => (racing.current = false), raceDuration + 100);
   };
 
   const Cars = ({ animations, audio }: { animations: AnimationProps[]; audio: AudioProps[] }) => {
-    for (let i = 0; i < animations.length; i++) {
-      if (animations[i].winner) {
-        console.log(animations[i]);
-      }
-    }
     return (
       <m-group id="cars">
         {availableCars.map((car, index) => (
           <m-model
+            key={`car-${index}`}
             id={car}
-            key={index}
             src={availableCarsModels[car] as string}
             x={-trackLength / 2 + 1}
             y={0.3}
@@ -111,7 +137,8 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
           >
             {animations.length === availableCars.length && (
               <m-attr-anim
-                ref={animations[index].winner ? animRef : undefined}
+                key={`anim-${index}`}
+                ref={animations[index].winner ? animRef : null}
                 attr="x"
                 start={-trackLength / 2 + 1}
                 end={trackLength / 2 - 1.5}
@@ -123,6 +150,7 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
             )}
             {audio.length === availableCars.length && (
               <m-audio
+                key={`audio-${index}`}
                 src="/assets/guidedtour/sfx_racing.mp3"
                 start-time={audio[index].startTime}
                 pause-time={audio[index].pauseTime}
@@ -159,15 +187,15 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
   );
 
   return (
-    <m-group
-      x={x}
-      y={y}
-      z={z}
-      ry={ry}
-      onClick={() => {
-        animateCars();
-      }}
-    >
+    <m-group x={x} y={y} z={z} ry={ry}>
+      <PlayButton
+        x={-7}
+        z={-2}
+        reEnableTime={raceDuration + 100}
+        callback={() => {
+          animateCars();
+        }}
+      />
       <RaceTrack />
       <Cars animations={animationProps} audio={audioProps} />
       <m-group x={-5} z={4.4} ry={180}>
@@ -180,9 +208,9 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
         ></m-model>
         <m-group x={-0.3} y={2.03}>
           <TagCodeCanvas
-            tagAttributes={animAttributes}
-            fontSize={25}
-            color="#cccc33"
+            tagAttributes={attributes}
+            fontSize={30}
+            color={carColors[winnerIndex]}
             emissive={12}
             tag="m-attr-anim"
           />
@@ -190,4 +218,4 @@ export const RaceCars = ({ x, y, z, ry }: { x: number; y: number; z: number; ry:
       </m-group>
     </m-group>
   );
-};
+}
