@@ -6,7 +6,14 @@ import { FloatingAnim } from "../components/floating-anim";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { useAttributes } from "../helpers/use-attributes";
 
-export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number }) {
+type RotatingCarPlinthProps = {
+  x?: number;
+  y?: number;
+  z?: number;
+  ry?: number;
+};
+
+export function RotatingCarPlinth({ x, y, z, ry }: RotatingCarPlinthProps): JSX.Element {
   const [animStart, setAnimStart] = useState<number>(0);
   const [animEnd, setAnimEnd] = useState<number>(360);
   const [startTime, setStartTime] = useState<number>(document.timeline.currentTime as number);
@@ -79,7 +86,7 @@ export function RotatingCarPlinth({ x, y, z }: { x: number; y: number; z: number
   }, [adjustCarAnim]);
 
   return (
-    <m-group x={x} y={y} z={z}>
+    <m-group x={x} y={y} z={z} ry={ry}>
       <m-model src="/assets/guidedtour/scifi_car_plinth.glb"></m-model>
       <m-model src="/assets/guidedtour/scifi_car.glb" ry={carRotation}>
         <FloatingAnim attr="y" start={0.25} end={0.3} duration={13000} />
