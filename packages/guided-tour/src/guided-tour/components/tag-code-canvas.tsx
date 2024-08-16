@@ -1,19 +1,21 @@
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 
+type TagCodeCanvasProps = {
+  tagAttributes: Record<string, string>;
+  fontSize: number;
+  color: string;
+  emissive: number;
+  tag: string;
+};
+
 export function TagCodeCanvas({
   tagAttributes,
   fontSize,
   color,
   emissive,
   tag,
-}: {
-  tagAttributes: Record<string, string>;
-  fontSize: number;
-  color: string;
-  emissive: number;
-  tag: string;
-}) {
+}: TagCodeCanvasProps): JSX.Element {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
