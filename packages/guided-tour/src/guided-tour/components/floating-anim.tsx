@@ -1,16 +1,13 @@
 import * as React from "react";
 
-export function FloatingAnim({
-  attr,
-  start,
-  end,
-  duration,
-}: {
+type FloatingAnimProps = {
   attr: string;
   start: number;
   end: number;
   duration: number;
-}) {
+};
+
+export function FloatingAnim({ attr, start, end, duration }: FloatingAnimProps): JSX.Element {
   return (
     <m-attr-anim
       attr={attr}
