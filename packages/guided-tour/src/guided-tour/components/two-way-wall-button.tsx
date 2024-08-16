@@ -11,7 +11,7 @@ type TwoWayWallButtonProps = {
   onOpen: () => void;
 };
 
-export const TwoWayWallButton = ({
+export function TwoWayWallButton({
   x,
   y,
   z,
@@ -19,7 +19,7 @@ export const TwoWayWallButton = ({
   wallThickness,
   reEnableTime,
   onOpen,
-}: TwoWayWallButtonProps): JSX.Element => {
+}: TwoWayWallButtonProps): JSX.Element {
   const sfxDuration = 1200;
   const buttonAnimDuration = 350;
   const easing = "easeInOutCubic";
@@ -116,4 +116,4 @@ export const TwoWayWallButton = ({
       </m-group>
     </m-group>
   );
-};
+}
