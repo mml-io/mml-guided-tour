@@ -166,6 +166,30 @@ const RaceTrack = memo(() => (
 ));
 RaceTrack.displayName = "RaceTrack";
 
+const Winner = memo(
+  ({ content, color, show }: { content: string; color: string; show: boolean }) => (
+    <m-group>
+      <m-cube color="#424242" width={6.75} depth={0.5} height={2.75} y={0.1} z={0.25} rx={-45}>
+        <m-label
+          content={show ? content : ""}
+          font-size={40}
+          width={6.75}
+          height={1.0}
+          y={0.3}
+          x={0}
+          z={0.253}
+          alignment="center"
+          padding={0}
+          color="#000000"
+          font-color={color}
+          emissive={7}
+        ></m-label>
+      </m-cube>
+    </m-group>
+  ),
+);
+Winner.displayName = "Winner";
+
 export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
   const racing = useRef(false);
 
@@ -182,6 +206,8 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
   const [countDownStart, setCountDownStart] = useState<number>(0);
   const [countDownPause, setCountDownPause] = useState<number>(0);
   const [countDownVolume, setCountDownVolume] = useState<number>(0);
+
+  const [winnerText, setWinnerText] = useState<string>("");
 
   const animateCars = () => {
     if (racing.current) return;
@@ -205,15 +231,6 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
 
       const offset = easing === "easeInOutQuad" ? 50 : easing === "easeInOutCubic" ? 250 : 350;
 
-      setAttributes({
-        attr: "x",
-        start: `${-trackLength / 2 + 1}`,
-        end: `${trackLength / 2 - 1.5}`,
-        "start-time": `${now}`,
-        duration: `${time}`,
-        loop: `${false}`,
-      });
-
       newAudioProps.push({
         volume: 1,
         startTime: now + offset,
@@ -229,16 +246,30 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
       };
     });
 
+    setAttributes({
+      id: `${availableCars[winnerIndex]}`,
+      attr: "x",
+      start: `${-trackLength / 2 + 1}`,
+      end: `${trackLength / 2 - 1.5}`,
+      "start-time": `${now}`,
+      duration: `${newAnimationProps[winnerIndex].duration}`,
+      loop: `${false}`,
+    });
+
+    setWinnerIndex(winnerIndex);
     newAnimationProps[winnerIndex].winner = true;
+    setWinnerText(`Winner: ${availableCars[winnerIndex]} (${(smallestTime / 1000).toFixed(3)}s)`);
+
     setAnimationProps(newAnimationProps);
     setAudioProps(newAudioProps);
-    setWinnerIndex(winnerIndex);
+
     setTimeout(() => (racing.current = false), raceDuration + 100);
   };
 
   const startCountDown = () => {
     setAnimationProps([]);
     setAudioProps([]);
+    setWinnerText("");
 
     setCountDownStart(document.timeline.currentTime as number);
     setCountDownPause((document.timeline.currentTime as number) + 4000);
@@ -265,32 +296,39 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
         }}
       />
       <RaceTrack />
-      <m-group x={-5} z={4.4} ry={180}>
-        <m-model
-          src="/assets/guidedtour/code_display.glb"
-          sx={0.6}
-          sy={0.6}
-          sz={0.5}
-          ry={180}
-        ></m-model>
-        <m-group x={-0.3} y={2.03}>
-          <TagCodeCanvas
-            tagAttributes={attributes}
-            fontSize={30}
-            color={carColors[winnerIndex]}
-            emissive={12}
-            tag="m-attr-anim"
-          />
-        </m-group>
-        <CountDown
-          countDown={countDown}
+      <m-group x={-6.5} z={4.4} ry={180}>
+        <Winner
+          content={winnerText}
+          color={carColors[winnerIndex]}
           show={countDown === "" && Object.keys(attributes).length !== 0}
         />
-        <CountDownSound
-          startTime={countDownStart}
-          pauseTime={countDownPause}
-          volume={countDownVolume}
-        />
+        <m-group y={0.9} z={-0.37}>
+          <m-model
+            src="/assets/guidedtour/code_display.glb"
+            sx={0.6}
+            sy={0.6}
+            sz={0.5}
+            ry={180}
+          ></m-model>
+          <m-group x={-0.3} y={2.03}>
+            <TagCodeCanvas
+              tagAttributes={attributes}
+              fontSize={30}
+              color={carColors[winnerIndex]}
+              emissive={12}
+              tag="m-attr-anim"
+            />
+          </m-group>
+          <CountDown
+            countDown={countDown}
+            show={countDown === "" && Object.keys(attributes).length !== 0}
+          />
+          <CountDownSound
+            startTime={countDownStart}
+            pauseTime={countDownPause}
+            volume={countDownVolume}
+          />
+        </m-group>
       </m-group>
       <Cars animations={animationProps} audio={audioProps} animRef={animRef} />
     </m-group>
