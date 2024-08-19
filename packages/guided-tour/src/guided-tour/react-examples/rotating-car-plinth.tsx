@@ -1,8 +1,9 @@
 import { MAttrAnimElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { FloatingAnim } from "../components/floating-anim";
+import { InfoButton } from "../components/info-button";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { useAttributes } from "../helpers/use-attributes";
 
@@ -13,7 +14,9 @@ type RotatingCarPlinthProps = {
   ry?: number;
 };
 
-export function RotatingCarPlinth({ x, y, z, ry }: RotatingCarPlinthProps): JSX.Element {
+export const RotatingCarPlinth = memo(({ x, y, z, ry }: RotatingCarPlinthProps) => {
+  const infoAudioURL = "/assets/guidedtour/sfx_info_placeholder.mp3";
+
   const [animStart, setAnimStart] = useState<number>(0);
   const [animEnd, setAnimEnd] = useState<number>(360);
   const [startTime, setStartTime] = useState<number>(document.timeline.currentTime as number);
@@ -87,6 +90,7 @@ export function RotatingCarPlinth({ x, y, z, ry }: RotatingCarPlinthProps): JSX.
 
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
+      <InfoButton x={-3} z={-5} ry={90} infoAudioURL={infoAudioURL} infoAudioDuration={4300} />
       <m-model src="/assets/guidedtour/scifi_car_plinth.glb"></m-model>
       <m-model src="/assets/guidedtour/scifi_car.glb" ry={carRotation}>
         <FloatingAnim attr="y" start={0.25} end={0.3} duration={13000} />
@@ -150,4 +154,5 @@ export function RotatingCarPlinth({ x, y, z, ry }: RotatingCarPlinthProps): JSX.
       </m-group>
     </m-group>
   );
-}
+});
+RotatingCarPlinth.displayName = "RotatingCarPlinth";
