@@ -239,60 +239,60 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
   const startCountDown = () => {
     setAnimationProps([]);
     setAudioProps([]);
+
     setCountDownStart(document.timeline.currentTime as number);
     setCountDownPause((document.timeline.currentTime as number) + 4000);
     setCountDownVolume(1);
+
     setTimeout(() => setCountDown("3"), 400);
     setTimeout(() => setCountDown("2"), 1300);
     setTimeout(() => setCountDown("1"), 2300);
     setTimeout(() => setCountDown("GO"), 3250);
+
     setTimeout(() => animateCars(), 3250);
+
     setTimeout(() => setCountDown(""), 3250 + raceDuration);
   };
 
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
-      <m-group>
-        <PlayButton
-          x={-7}
-          z={-2}
-          reEnableTime={raceDuration + 100}
-          callback={() => {
-            startCountDown();
-          }}
+      <PlayButton
+        x={-7}
+        z={-2}
+        reEnableTime={raceDuration + 100}
+        callback={() => {
+          startCountDown();
+        }}
+      />
+      <RaceTrack />
+      <m-group x={-5} z={4.4} ry={180}>
+        <m-model
+          src="/assets/guidedtour/code_display.glb"
+          sx={0.6}
+          sy={0.6}
+          sz={0.5}
+          ry={180}
+        ></m-model>
+        <m-group x={-0.3} y={2.03}>
+          <TagCodeCanvas
+            tagAttributes={attributes}
+            fontSize={30}
+            color={carColors[winnerIndex]}
+            emissive={12}
+            tag="m-attr-anim"
+          />
+        </m-group>
+        <CountDown
+          countDown={countDown}
+          show={countDown === "" && Object.keys(attributes).length !== 0}
         />
-        <RaceTrack />
-        <m-group x={-5} z={4.4} ry={180}>
-          <m-model
-            src="/assets/guidedtour/code_display.glb"
-            sx={0.6}
-            sy={0.6}
-            sz={0.5}
-            ry={180}
-          ></m-model>
-          <CountDown
-            countDown={countDown}
-            show={countDown === "" && Object.keys(attributes).length !== 0}
-          />
-          <CountDownSound
-            startTime={countDownStart}
-            pauseTime={countDownPause}
-            volume={countDownVolume}
-          />
-          <m-group x={-0.3} y={2.03}>
-            <TagCodeCanvas
-              tagAttributes={attributes}
-              fontSize={30}
-              color={carColors[winnerIndex]}
-              emissive={12}
-              tag="m-attr-anim"
-            />
-          </m-group>
-        </m-group>
-        <m-group>
-          <Cars animations={animationProps} audio={audioProps} animRef={animRef} />
-        </m-group>
+        <CountDownSound
+          startTime={countDownStart}
+          pauseTime={countDownPause}
+          volume={countDownVolume}
+        />
       </m-group>
+      <Cars animations={animationProps} audio={audioProps} animRef={animRef} />
     </m-group>
   );
 }
