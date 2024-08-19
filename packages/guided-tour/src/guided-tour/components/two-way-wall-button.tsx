@@ -54,7 +54,7 @@ export function TwoWayWallButton({
   }, [sfxPlaying]);
 
   const handlePress = useCallback(() => {
-    if (animating || !enabled) {
+    if (animating || !enabled || sfxPlaying) {
       return;
     }
     playSFX();
@@ -63,7 +63,7 @@ export function TwoWayWallButton({
     setTimeout(() => setAnimating(false), buttonAnimDuration);
     setTimeout(() => setEnabled(false), buttonAnimDuration * 1.1);
     setTimeout(() => setEnabled(true), reEnableTime);
-  }, [animating, enabled, playSFX, onOpen, reEnableTime]);
+  }, [animating, enabled, sfxPlaying, playSFX, onOpen, reEnableTime]);
 
   const PushAnimation = ({ zStart, zEnd }: { zStart: number; zEnd: number }): JSX.Element => (
     <m-attr-anim
