@@ -193,7 +193,7 @@ const Winner = memo(
 );
 Winner.displayName = "Winner";
 
-export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
+export const RaceCars = memo(({ x, y, z, ry }: RaceCarsProps) => {
   const racing = useRef(false);
 
   const animRef = useRef<MAttrAnimElement | null>(null);
@@ -336,4 +336,5 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
       <Cars animations={animationProps} audio={audioProps} animRef={animRef} />
     </m-group>
   );
-}
+});
+RaceCars.displayName = "RaceCars";
