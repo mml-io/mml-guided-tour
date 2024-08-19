@@ -12,22 +12,26 @@ const getAttributes = (element: HTMLElement) => {
   return attributes;
 };
 
-export const useAttributes = (elementRef: React.RefObject<HTMLElement | null>) => {
+export const useAttributes = (element: HTMLElement | null) => {
   const [attributes, setAttributes] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (elementRef.current) {
-      const mutationObserver = new MutationObserver(() => {
-        setAttributes(getAttributes(elementRef.current!));
-      });
-      mutationObserver.observe(elementRef.current, {
+    if (element) {
+      const updateAttributes = () => {
+        setAttributes(getAttributes(element));
+      };
+
+      const mutationObserver = new MutationObserver(updateAttributes);
+      mutationObserver.observe(element, {
         attributes: true,
       });
+      updateAttributes();
+
       return () => {
         mutationObserver.disconnect();
       };
     }
-  }, [elementRef]);
+  }, [element]);
 
   return attributes;
 };

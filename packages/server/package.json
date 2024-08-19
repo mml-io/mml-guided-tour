@@ -16,7 +16,7 @@
     "lint:fix": "eslint \"./src/**/*.{ts,}\" --fix"
   },
   "dependencies": {
-    "@mml-io/3d-web-experience-server": "^0.0.0-experimental-4934217-20240805",
+    "@mml-io/3d-web-experience-server": "0.0.0-experimental-fec4b51-20240819",
     "canvas": "2.11.2",
     "chokidar": "3.6.0",
     "cors": "2.8.5",

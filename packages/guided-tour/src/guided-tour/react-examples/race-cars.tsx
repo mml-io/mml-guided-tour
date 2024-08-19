@@ -6,7 +6,7 @@ import { InfoButton } from "../components/info-button";
 import { PlayButton } from "../components/play-button";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { randomArrayElement, randomInt } from "../helpers/js-helpers";
-// import { useAttributes } from "../helpers/use-attributes";
+import { useAttributes } from "../helpers/use-attributes";
 
 const infoAudioURL = "/assets/guidedtour/sfx_info_placeholder.mp3";
 
@@ -95,11 +95,11 @@ const Cars = memo(
   ({
     animations,
     audio,
-    animRef,
+    setAnimRef,
   }: {
     animations: AnimationProps[];
     audio: AudioProps[];
-    animRef: React.MutableRefObject<MAttrAnimElement | null>;
+    setAnimRef: (el: MAttrAnimElement | null) => void;
   }) => {
     return (
       <m-group id="cars">
@@ -118,7 +118,7 @@ const Cars = memo(
             {animations.length === availableCars.length && (
               <m-attr-anim
                 key={`anim-${index}`}
-                ref={animations[index].winner ? animRef : null}
+                ref={animations[index].winner ? setAnimRef : null}
                 attr="x"
                 start={-trackLength / 2 + 1}
                 end={trackLength / 2 - 1.5}
@@ -196,13 +196,11 @@ Winner.displayName = "Winner";
 export const RaceCars = memo(({ x, y, z, ry }: RaceCarsProps) => {
   const racing = useRef(false);
 
-  const animRef = useRef<MAttrAnimElement | null>(null);
-  // const animAttributes = useAttributes(animRef);
+  const [animRef, setAnimRef] = useState<MAttrAnimElement | null>(null);
 
   const [animationProps, setAnimationProps] = useState<AnimationProps[]>([]);
   const [audioProps, setAudioProps] = useState<AudioProps[]>([]);
 
-  const [attributes, setAttributes] = useState<Record<string, string>>({});
   const [winnerIndex, setWinnerIndex] = useState<number>(0);
 
   const [countDown, setCountDown] = useState<string>("");
@@ -211,6 +209,8 @@ export const RaceCars = memo(({ x, y, z, ry }: RaceCarsProps) => {
   const [countDownVolume, setCountDownVolume] = useState<number>(0);
 
   const [winnerText, setWinnerText] = useState<string>("");
+
+  const attributes = useAttributes(animRef);
 
   const animateCars = () => {
     if (racing.current) return;
@@ -247,15 +247,6 @@ export const RaceCars = memo(({ x, y, z, ry }: RaceCarsProps) => {
         duration: time,
         easing,
       };
-    });
-
-    setAttributes({
-      attr: "x",
-      start: `${-trackLength / 2 + 1}`,
-      end: `${trackLength / 2 - 1.5}`,
-      "start-time": `${now}`,
-      duration: `${newAnimationProps[winnerIndex].duration}`,
-      loop: `${false}`,
     });
 
     setWinnerIndex(winnerIndex);
@@ -333,7 +324,7 @@ export const RaceCars = memo(({ x, y, z, ry }: RaceCarsProps) => {
           />
         </m-group>
       </m-group>
-      <Cars animations={animationProps} audio={audioProps} animRef={animRef} />
+      <Cars animations={animationProps} audio={audioProps} setAnimRef={setAnimRef} />
     </m-group>
   );
 });

@@ -32,9 +32,9 @@ export const RotatingCarPlinth = memo(({ x, y, z, ry }: RotatingCarPlinthProps) 
   const unitDuration = 20000;
 
   const mounted = useRef<boolean>(false);
-  const animRef = useRef<MAttrAnimElement | null>(null);
+  const [animRef, setAnimRef] = useState<MAttrAnimElement | null>(null);
 
-  const animAttributes = useAttributes(animRef);
+  const animAttributes = useAttributes(animRef || null);
 
   const adjustCarAnim = useCallback(
     (delta: number) => {
@@ -95,7 +95,7 @@ export const RotatingCarPlinth = memo(({ x, y, z, ry }: RotatingCarPlinthProps) 
       <m-model src="/assets/guidedtour/scifi_car.glb" ry={carRotation}>
         <FloatingAnim attr="y" start={0.25} end={0.3} duration={13000} />
         <m-attr-anim
-          ref={animRef}
+          ref={setAnimRef}
           id="car-anim"
           attr="ry"
           start={animStart}
@@ -141,7 +141,7 @@ export const RotatingCarPlinth = memo(({ x, y, z, ry }: RotatingCarPlinthProps) 
           ry={180}
         ></m-model>
         <m-group x={-0.3} y={2.03}>
-          {animRef.current && animAttributes && (
+          {animRef && animAttributes && (
             <TagCodeCanvas
               tagAttributes={animAttributes}
               fontSize={25}
