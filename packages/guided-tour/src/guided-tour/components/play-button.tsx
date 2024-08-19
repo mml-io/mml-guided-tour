@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 
 type PlayButtonProps = {
   x?: number;
@@ -10,7 +10,7 @@ type PlayButtonProps = {
   callback: () => void;
 };
 
-export function PlayButton({ x, y, z, ry, reEnableTime, callback }: PlayButtonProps): JSX.Element {
+export const PlayButton = memo(({ x, y, z, ry, reEnableTime, callback }: PlayButtonProps) => {
   const sfxDuration = 1200;
   const buttonAnimDuration = 350;
   const easing = "easeInOutCubic";
@@ -98,4 +98,5 @@ export function PlayButton({ x, y, z, ry, reEnableTime, callback }: PlayButtonPr
       <m-model id="button-off" src={offURL} sx={offScale} sy={offScale} sz={offScale} />
     </m-group>
   );
-}
+});
+PlayButton.displayName = "PlayButton";
