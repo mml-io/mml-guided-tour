@@ -247,7 +247,6 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
     });
 
     setAttributes({
-      id: `${availableCars[winnerIndex]}`,
       attr: "x",
       start: `${-trackLength / 2 + 1}`,
       end: `${trackLength / 2 - 1.5}`,
@@ -288,7 +287,7 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
       <PlayButton
-        x={-7}
+        x={-3}
         z={-2}
         reEnableTime={raceDuration + 100}
         callback={() => {
