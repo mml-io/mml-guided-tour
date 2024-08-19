@@ -46,7 +46,16 @@ export const TagCodeCanvas = memo(
       yPos += lineHeight;
       Object.entries(tagAttributes).forEach(([attribute, attributeValue]) => {
         let xOffset = canvasFontSize * 0.6;
-        const value = treatedValue(attributeValue);
+
+        const notNumberOrBool =
+          isNaN(parseFloat(attributeValue as string)) &&
+          attributeValue !== "true" &&
+          attributeValue !== "false";
+        let value = treatedValue(attributeValue);
+        if (notNumberOrBool) {
+          value = `"${value}"`;
+        }
+
         ctx!.fillStyle = attributeColor;
         ctx!.fillText(` ${attribute}`, xOffset, yPos);
         xOffset += canvasFontSize * (attribute.length + 2) * 0.6;
@@ -80,7 +89,7 @@ export const TagCodeCanvas = memo(
       Object.entries(tagAttributes).forEach(([attribute, attributeValue]) => {
         const value = treatedValue(attributeValue);
         if (attribute.length + value.length + 1 > maxCharacters) {
-          maxCharacters = attribute.length + value.length + 1;
+          maxCharacters = attribute.length + value.length + 3;
         }
       });
       const width = (maxCharacters + 5) * canvasFontSize * 0.6;
