@@ -237,6 +237,8 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
   };
 
   const startCountDown = () => {
+    setAnimationProps([]);
+    setAudioProps([]);
     setCountDownStart(document.timeline.currentTime as number);
     setCountDownPause((document.timeline.currentTime as number) + 4000);
     setCountDownVolume(1);
