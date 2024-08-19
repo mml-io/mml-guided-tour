@@ -2,10 +2,13 @@ import { MAttrAnimElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { memo, useRef, useState } from "react";
 
+import { InfoButton } from "../components/info-button";
 import { PlayButton } from "../components/play-button";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { randomArrayElement, randomInt } from "../helpers/js-helpers";
 // import { useAttributes } from "../helpers/use-attributes";
+
+const infoAudioURL = "/assets/guidedtour/sfx_info_placeholder.mp3";
 
 type PossibleEasings = "easeInOutQuad" | "easeInOutCubic" | "easeInOutQuart";
 type EasingsArray = Array<PossibleEasings>;
@@ -286,6 +289,7 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
 
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
+      <InfoButton x={-3.5} z={-2} infoAudioURL={infoAudioURL} infoAudioDuration={4300} />
       <PlayButton
         x={-4}
         z={-2}
