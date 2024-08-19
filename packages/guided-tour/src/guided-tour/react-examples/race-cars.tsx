@@ -287,7 +287,7 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
       <PlayButton
-        x={-3}
+        x={-4}
         z={-2}
         reEnableTime={raceDuration + 100}
         callback={() => {
@@ -295,7 +295,7 @@ export function RaceCars({ x, y, z, ry }: RaceCarsProps): JSX.Element {
         }}
       />
       <RaceTrack />
-      <m-group x={-6.5} z={4.4} ry={180}>
+      <m-group x={-7} z={4.4} ry={180}>
         <Winner
           content={winnerText}
           color={carColors[winnerIndex]}
