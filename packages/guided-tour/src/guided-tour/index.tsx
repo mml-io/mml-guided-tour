@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 
 import { Hallway } from "./components/hallway";
+import { RoomPoster } from "./components/room-poster";
 import { RoomsRoot } from "./rooms-root";
 
 function App() {
@@ -16,6 +17,15 @@ function App() {
 
   const rooms = [];
 
+  const roomPosters: Record<number, string | null> = {
+    0: null,
+    1: "/assets/guidedtour/poster_animations.jpeg",
+    2: "/assets/guidedtour/poster_audio_video.jpeg",
+    3: "/assets/guidedtour/poster_external_api.jpeg",
+    4: "/assets/guidedtour/poster_games.jpeg",
+    5: "/assets/guidedtour/poster_whats_next.jpeg",
+  };
+
   for (let z = 0; z < numberOfRooms; z++) {
     const roomAsset = z === 0 ? "/assets/guidedtour/room_1.glb" : "/assets/guidedtour/room.glb";
     const roomZPos = 14 + roomsDepth * z + (spaceBetweenRooms + 0.55) * z;
@@ -23,6 +33,12 @@ function App() {
 
     if (z < numberOfRooms - 1) {
       rooms.push(<Hallway x={0} y={guidedTourYPos} z={roomZPos + roomsDepth / 2 + 4.2} />);
+    }
+
+    if (roomPosters[z] !== null) {
+      rooms.push(
+        <RoomPoster x={0} y={guidedTourYPos} z={roomZPos} posterURL={roomPosters[z] as string} />,
+      );
     }
   }
 
