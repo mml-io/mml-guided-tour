@@ -1,0 +1,278 @@
+import * as React from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+
+const columns = 4;
+const numberOfImages = 8;
+const imageScale = 1.5;
+
+const animationTime = 500;
+const cubeScale = 1.6;
+const cubeDepth = 0.1;
+const depthCheckSkin = 0.03;
+const gap = 1.7;
+
+const availableImages = Array.from(
+  { length: 15 },
+  (_, i) => `/assets/guidedtour/texture_memgame_${i.toString().padStart(2, "0")}.jpg`,
+);
+
+type Block = {
+  id: number;
+  textureURL: string;
+  hidden: boolean;
+  matched: boolean;
+  x: number;
+  y: number;
+};
+
+const shuffleArray = (array: Array<string | Block>) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * i);
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+const GameFrame = memo(({ color }: { color: string }) => {
+  const totalBlocks = numberOfImages * 2;
+  const rows = Math.ceil(totalBlocks / columns);
+  const frameWidth = columns * gap;
+  const frameHeight = rows * gap;
+
+  return (
+    <m-group>
+      <m-cube
+        id="frame-back"
+        color={color}
+        width={frameWidth + 0.5}
+        height={frameHeight + 0.5}
+        depth={0.5}
+        x={frameWidth / 2 - gap / 2}
+        y={frameHeight / 2 - gap / 2}
+        z={-0.35}
+      ></m-cube>
+      <m-cube
+        id="frame-left"
+        color={color}
+        width={0.2}
+        height={frameHeight + cubeScale / 2 + 0.42}
+        depth={0.5}
+        x={0 - cubeScale / 2 - gap / 8}
+        y={frameHeight / 2 - cubeScale / 2 - gap / 4}
+        z={0}
+      ></m-cube>
+      <m-cube
+        id="frame-right"
+        color={color}
+        width={0.2}
+        height={frameHeight + cubeScale / 2 + 0.42}
+        depth={0.5}
+        x={0 + frameWidth / 2 + cubeScale / 2 + gap + gap / 8}
+        y={frameHeight / 2 - cubeScale / 2 - gap / 4}
+      ></m-cube>
+      <m-cube
+        id="frame-bottom"
+        color={color}
+        width={frameWidth + 0.5}
+        height={1}
+        depth={0.5}
+        x={frameWidth / 2 - gap / 2}
+        y={-1.23}
+        z={-0.07}
+        rx={-45}
+      ></m-cube>
+    </m-group>
+  );
+});
+GameFrame.displayName = "GameFrame";
+
+const GameBlocks = memo(() => {
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const mounted = useRef<boolean>(false);
+
+  const [firstIndexSelected, setFirstIndexSelected] = useState<number | null>(null);
+  const [secondIndexSelected, setSecondIndexSelected] = useState<number | null>(null);
+  const [animating, setAnimating] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [gameInProgress, setGameInProgress] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_gamesPlayed, setGamesPlayed] = useState(new Date().getTime());
+
+  const initializeBlocks = useCallback(() => {
+    const newBlocks = Array.from({ length: numberOfImages * 2 }, (_, index) => {
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      return {
+        id: index,
+        textureURL: images[index],
+        hidden: true,
+        matched: false,
+        x: col * gap,
+        y: row * gap,
+      };
+    });
+    setBlocks(newBlocks);
+  }, [setBlocks, images]);
+
+  const initializeImages = useCallback(() => {
+    const newImages = shuffleArray(availableImages).slice(0, numberOfImages);
+    const duplicatedImages = newImages.concat(newImages);
+    const shuffledImages = shuffleArray(duplicatedImages);
+    setImages(shuffledImages as Array<string>);
+  }, [setImages]);
+
+  useEffect(() => {
+    initializeBlocks();
+  }, [images, initializeBlocks]);
+
+  useEffect(() => {
+    if (mounted.current === false) {
+      mounted.current = true;
+      initializeImages();
+    }
+  }, [initializeBlocks, initializeImages, mounted]);
+
+  const revealBlock = (blockId: number) => {
+    setBlocks((prevBlocks) =>
+      prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: false, color: "#eeeeee" } : b)),
+    );
+  };
+
+  const hideBlock = (blockId: number) => {
+    setBlocks((prevBlocks) =>
+      prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: true, color: "#424242" } : b)),
+    );
+  };
+
+  const hideAllBlocks = () => {
+    setBlocks((prevBlocks) =>
+      prevBlocks.map((block) => ({ ...block, hidden: true, color: "#424242" })),
+    );
+  };
+
+  const resetAllBlocks = () => {
+    setBlocks((prevBlocks) => {
+      const shuffledBlocks = shuffleArray([...prevBlocks]) as Array<Block>;
+      return shuffledBlocks.map((block, index) => ({
+        ...block,
+        x: (index % columns) * gap,
+        y: Math.floor(index / columns) * gap,
+      }));
+    });
+  };
+
+  const revealAllBlocks = () => {
+    setBlocks((prevBlocks) => prevBlocks.map((block) => ({ ...block, hidden: false })));
+  };
+
+  const startGame = () => {
+    setIsResetting(false);
+    revealAllBlocks();
+  };
+
+  const resetGame = () => {
+    setGamesPlayed((prev) => prev + 1);
+    setIsResetting(true);
+    setGameInProgress(false);
+    setTimeout(() => hideAllBlocks(), 100);
+    setTimeout(() => resetAllBlocks(), 1500);
+    setTimeout(() => startGame(), 2500);
+  };
+
+  const checkIfGameOver = () => {
+    if (blocks.every((block) => block.matched)) {
+      setIsResetting(true);
+      setGameInProgress(false);
+      setTimeout(() => resetGame(), 4000);
+    }
+  };
+
+  const handleBlockClick = (blockId: number) => {
+    if (animating || gameInProgress || isResetting) return;
+
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block || block.hidden === false || block.matched === true) return;
+
+    revealBlock(blockId);
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), animationTime + 100);
+
+    if (firstIndexSelected === null) {
+      revealBlock(blockId);
+      setFirstIndexSelected(blockId);
+    } else if (secondIndexSelected === null) {
+      setSecondIndexSelected(blockId);
+      const blocksMatched = blocks[firstIndexSelected].textureURL === blocks[blockId].textureURL;
+      if (blocksMatched) {
+        setBlocks((prevBlocks) =>
+          prevBlocks.map((b) => {
+            if (b.id === firstIndexSelected || b.id === blockId) return { ...b, matched: true };
+            return b;
+          }),
+        );
+        setFirstIndexSelected(null);
+        setSecondIndexSelected(null);
+        checkIfGameOver();
+      } else {
+        setTimeout(() => {
+          hideBlock(firstIndexSelected);
+          hideBlock(blockId);
+          setFirstIndexSelected(null);
+          setSecondIndexSelected(null);
+        }, 1500);
+      }
+    }
+  };
+
+  return (
+    <m-group z={10}>
+      {blocks.map((block) => (
+        <m-group
+          key={block.id}
+          x={block.x}
+          y={block.y}
+          z={0.1}
+          ry={block.hidden ? 180 : 0}
+          onClick={() => {
+            handleBlockClick(block.id);
+          }}
+        >
+          <m-attr-lerp attr="all" duration={animationTime} easing="easeInOutQuad"></m-attr-lerp>
+          <m-cube
+            color={block.hidden ? "#424242" : "#eeeeee"}
+            width={cubeScale}
+            height={cubeScale}
+            depth={cubeDepth}
+          ></m-cube>
+          <m-image
+            src={block.textureURL}
+            width={imageScale}
+            height={imageScale}
+            z={cubeDepth / 2 + depthCheckSkin}
+            emissive={1.5}
+          ></m-image>
+        </m-group>
+      ))}
+    </m-group>
+  );
+});
+GameBlocks.displayName = "GameBlocks";
+
+type MemoryGameProps = {
+  x?: number;
+  y?: number;
+  z?: number;
+  ry?: number;
+};
+
+export const MemoryGame = memo(({ x, y, z, ry }: MemoryGameProps) => {
+  return (
+    <m-group x={x} y={y} z={z} ry={ry}>
+      <GameFrame color={"#aaaa99"} />
+      <GameBlocks />
+    </m-group>
+  );
+});
+MemoryGame.displayName = "MemoryGame";
