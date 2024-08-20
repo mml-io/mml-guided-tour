@@ -1,15 +1,31 @@
+import { MAudioElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
-const columns = 4;
 const numberOfImages = 8;
-const imageScale = 1.5;
+const columns = 4;
+
+const imageScale = 1.45;
+const imageEmissive = 1.5;
 
 const animationTime = 500;
+const revealTime = 4000;
+
 const cubeScale = 1.6;
 const cubeDepth = 0.1;
 const depthCheckSkin = 0.03;
 const gap = 1.7;
+
+const blockColor = "#424242";
+const blockMatchedColor = "#00ff00";
+const blockSelectedColor = "#ffffff";
+
+const frameColor = "#aaaa99";
+
+const sfxPlayURL = "/assets/guidedtour/sfx_memgame_play.mp3";
+const sfxWinURL = "/assets/guidedtour/sfx_memgame_win.mp3";
+const sfxYesURL = "/assets/guidedtour/sfx_memgame_yes.mp3";
+const sfxNoURL = "/assets/guidedtour/sfx_memgame_no.mp3";
 
 const availableImages = Array.from(
   { length: 15 },
@@ -90,7 +106,9 @@ GameFrame.displayName = "GameFrame";
 const GameBlocks = memo(() => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [images, setImages] = useState<string[]>([]);
+
   const mounted = useRef<boolean>(false);
+  const audioRef = useRef<MAudioElement | null>(null);
 
   const [firstIndexSelected, setFirstIndexSelected] = useState<number | null>(null);
   const [secondIndexSelected, setSecondIndexSelected] = useState<number | null>(null);
@@ -99,6 +117,36 @@ const GameBlocks = memo(() => {
   const [gameInProgress, setGameInProgress] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_gamesPlayed, setGamesPlayed] = useState(new Date().getTime());
+
+  const playSFX = useCallback((sfx: "play" | "yes" | "no" | "win") => {
+    const now = document.timeline.currentTime as number;
+    if (audioRef.current) {
+      switch (sfx) {
+        case "play":
+          audioRef.current.setAttribute("src", sfxPlayURL);
+          break;
+        case "yes":
+          audioRef.current.setAttribute("src", sfxYesURL);
+          break;
+        case "no":
+          audioRef.current.setAttribute("src", sfxNoURL);
+          break;
+        case "win":
+          audioRef.current.setAttribute("src", sfxWinURL);
+          break;
+        default:
+          break;
+      }
+      audioRef.current.setAttribute("volume", "5");
+      audioRef.current.setAttribute("start-time", `${now}`);
+      audioRef.current.setAttribute("pause-time", `${now + 1200}`);
+      setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.setAttribute("volume", "0");
+        }
+      }, 1200);
+    }
+  }, []);
 
   const initializeBlocks = useCallback(() => {
     const newBlocks = Array.from({ length: numberOfImages * 2 }, (_, index) => {
@@ -123,111 +171,126 @@ const GameBlocks = memo(() => {
     setImages(shuffledImages as Array<string>);
   }, [setImages]);
 
+  const revealBlock = useCallback((blockId: number) => {
+    setBlocks((prevBlocks) =>
+      prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: false, color: "#eeeeee" } : b)),
+    );
+  }, []);
+
+  const hideBlock = useCallback((blockId: number) => {
+    setBlocks((prevBlocks) =>
+      prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: true, color: "#424242" } : b)),
+    );
+  }, []);
+
+  const hideAllBlocks = useCallback(() => {
+    setBlocks((prevBlocks) =>
+      prevBlocks.map((block) => ({ ...block, hidden: true, color: "#424242" })),
+    );
+  }, []);
+
+  const revealAllBlocks = useCallback(() => {
+    setBlocks((prevBlocks) => prevBlocks.map((block) => ({ ...block, hidden: false })));
+  }, []);
+
+  const startGame = useCallback(() => {
+    revealAllBlocks();
+    playSFX("play");
+    setTimeout(() => hideAllBlocks(), revealTime);
+    setTimeout(() => setIsResetting(false), revealTime + animationTime);
+  }, [hideAllBlocks, playSFX, revealAllBlocks]);
+
+  const resetGame = useCallback(() => {
+    setGamesPlayed((prev) => prev + 1);
+    setIsResetting(true);
+    hideAllBlocks();
+    setTimeout(() => initializeImages(), animationTime);
+    setTimeout(() => startGame(), 1000 + animationTime);
+    setGameInProgress(false);
+  }, [hideAllBlocks, initializeImages, startGame]);
+
+  const checkIfGameOver = useCallback(() => {
+    if (gameInProgress === false) return;
+    if (blocks.every((block) => block.matched)) {
+      playSFX("win");
+      setIsResetting(true);
+      setGameInProgress(false);
+      setTimeout(() => resetGame(), revealTime);
+    }
+  }, [blocks, gameInProgress, playSFX, resetGame]);
+
+  const handleBlockClick = useCallback(
+    (blockId: number) => {
+      if (animating || isResetting) return;
+
+      const block = blocks.find((b) => b.id === blockId);
+      if (!block || block.hidden === false || block.matched === true) return;
+
+      if (gameInProgress === false) {
+        setGameInProgress(true);
+      }
+
+      if (firstIndexSelected === null) {
+        setAnimating(true);
+        setTimeout(() => setAnimating(false), animationTime);
+        revealBlock(blockId);
+        setFirstIndexSelected(blockId);
+      } else if (secondIndexSelected === null) {
+        revealBlock(blockId);
+        setSecondIndexSelected(blockId);
+        setAnimating(true);
+        const blocksMatched = blocks[firstIndexSelected].textureURL === blocks[blockId].textureURL;
+        if (blocksMatched) {
+          playSFX("yes");
+          setBlocks((prevBlocks) =>
+            prevBlocks.map((b) => {
+              if (b.id === firstIndexSelected || b.id === blockId) return { ...b, matched: true };
+              return b;
+            }),
+          );
+          setFirstIndexSelected(null);
+          setSecondIndexSelected(null);
+          setAnimating(false);
+          checkIfGameOver();
+        } else {
+          playSFX("no");
+          setTimeout(() => {
+            setAnimating(false);
+            hideBlock(firstIndexSelected);
+            hideBlock(blockId);
+            setFirstIndexSelected(null);
+            setSecondIndexSelected(null);
+          }, 1500);
+        }
+      }
+    },
+    [
+      animating,
+      blocks,
+      checkIfGameOver,
+      firstIndexSelected,
+      gameInProgress,
+      hideBlock,
+      isResetting,
+      playSFX,
+      revealBlock,
+      secondIndexSelected,
+    ],
+  );
+
   useEffect(() => initializeBlocks(), [images, initializeBlocks]);
+  useEffect(() => checkIfGameOver(), [blocks, checkIfGameOver]);
 
   useEffect(() => {
     if (mounted.current === false) {
       mounted.current = true;
       initializeImages();
     }
-  }, [initializeBlocks, initializeImages, mounted]);
-
-  const revealBlock = (blockId: number) => {
-    setBlocks((prevBlocks) =>
-      prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: false, color: "#eeeeee" } : b)),
-    );
-  };
-
-  const hideBlock = (blockId: number) => {
-    setBlocks((prevBlocks) =>
-      prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: true, color: "#424242" } : b)),
-    );
-  };
-
-  const hideAllBlocks = () => {
-    setBlocks((prevBlocks) =>
-      prevBlocks.map((block) => ({ ...block, hidden: true, color: "#424242" })),
-    );
-  };
-
-  const resetAllBlocks = () => {
-    setBlocks((prevBlocks) => {
-      const shuffledBlocks = shuffleArray([...prevBlocks]) as Array<Block>;
-      return shuffledBlocks.map((block, index) => ({
-        ...block,
-        x: (index % columns) * gap,
-        y: Math.floor(index / columns) * gap,
-      }));
-    });
-  };
-
-  const revealAllBlocks = () => {
-    setBlocks((prevBlocks) => prevBlocks.map((block) => ({ ...block, hidden: false })));
-  };
-
-  const startGame = () => {
-    setIsResetting(false);
-    revealAllBlocks();
-  };
-
-  const resetGame = () => {
-    setGamesPlayed((prev) => prev + 1);
-    setIsResetting(true);
-    setGameInProgress(false);
-    setTimeout(() => hideAllBlocks(), 100);
-    setTimeout(() => resetAllBlocks(), 1500);
-    setTimeout(() => startGame(), 2500);
-  };
-
-  const checkIfGameOver = () => {
-    if (blocks.every((block) => block.matched)) {
-      setIsResetting(true);
-      setGameInProgress(false);
-      setTimeout(() => resetGame(), 4000);
-    }
-  };
-
-  const handleBlockClick = (blockId: number) => {
-    if (animating || gameInProgress || isResetting) return;
-
-    const block = blocks.find((b) => b.id === blockId);
-    if (!block || block.hidden === false || block.matched === true) return;
-
-    if (firstIndexSelected === null) {
-      setAnimating(true);
-      setTimeout(() => setAnimating(false), animationTime);
-      revealBlock(blockId);
-      setFirstIndexSelected(blockId);
-    } else if (secondIndexSelected === null) {
-      revealBlock(blockId);
-      setSecondIndexSelected(blockId);
-      setAnimating(true);
-      const blocksMatched = blocks[firstIndexSelected].textureURL === blocks[blockId].textureURL;
-      if (blocksMatched) {
-        setBlocks((prevBlocks) =>
-          prevBlocks.map((b) => {
-            if (b.id === firstIndexSelected || b.id === blockId) return { ...b, matched: true };
-            return b;
-          }),
-        );
-        setFirstIndexSelected(null);
-        setSecondIndexSelected(null);
-        setAnimating(false);
-        checkIfGameOver();
-      } else {
-        setTimeout(() => {
-          setAnimating(false);
-          hideBlock(firstIndexSelected);
-          hideBlock(blockId);
-          setFirstIndexSelected(null);
-          setSecondIndexSelected(null);
-        }, 1500);
-      }
-    }
-  };
+  }, [initializeImages, mounted]);
 
   return (
-    <m-group z={10}>
+    <m-group z={0.15}>
+      <m-audio ref={audioRef} loop="false"></m-audio>
       {blocks.map((block) => (
         <m-group
           key={block.id}
@@ -241,17 +304,21 @@ const GameBlocks = memo(() => {
         >
           <m-attr-lerp attr="all" duration={animationTime} easing="easeInOutQuad"></m-attr-lerp>
           <m-cube
-            color={block.hidden ? "#424242" : "#eeeeee"}
+            color={
+              block.matched ? blockMatchedColor : block.hidden ? blockColor : blockSelectedColor
+            }
             width={cubeScale}
             height={cubeScale}
             depth={cubeDepth}
-          ></m-cube>
+          >
+            <m-attr-lerp attr="color" duration={animationTime} easing="easeInOutQuad"></m-attr-lerp>
+          </m-cube>
           <m-image
             src={block.textureURL}
             width={imageScale}
             height={imageScale}
             z={cubeDepth / 2 + depthCheckSkin}
-            emissive={1.5}
+            emissive={imageEmissive}
           ></m-image>
         </m-group>
       ))}
@@ -270,7 +337,7 @@ type MemoryGameProps = {
 export const MemoryGame = memo(({ x, y, z, ry }: MemoryGameProps) => {
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
-      <GameFrame color={"#aaaa99"} />
+      <GameFrame color={frameColor} />
       <GameBlocks />
     </m-group>
   );
