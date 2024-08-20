@@ -123,9 +123,7 @@ const GameBlocks = memo(() => {
     setImages(shuffledImages as Array<string>);
   }, [setImages]);
 
-  useEffect(() => {
-    initializeBlocks();
-  }, [images, initializeBlocks]);
+  useEffect(() => initializeBlocks(), [images, initializeBlocks]);
 
   useEffect(() => {
     if (mounted.current === false) {
@@ -195,15 +193,15 @@ const GameBlocks = memo(() => {
     const block = blocks.find((b) => b.id === blockId);
     if (!block || block.hidden === false || block.matched === true) return;
 
-    revealBlock(blockId);
-    setAnimating(true);
-    setTimeout(() => setAnimating(false), animationTime + 100);
-
     if (firstIndexSelected === null) {
+      setAnimating(true);
+      setTimeout(() => setAnimating(false), animationTime);
       revealBlock(blockId);
       setFirstIndexSelected(blockId);
     } else if (secondIndexSelected === null) {
+      revealBlock(blockId);
       setSecondIndexSelected(blockId);
+      setAnimating(true);
       const blocksMatched = blocks[firstIndexSelected].textureURL === blocks[blockId].textureURL;
       if (blocksMatched) {
         setBlocks((prevBlocks) =>
@@ -214,9 +212,11 @@ const GameBlocks = memo(() => {
         );
         setFirstIndexSelected(null);
         setSecondIndexSelected(null);
+        setAnimating(false);
         checkIfGameOver();
       } else {
         setTimeout(() => {
+          setAnimating(false);
           hideBlock(firstIndexSelected);
           hideBlock(blockId);
           setFirstIndexSelected(null);
