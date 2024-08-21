@@ -1,5 +1,5 @@
 import * as React from "react";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 
 type PlayButtonProps = {
   x?: number;
@@ -8,95 +8,113 @@ type PlayButtonProps = {
   ry?: number;
   reEnableTime: number;
   callback: () => void;
+  overrideReenable?: boolean;
 };
 
-export const PlayButton = memo(({ x, y, z, ry, reEnableTime, callback }: PlayButtonProps) => {
-  const sfxDuration = 1200;
-  const buttonAnimDuration = 350;
-  const easing = "easeInOutCubic";
+export const PlayButton = memo(
+  ({ x, y, z, ry, reEnableTime, callback, overrideReenable }: PlayButtonProps) => {
+    const sfxDuration = 1200;
+    const buttonAnimDuration = 350;
+    const easing = "easeInOutCubic";
 
-  const now = document.timeline.currentTime as number;
-  const [enabled, setEnabled] = useState<boolean>(true);
-  const [animating, setAnimating] = useState<boolean>(false);
-  const [sfxStartTime, setSFXStartTime] = useState<number>(now - sfxDuration);
-  const [sfxPauseTime, setSFXPauseTime] = useState<number>(now);
-  const [sfxPlaying, setSFXPlaying] = useState<boolean>(false);
+    const now = document.timeline.currentTime as number;
+    const [enabled, setEnabled] = useState<boolean>(true);
+    const [animating, setAnimating] = useState<boolean>(false);
+    const [sfxStartTime, setSFXStartTime] = useState<number>(now - sfxDuration);
+    const [sfxPauseTime, setSFXPauseTime] = useState<number>(now);
+    const [sfxPlaying, setSFXPlaying] = useState<boolean>(false);
+    const [onScale, setOnScale] = useState<number>(enabled ? 1 : 0.001);
+    const [offScale, setOffScale] = useState<number>(enabled ? 0.001 : 1);
 
-  const onURL = "/assets/guidedtour/floor_play_button_on.glb";
-  const offURL = "/assets/guidedtour/floor_play_button_off.glb";
-  const baseURL = "/assets/guidedtour/floor_button_base.glb";
-  const sfxURL = "/assets/guidedtour/sfx_button.mp3";
+    const onURL = "/assets/guidedtour/floor_play_button_on.glb";
+    const offURL = "/assets/guidedtour/floor_play_button_off.glb";
+    const baseURL = "/assets/guidedtour/floor_button_base.glb";
+    const sfxURL = "/assets/guidedtour/sfx_button.mp3";
 
-  const buttonTravel = 0.03;
-  const onScale = enabled ? 1 : 0.001;
-  const offScale = enabled ? 0.001 : 1;
+    const buttonTravel = 0.03;
 
-  const playSFX = useCallback(() => {
-    if (sfxPlaying) {
-      return;
-    }
-    setSFXPlaying(true);
-    setSFXStartTime(document.timeline.currentTime as number);
-    setSFXPauseTime((document.timeline.currentTime as number) + sfxDuration);
+    const playSFX = useCallback(() => {
+      if (sfxPlaying) {
+        return;
+      }
+      setSFXPlaying(true);
+      setSFXStartTime(document.timeline.currentTime as number);
+      setSFXPauseTime((document.timeline.currentTime as number) + sfxDuration);
 
-    setTimeout(() => setSFXPlaying(false), sfxDuration);
-  }, [sfxPlaying]);
+      setTimeout(() => setSFXPlaying(false), sfxDuration);
+    }, [sfxPlaying]);
 
-  const handlePress = useCallback(() => {
-    playSFX();
-    callback();
-    setAnimating(true);
-    setTimeout(() => setAnimating(false), buttonAnimDuration);
-    setTimeout(() => setEnabled(false), buttonAnimDuration * 1.1);
-    setTimeout(() => setEnabled(true), reEnableTime);
-  }, [callback, playSFX, reEnableTime]);
+    const handlePress = useCallback(() => {
+      playSFX();
+      callback();
+      setAnimating(true);
+      setTimeout(() => setAnimating(false), buttonAnimDuration);
+      setTimeout(() => setEnabled(false), buttonAnimDuration * 1.1);
+      if (typeof overrideReenable === "undefined") {
+        setTimeout(() => setEnabled(true), reEnableTime);
+      }
+    }, [callback, overrideReenable, playSFX, reEnableTime]);
 
-  const PushAnimation = (): JSX.Element => (
-    <>
-      <m-attr-anim
-        attr="y"
-        start={0}
-        end={-buttonTravel}
-        start-time={document.timeline.currentTime as number}
-        pause-time={(document.timeline.currentTime as number) + buttonAnimDuration}
-        duration={buttonAnimDuration}
-        ping-pong={true}
-        easing={easing}
-      ></m-attr-anim>
-      <m-attr-anim
-        attr="z"
-        start={0}
-        end={buttonTravel}
-        start-time={document.timeline.currentTime as number}
-        pause-time={(document.timeline.currentTime as number) + buttonAnimDuration}
-        duration={buttonAnimDuration}
-        ping-pong={true}
-        easing={easing}
-      ></m-attr-anim>
-    </>
-  );
+    useEffect(() => {
+      setOnScale(enabled ? 1 : 0.001);
+      setOffScale(enabled ? 0.001 : 1);
+    }, [enabled, overrideReenable]);
 
-  return (
-    <m-group x={x} y={y} z={z} ry={ry}>
-      <m-audio
-        src={sfxURL}
-        loop={false}
-        start-time={sfxStartTime}
-        pause-time={sfxPauseTime}
-      ></m-audio>
-      <m-model id="button-base" src={baseURL} />
-      <m-model
-        id="button-on"
-        src={onURL}
-        sx={onScale}
-        sy={onScale}
-        sz={onScale}
-        onClick={handlePress}
-      >
-        {animating && <PushAnimation />}
-      </m-model>
-      <m-model id="button-off" src={offURL} sx={offScale} sy={offScale} sz={offScale} />
-    </m-group>
-  );
-});
+    useEffect(() => {
+      if (typeof overrideReenable !== "undefined") {
+        setEnabled(overrideReenable);
+      } else {
+        setEnabled(true);
+      }
+    }, [enabled, overrideReenable]);
+
+    const PushAnimation = (): JSX.Element => (
+      <>
+        <m-attr-anim
+          attr="y"
+          start={0}
+          end={-buttonTravel}
+          start-time={document.timeline.currentTime as number}
+          pause-time={(document.timeline.currentTime as number) + buttonAnimDuration}
+          duration={buttonAnimDuration}
+          ping-pong={true}
+          easing={easing}
+        ></m-attr-anim>
+        <m-attr-anim
+          attr="z"
+          start={0}
+          end={buttonTravel}
+          start-time={document.timeline.currentTime as number}
+          pause-time={(document.timeline.currentTime as number) + buttonAnimDuration}
+          duration={buttonAnimDuration}
+          ping-pong={true}
+          easing={easing}
+        ></m-attr-anim>
+      </>
+    );
+
+    return (
+      <m-group x={x} y={y} z={z} ry={ry}>
+        <m-audio
+          src={sfxURL}
+          loop={false}
+          start-time={sfxStartTime}
+          pause-time={sfxPauseTime}
+        ></m-audio>
+        <m-model id="button-base" src={baseURL} />
+        <m-model
+          id="button-on"
+          src={onURL}
+          sx={onScale}
+          sy={onScale}
+          sz={onScale}
+          onClick={handlePress}
+        >
+          {animating && <PushAnimation />}
+        </m-model>
+        <m-model id="button-off" src={offURL} sx={offScale} sy={offScale} sz={offScale} />
+      </m-group>
+    );
+  },
+);
 PlayButton.displayName = "PlayButton";
