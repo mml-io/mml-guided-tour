@@ -32,10 +32,12 @@ type RaceCarsProps = {
   y?: number;
   z?: number;
   ry?: number;
+  visibleTo?: string | number;
 };
 
 const raceDuration = 3900;
 const raceSoundDuration = 4000;
+const countDownDuration = 3250;
 
 const trackLength = 30;
 const carScale = 0.5;
@@ -193,7 +195,7 @@ const Winner = memo(
 );
 Winner.displayName = "Winner";
 
-export const RaceCars = memo(({ x, y, z, ry }: RaceCarsProps) => {
+export const RaceCars = memo(({ x, y, z, ry, visibleTo }: RaceCarsProps) => {
   const racing = useRef(false);
 
   const [animRef, setAnimRef] = useState<MAttrAnimElement | null>(null);
@@ -271,20 +273,18 @@ export const RaceCars = memo(({ x, y, z, ry }: RaceCarsProps) => {
     setTimeout(() => setCountDown("3"), 400);
     setTimeout(() => setCountDown("2"), 1300);
     setTimeout(() => setCountDown("1"), 2300);
-    setTimeout(() => setCountDown("GO"), 3250);
-
-    setTimeout(() => animateCars(), 3250);
-
-    setTimeout(() => setCountDown(""), 3250 + raceDuration);
+    setTimeout(() => setCountDown("GO"), countDownDuration);
+    setTimeout(() => animateCars(), countDownDuration);
+    setTimeout(() => setCountDown(""), countDownDuration + raceDuration);
   };
 
   return (
-    <m-group x={x} y={y} z={z} ry={ry}>
+    <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <InfoButton x={-3.5} z={-2} infoAudioURL={infoAudioURL} infoAudioDuration={4300} />
       <PlayButton
         x={-4}
         z={-2}
-        reEnableTime={raceDuration + 100}
+        reEnableTime={raceDuration + 3250}
         callback={() => {
           startCountDown();
         }}
