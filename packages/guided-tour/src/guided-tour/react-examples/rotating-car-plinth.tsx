@@ -12,9 +12,10 @@ type RotatingCarPlinthProps = {
   y?: number;
   z?: number;
   ry?: number;
+  visibleTo?: string | number;
 };
 
-export const RotatingCarPlinth = memo(({ x, y, z, ry }: RotatingCarPlinthProps) => {
+export const RotatingCarPlinth = memo(({ x, y, z, ry, visibleTo }: RotatingCarPlinthProps) => {
   const infoAudioURL = "/assets/guidedtour/sfx_info_placeholder.mp3";
 
   const [animStart, setAnimStart] = useState<number>(0);
@@ -89,7 +90,7 @@ export const RotatingCarPlinth = memo(({ x, y, z, ry }: RotatingCarPlinthProps) 
   }, [adjustCarAnim]);
 
   return (
-    <m-group x={x} y={y} z={z} ry={ry}>
+    <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <InfoButton x={-3} z={-5} ry={90} infoAudioURL={infoAudioURL} infoAudioDuration={4300} />
       <m-model src="/assets/guidedtour/scifi_car_plinth.glb"></m-model>
       <m-model src="/assets/guidedtour/scifi_car.glb" ry={carRotation}>
