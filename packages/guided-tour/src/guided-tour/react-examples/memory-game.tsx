@@ -2,6 +2,9 @@ import { MAudioElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
+import { InfoButton } from "../components/info-button";
+import { PlayButton } from "../components/play-button";
+
 const numberOfImages = 8;
 const columns = 4;
 
@@ -13,14 +16,16 @@ const revealTime = 4000;
 
 const cubeScale = 1.6;
 const cubeDepth = 0.1;
-const depthCheckSkin = 0.03;
+const depthCheckSkin = 0.005;
 const gap = 1.7;
 
 const blockColor = "#424242";
 const blockMatchedColor = "#00ff00";
 const blockSelectedColor = "#ffffff";
 
-const frameColor = "#aaaa99";
+const frameColor = "#cccccc";
+
+const infoAudioURL = "/assets/guidedtour/sfx_memgame_info.mp3";
 
 const sfxPlayURL = "/assets/guidedtour/sfx_memgame_play.mp3";
 const sfxWinURL = "/assets/guidedtour/sfx_memgame_win.mp3";
@@ -50,60 +55,72 @@ const shuffleArray = (array: Array<string | Block>) => {
   return shuffled;
 };
 
-const GameFrame = memo(({ color }: { color: string }) => {
-  const totalBlocks = numberOfImages * 2;
-  const rows = Math.ceil(totalBlocks / columns);
-  const frameWidth = columns * gap;
-  const frameHeight = rows * gap;
+const GameFrame = memo(
+  ({ x, y, z, color }: { x?: number; y?: number; z?: number; color: string }) => {
+    const totalBlocks = numberOfImages * 2;
+    const rows = Math.ceil(totalBlocks / columns);
+    const frameWidth = columns * gap;
+    const frameHeight = rows * gap;
 
-  return (
-    <m-group>
-      <m-cube
-        id="frame-back"
-        color={color}
-        width={frameWidth + 0.5}
-        height={frameHeight + 0.5}
-        depth={0.5}
-        x={frameWidth / 2 - gap / 2}
-        y={frameHeight / 2 - gap / 2}
-        z={-0.35}
-      ></m-cube>
-      <m-cube
-        id="frame-left"
-        color={color}
-        width={0.2}
-        height={frameHeight + cubeScale / 2 + 0.42}
-        depth={0.5}
-        x={0 - cubeScale / 2 - gap / 8}
-        y={frameHeight / 2 - cubeScale / 2 - gap / 4}
-        z={0}
-      ></m-cube>
-      <m-cube
-        id="frame-right"
-        color={color}
-        width={0.2}
-        height={frameHeight + cubeScale / 2 + 0.42}
-        depth={0.5}
-        x={0 + frameWidth / 2 + cubeScale / 2 + gap + gap / 8}
-        y={frameHeight / 2 - cubeScale / 2 - gap / 4}
-      ></m-cube>
-      <m-cube
-        id="frame-bottom"
-        color={color}
-        width={frameWidth + 0.5}
-        height={1}
-        depth={0.5}
-        x={frameWidth / 2 - gap / 2}
-        y={-1.23}
-        z={-0.07}
-        rx={-45}
-      ></m-cube>
-    </m-group>
-  );
-});
+    return (
+      <m-group x={x} y={y} z={z}>
+        <m-cube
+          id="frame-back"
+          color={color}
+          width={frameWidth + 0.5}
+          height={frameHeight + 0.5}
+          depth={0.5}
+          x={frameWidth / 2 - gap / 2}
+          y={frameHeight / 2 - gap / 2}
+          z={-0.35}
+        ></m-cube>
+        <m-cube
+          id="frame-left"
+          color={color}
+          width={0.2}
+          height={frameHeight + cubeScale / 2 + 0.42}
+          depth={0.92}
+          x={0 - cubeScale / 2 - gap / 8}
+          y={frameHeight / 2 - cubeScale / 2 - gap / 4}
+          z={0}
+        ></m-cube>
+        <m-cube
+          id="frame-right"
+          color={color}
+          width={0.2}
+          height={frameHeight + cubeScale / 2 + 0.42}
+          depth={0.92}
+          x={0 + frameWidth / 2 + cubeScale / 2 + gap + gap / 8}
+          y={frameHeight / 2 - cubeScale / 2 - gap / 4}
+        ></m-cube>
+        <m-cube
+          id="frame-top"
+          color={color}
+          width={frameWidth + 0.5 + 0.03}
+          height={0.2}
+          depth={0.92}
+          x={frameWidth / 2 - gap / 2}
+          y={frameHeight + 0.5 - gap / 2 - 0.165}
+          z={0}
+        ></m-cube>
+        <m-cube
+          id="frame-bottom"
+          color={color}
+          width={frameWidth + 0.5}
+          height={1}
+          depth={0.5}
+          x={frameWidth / 2 - gap / 2}
+          y={-1.28}
+          z={-0.07}
+          rx={-45}
+        ></m-cube>
+      </m-group>
+    );
+  },
+);
 GameFrame.displayName = "GameFrame";
 
-const GameBlocks = memo(() => {
+const GameBlocks = memo(({ x, y, z }: { x?: number; y?: number; z?: number }) => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [images, setImages] = useState<string[]>([]);
 
@@ -289,7 +306,16 @@ const GameBlocks = memo(() => {
   }, [initializeImages, mounted]);
 
   return (
-    <m-group z={0.15}>
+    <m-group x={x} y={y} z={z}>
+      <PlayButton
+        x={-0.5}
+        y={y ? -y : 0}
+        z={3.5}
+        ry={180}
+        callback={startGame}
+        reEnableTime={revealTime}
+        overrideReenable={isResetting || gameInProgress ? false : undefined}
+      />
       <m-audio ref={audioRef} loop="false"></m-audio>
       {blocks.map((block) => (
         <m-group
@@ -332,13 +358,15 @@ type MemoryGameProps = {
   y?: number;
   z?: number;
   ry?: number;
+  visibleTo?: string | number;
 };
 
-export const MemoryGame = memo(({ x, y, z, ry }: MemoryGameProps) => {
+export const MemoryGame = memo(({ x, y, z, ry, visibleTo }: MemoryGameProps) => {
   return (
-    <m-group x={x} y={y} z={z} ry={ry}>
-      <GameFrame color={frameColor} />
-      <GameBlocks />
+    <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
+      <InfoButton x={-1} z={3.6} ry={180} infoAudioURL={infoAudioURL} infoAudioDuration={21000} />
+      <GameFrame color={frameColor} y={1.33} z={-0.33} />
+      <GameBlocks y={1.4} z={0.1} />
     </m-group>
   );
 });
