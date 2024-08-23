@@ -58,10 +58,10 @@ export const TagCodeCanvas = memo(
 
         ctx!.fillStyle = attributeColor;
         ctx!.fillText(` ${attribute}`, xOffset, yPos);
-        xOffset += canvasFontSize * (attribute.length + 2) * 0.6;
+        xOffset += canvasFontSize * (attribute.length + 1.5) * 0.6;
         ctx!.fillStyle = eqColor;
         ctx!.fillText("=", xOffset, yPos);
-        xOffset += canvasFontSize * 2 * 0.6;
+        xOffset += canvasFontSize * 1.5 * 0.6;
         ctx!.fillStyle = valueColor;
         ctx!.fillText(value, xOffset, yPos);
         yPos += lineHeight;
