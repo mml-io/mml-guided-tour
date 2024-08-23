@@ -1,6 +1,6 @@
 import { MVideoElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { useAttributes } from "../helpers/use-attributes";
@@ -16,8 +16,11 @@ type GamingVideoProps = {
 type ControlButton = {
   name: string;
   icon: string;
+  enabled: boolean;
   onClick: (name: string) => void;
 };
+
+type ControlButtons = Map<string, ControlButton>;
 
 export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) => {
   const [videoRef, setVideoRef] = useState<MVideoElement | null>(null);
@@ -30,6 +33,9 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
 
   const attributes = useAttributes(videoRef);
 
+  const controlButtons: ControlButtons = useMemo(() => new Map(), []);
+  const enabledButtons = useMemo(() => new Set(["power", "next", "pause", "volup"]), []);
+
   const videosAvailable = useMemo(
     () => ["/assets/guidedtour/sonic_ghz.mp4", "/assets/guidedtour/sonic_ss.mp4"],
     [],
@@ -37,7 +43,6 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
 
   const [videoIndex, setVideoIndex] = useState<number>(0);
   const [videoURL, setVideoURL] = useState<string>(videosAvailable[videoIndex]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [volume, setVolume] = useState<number>(0);
 
   const controlIcons = useMemo(
@@ -55,21 +60,29 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     if (pauseTime === undefined) {
       return;
     }
+
+    if (!enabledButtons.has("pause")) enabledButtons.add("pause");
+    if (enabledButtons.has("play")) enabledButtons.delete("play");
+
     const timeSincePaused = lastPaused - startedAt;
     const newStartedAt = (document.timeline.currentTime as number) - timeSincePaused;
     setStartedAt(newStartedAt);
     setStartTime(newStartedAt);
     setPauseTime(undefined);
-  }, [lastPaused, pauseTime, startedAt]);
+  }, [enabledButtons, lastPaused, pauseTime, startedAt]);
 
   const pauseVideo = useCallback(() => {
     if (pauseTime !== undefined) {
       return;
     }
+
+    if (enabledButtons.has("pause")) enabledButtons.delete("pause");
+    if (!enabledButtons.has("play")) enabledButtons.add("play");
+
     const newLastPaused = document.timeline.currentTime as number;
     setLastPaused(newLastPaused);
     setPauseTime(newLastPaused);
-  }, [pauseTime]);
+  }, [enabledButtons, pauseTime]);
 
   const toggleVolume = useCallback(() => {
     setVolume(volume === 0 ? 1 : 0);
@@ -113,11 +126,20 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     [nextVideo, pauseVideo, resumeVideo, toggleVolume],
   );
 
-  const controlButtons: ControlButton[] = controlIcons.map((icon) => ({
-    name: `${icon.split("_").pop()?.split(".").shift()}`,
-    icon,
-    onClick: handleControlClick,
-  }));
+  useEffect(() => {
+    controlIcons.forEach((icon) => {
+      const name = `${icon.split("_").pop()?.split(".").shift()}`;
+      const enabled = ["power", "next", "pause", "volup"].includes(name);
+      const button = {
+        name,
+        icon,
+        enabled,
+        onClick: handleControlClick,
+      };
+      controlButtons.set(name, button);
+    });
+    console.log("reset");
+  }, [controlButtons, controlIcons, handleControlClick]);
 
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
@@ -145,7 +167,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
       </m-group>
       <m-group id="controls" x={-1.1} y={1} z={3.5} sx={2} sy={2} sz={2}>
         {controlButtons &&
-          controlButtons.map((control, index) => (
+          Array.from(controlButtons.values()).map((control, index) => (
             <m-group
               key={index}
               x={-2}
@@ -164,7 +186,13 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
                 color="#003300"
                 opacity={0.8}
               ></m-cylinder>
-              <m-image src={control.icon} width={0.5} height={0.5} emissive={7} ry={180}></m-image>
+              <m-image
+                src={control.icon}
+                width={0.5}
+                height={0.5}
+                emissive={enabledButtons.has(control.name) ? 7 : 0.1}
+                ry={180}
+              ></m-image>
             </m-group>
           ))}
       </m-group>
