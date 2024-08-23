@@ -76,12 +76,16 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
   }, [volume]);
 
   const nextVideo = useCallback(() => {
+    const newIndex = videoIndex + 1 > videosAvailable.length - 1 ? 0 : videoIndex + 1;
     const newStartedAt = document.timeline.currentTime as number;
-    setVideoIndex(videoIndex + 1 > videosAvailable.length - 1 ? 0 : videoIndex + 1);
-    setVideoURL(videosAvailable[videoIndex]);
+
+    setVideoIndex(newIndex);
+    setVideoURL(videosAvailable[newIndex]);
+
     setStartedAt(newStartedAt);
     setStartTime(newStartedAt);
     setLastPaused(newStartedAt);
+
     setPauseTime(undefined);
   }, [videoIndex, videosAvailable]);
 
@@ -130,10 +134,10 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
           pause-time={pauseTime || undefined}
         ></m-video>
       </m-group>
-      <m-group ry={180} x={-10} y={2.25} z={3.5}>
+      <m-group ry={180} x={-9.5} y={2.25} z={3.5}>
         <TagCodeCanvas
           tagAttributes={attributes}
-          fontSize={35}
+          fontSize={30}
           color="#ffffaa"
           emissive={12}
           tag="m-video"
