@@ -17,7 +17,7 @@ export function Room3() {
       <m-position-probe ref={probeRef} />
       <m-group ref={groupRef}>
         <GamingVideo x={10} z={10} />
-        <AudioSequencer x={-17.3} y={2.05} ry={90} />
+        <AudioSequencer x={-17.52} y={2} ry={90} />
       </m-group>
     </m-group>
   );

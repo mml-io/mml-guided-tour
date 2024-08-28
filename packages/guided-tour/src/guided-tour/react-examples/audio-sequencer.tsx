@@ -1,5 +1,5 @@
 import * as React from "react";
-import { memo, useState } from "react";
+import { Dispatch, memo, SetStateAction, useCallback, useState } from "react";
 
 const audioSrcs = [
   "/assets/guidedtour/sfx_808_kick.wav",
@@ -13,17 +13,22 @@ const bodyTextureURL = "/assets/guidedtour/texture_808.jpg";
 const bars = 16;
 const instruments = 4;
 
+const bodyDepth = 1;
+
 const buttonsGap = 0.12;
 const buttonSize = 0.91;
 const buttonDepth = 0.1;
 const depthCheckSkin = 0.005;
 
 const offSatLight = "20%, 40%";
-const onSatLight = "100%, 80%";
+const onSatLight = "70%, 70%";
+
+const red = "#ddaaaa";
+const green = "#aaddaa";
 
 const minBPM = 60;
 const maxBPM = 360;
-const initialBPM = 120;
+const initialBPM = 160;
 const bpmStep = 5;
 const bpmToMS = (bpm: number) => 60000 / bpm;
 
@@ -32,52 +37,35 @@ const defaultPreset = [[0, 5, 8, 13], [0], [0, 1, 3, 4, 7, 9, 11, 12, 15], [2, 6
 type ButtonProps = {
   x: number;
   y: number;
-  z: number;
   width: number;
-  height: number;
   color: string;
-  fontColor: string;
-  fontSize: number;
-  content: string;
-  onClickCallback: () => void;
+  text: string;
+  cb: () => void;
 };
-const Button = memo(
-  ({
-    x,
-    y,
-    z,
-    width,
-    height,
-    color,
-    fontColor,
-    fontSize,
-    content,
-    onClickCallback,
-  }: ButtonProps) => {
-    return (
-      <m-group x={x} y={y} z={z} onClick={onClickCallback}>
-        <m-cube
-          width={width}
-          height={height}
-          depth={0.1}
-          z={-buttonDepth / 2 - depthCheckSkin}
-          color="#888888"
-        />
-        <m-label
-          content={content}
-          width={width}
-          height={height}
-          color={color}
-          font-color={fontColor}
-          font-size={fontSize}
-          padding={0}
-          alignment="center"
-          emissive={3}
-        ></m-label>
-      </m-group>
-    );
-  },
-);
+const Button = memo(({ x, y, width, color, text, cb }: ButtonProps) => {
+  return (
+    <m-group x={x} y={y} z={bodyDepth / 2 + buttonDepth} onClick={cb}>
+      <m-cube
+        z={-buttonDepth / 2 - depthCheckSkin}
+        width={width}
+        depth={0.1}
+        height={0.5}
+        color="#888888"
+      />
+      <m-label
+        content={text}
+        width={width}
+        font-color={color}
+        height={0.5}
+        font-size={38}
+        padding={0}
+        alignment="center"
+        color="#212121"
+        emissive={3}
+      ></m-label>
+    </m-group>
+  );
+});
 Button.displayName = "Button";
 
 type BodyProps = {
@@ -103,71 +91,146 @@ const Body = memo(({ width, height, depth, color }: BodyProps) => {
 });
 Body.displayName = "Body";
 
-type Button = {
+type ButtonState = {
   id: number;
   on: boolean;
 };
-type Buttons = Map<string, Button>;
-const Channel = memo(({ index, yPos }: { index: number; yPos: number }) => {
-  const [controlButtons, setControlButtons] = useState<Buttons>(() => {
-    const buttons: Buttons = new Map();
-    for (let i = 0; i < bars; i++) {
-      const id = `button-${index}-${i}`;
-      const isOn = defaultPreset[index]?.includes(i) ?? false;
-      buttons.set(id, { id: i, on: isOn });
-    }
-    return buttons;
-  });
-  const halfWidth = (bars * buttonSize) / 2 + ((bars - 1) * buttonsGap) / 2 - buttonSize / 2;
+type ButtonsState = Map<string, ButtonState>;
 
-  const toggleButton = (id: string) => {
-    setControlButtons((prevButtons) => {
-      const newButtons = new Map(prevButtons);
-      const button = newButtons.get(id);
-      if (button) {
-        button.on = !button.on;
-        newButtons.set(id, button);
-      }
-      return newButtons;
-    });
-  };
+const Channel = memo(
+  ({
+    index,
+    yPos,
+    controlButtons,
+    toggleButton,
+    bpm,
+  }: {
+    index: number;
+    yPos: number;
+    controlButtons: ButtonsState;
+    toggleButton: (id: string) => void;
+    bpm: number;
+  }) => {
+    const halfWidth = (bars * buttonSize) / 2 + ((bars - 1) * buttonsGap) / 2 - buttonSize / 2;
+    const beatDuration = bpmToMS(bpm * 2);
+    const loopDuration = beatDuration * bars;
 
-  return (
-    <m-group y={yPos}>
-      {Array.from(controlButtons.entries()).map(([id, control], idx) => (
-        <m-cube
-          key={id}
-          width={buttonSize}
-          height={buttonSize}
-          depth={buttonDepth}
-          z={0.16}
-          x={idx * (buttonSize + buttonsGap) - halfWidth}
-          color={
-            control.on
-              ? `hsl(${(360 / bars) * idx}, ${onSatLight})`
-              : `hsl(${(360 / bars) * idx}, ${offSatLight})`
-          }
-          onClick={() => toggleButton(id)}
-        ></m-cube>
-      ))}
-    </m-group>
-  );
-});
+    return (
+      <m-group y={yPos} id={`channel-${index}`}>
+        {Array.from(controlButtons.entries()).map(([id, control], idx) => (
+          <m-group key={id} x={idx * (buttonSize + buttonsGap) - halfWidth}>
+            <m-cube
+              width={buttonSize}
+              height={buttonSize}
+              depth={buttonDepth}
+              z={bodyDepth / 2 + buttonDepth}
+              color={
+                control.on
+                  ? `hsl(${(360 / bars) * idx}, ${onSatLight})`
+                  : `hsl(${(360 / bars) * idx}, ${offSatLight})`
+              }
+              onClick={() => toggleButton(id)}
+            />
+            {control.on && (
+              <m-audio
+                src={audioSrcs[index]}
+                enabled="true"
+                start-time={idx * beatDuration - loopDuration / 2}
+                loop-duration={loopDuration}
+              />
+            )}
+          </m-group>
+        ))}
+      </m-group>
+    );
+  },
+);
 Channel.displayName = "Channel";
 
-const Channels = memo(() => {
+type CursorProps = {
+  cursorXStart: number;
+  cursorXEnd: number;
+  beatDuration: number;
+};
+const Cursor = memo(({ cursorXStart, cursorXEnd, beatDuration }: CursorProps) => {
   return (
     <m-group>
-      {[...Array(instruments).keys()].map((index) => (
-        <Channel
-          key={index}
-          index={index}
-          yPos={index * buttonSize + index * buttonsGap + buttonSize * 1.6}
+      <m-cube
+        width={buttonSize}
+        height={buttonsGap}
+        depth={buttonDepth}
+        y={buttonSize * instruments - buttonsGap - 0.05}
+        z={bodyDepth / 2 + buttonDepth}
+        color="#ffffff"
+      >
+        <m-attr-anim
+          attr="x"
+          start={cursorXStart}
+          end={cursorXEnd}
+          duration={beatDuration * bars}
+          start-time={-(beatDuration * bars) / 2}
+          loop="true"
+          ping-pong="false"
         />
-      ))}
+      </m-cube>
     </m-group>
   );
 });
+Cursor.displayName = "Cursor";
+
+const Channels = memo(
+  ({
+    bpm,
+    controlButtons,
+    setControlButtons,
+  }: {
+    bpm: number;
+    controlButtons: ButtonsState[];
+    setControlButtons: Dispatch<SetStateAction<ButtonsState[]>>;
+  }) => {
+    const beatDuration = bpmToMS(bpm * 2);
+    const cursorXStart = -((bars * buttonSize + (bars - 1) * buttonsGap) / 2 - buttonSize / 2);
+    const cursorXEnd = cursorXStart + buttonSize * (bars - 1) + buttonsGap * (bars - 1);
+
+    const toggleButton = (channelIndex: number, id: string) => {
+      setControlButtons((prevChannels) => {
+        const newChannels = [...prevChannels];
+        const newButtons = new Map(newChannels[channelIndex]);
+        const button = newButtons.get(id);
+        if (button) {
+          button.on = !button.on;
+          newChannels[channelIndex] = newButtons;
+        }
+        return newChannels;
+      });
+    };
+
+    return (
+      <m-group>
+        {[...Array(instruments).keys()].map((index) => (
+          <m-group key={index}>
+            <Channel
+              index={index}
+              yPos={index * buttonSize + index * buttonsGap + buttonSize * 1.6}
+              controlButtons={controlButtons[index]}
+              toggleButton={(id) => toggleButton(index, id)}
+              bpm={bpm}
+            />
+            {index !== 0 && (
+              <m-group y={(index - 1) * (buttonSize + buttonsGap) - 1.5}>
+                <Cursor
+                  cursorXStart={cursorXStart}
+                  cursorXEnd={cursorXEnd}
+                  beatDuration={beatDuration}
+                />
+              </m-group>
+            )}
+          </m-group>
+        ))}
+      </m-group>
+    );
+  },
+);
 Channels.displayName = "Channels";
 
 type AudioSequencerProps = {
@@ -178,34 +241,72 @@ type AudioSequencerProps = {
   visibleTo?: string | number;
 };
 export const AudioSequencer = memo(({ x, y, z, ry, visibleTo }: AudioSequencerProps) => {
+  const [bpm, setBPM] = useState<number>(initialBPM);
+
+  const increaseBPM = useCallback(() => {
+    if (bpm < maxBPM) {
+      const newValue = bpm + bpmStep;
+      const remainder = newValue % bpmStep;
+      const newBPM = remainder === 0 ? newValue : newValue - remainder;
+      setBPM(newBPM);
+    }
+  }, [bpm]);
+
+  const decreaseBPM = useCallback(() => {
+    if (bpm > minBPM) {
+      const newValue = bpm - bpmStep;
+      const remainder = newValue % bpmStep;
+      let newBPM = remainder === 0 ? newValue : newValue - remainder;
+      if (bpm < newBPM) {
+        newBPM += bpmStep;
+      }
+      setBPM(newBPM);
+    }
+  }, [bpm]);
+
+  const [controlButtons, setControlButtons] = useState<ButtonsState[]>(() =>
+    [...Array(instruments)].map((_, index) => {
+      const buttons: ButtonsState = new Map();
+      for (let i = 0; i < bars; i++) {
+        const id = `button-${index}-${i}`;
+        const isOn = defaultPreset[index]?.includes(i) ?? false;
+        buttons.set(id, { id: i, on: isOn });
+      }
+      return buttons;
+    }),
+  );
+
+  const clearAllButtons = () => {
+    setControlButtons((prevChannels) =>
+      prevChannels.map((channel) => {
+        const newButtons = new Map(channel);
+        newButtons.forEach((button) => (button.on = false));
+        return newButtons;
+      }),
+    );
+  };
+
+  const applyPreset = () => {
+    setControlButtons((prevChannels) =>
+      prevChannels.map((channel, index) => {
+        const newButtons = new Map(channel);
+        newButtons.forEach(
+          (button) => (button.on = defaultPreset[index]?.includes(button.id) ?? false),
+        );
+        return newButtons;
+      }),
+    );
+  };
+
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
-      <Body width={18.725} height={6} depth={0.25} color="#212121" />
-      <Button
-        x={5.05}
-        y={0.5}
-        z={0.2}
-        width={2}
-        height={0.5}
-        color="#303030"
-        fontColor="#aaddaa"
-        fontSize={38}
-        content="PRESET"
-        onClickCallback={() => {}}
-      />
-      <Button
-        x={7.15}
-        y={0.5}
-        z={0.2}
-        width={2}
-        height={0.5}
-        color="#303030"
-        fontColor="#ddaaaa"
-        fontSize={38}
-        content="CLEAR"
-        onClickCallback={() => {}}
-      />
-      <Channels />
+      <Body width={18.9} height={6} depth={bodyDepth} color="#212121" />
+      <Button text="-" cb={() => decreaseBPM()} x={-7.7} y={0.5} width={1} color={red} />
+      <Button text="+" cb={() => increaseBPM()} x={-6.6} y={0.5} width={1} color={green} />
+      <Button text={`${bpm} BPM`} cb={() => {}} x={-5} y={0.5} width={2} color={green} />
+      <Button text="PRESET" cb={applyPreset} x={5.05} y={0.5} width={2} color={green} />
+      <Button text="CLEAR" cb={clearAllButtons} x={7.15} y={0.5} width={2} color={red} />
+      <Channels controlButtons={controlButtons} setControlButtons={setControlButtons} bpm={bpm} />
     </m-group>
   );
 });
