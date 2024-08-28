@@ -35,7 +35,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
   );
   const enabledEmissive = 12;
   const disabledEmissive = 0.1;
-  const dimEmissive = 3.0;
+  const dimEmissive = 4.0;
 
   const [videoRef, setVideoRef] = useState<MVideoElement | null>(null);
 
@@ -62,7 +62,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
   const [volume, setVolume] = useState<number>(0);
 
   const resumeVideo = useCallback(() => {
-    if (pauseTime === undefined) {
+    if (pauseTime === undefined || !enabled) {
       return;
     }
 
@@ -74,10 +74,10 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     setStartedAt(newStartedAt);
     setStartTime(newStartedAt);
     setPauseTime(undefined);
-  }, [enabledButtons, lastPaused, pauseTime, startedAt]);
+  }, [enabled, enabledButtons, lastPaused, pauseTime, startedAt]);
 
   const pauseVideo = useCallback(() => {
-    if (pauseTime !== undefined) {
+    if (pauseTime !== undefined || !enabled) {
       return;
     }
 
@@ -87,9 +87,12 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     const newLastPaused = document.timeline.currentTime as number;
     setLastPaused(newLastPaused);
     setPauseTime(newLastPaused);
-  }, [enabledButtons, pauseTime]);
+  }, [enabled, enabledButtons, pauseTime]);
 
   const toggleVolume = useCallback(() => {
+    if (!enabled) {
+      return;
+    }
     setVolume(volume === 0 ? 1 : 0);
     if (!enabledButtons.has("volup") && volume === 0) {
       enabledButtons.add("volup");
@@ -97,9 +100,12 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     if (enabledButtons.has("volup") && volume === 1) {
       enabledButtons.delete("volup");
     }
-  }, [enabledButtons, volume]);
+  }, [enabled, enabledButtons, volume]);
 
   const nextVideo = useCallback(() => {
+    if (!enabled) {
+      return;
+    }
     const newIndex = videoIndex + 1 > videosAvailable.length - 1 ? 0 : videoIndex + 1;
     const newStartedAt = document.timeline.currentTime as number;
 
@@ -113,7 +119,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
 
     if (!enabledButtons.has("pause")) enabledButtons.add("pause");
     if (enabledButtons.has("play")) enabledButtons.delete("play");
-  }, [enabledButtons, videoIndex, videosAvailable]);
+  }, [enabled, enabledButtons, videoIndex, videosAvailable]);
 
   const togglePower = useCallback(() => {
     setEnabled(!enabled);
@@ -217,7 +223,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
                 emissive={
                   enabledButtons.has(control.name) && enabled
                     ? enabledEmissive
-                    : control.name === "volup" && enabled
+                    : (control.name === "volup" && enabled) || control.name === "power"
                       ? dimEmissive
                       : disabledEmissive
                 }
