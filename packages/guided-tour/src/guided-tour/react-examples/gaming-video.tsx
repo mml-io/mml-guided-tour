@@ -23,28 +23,6 @@ type ControlButton = {
 type ControlButtons = Map<string, ControlButton>;
 
 export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) => {
-  const [videoRef, setVideoRef] = useState<MVideoElement | null>(null);
-
-  const [startedAt, setStartedAt] = useState<number>(0);
-  const [lastPaused, setLastPaused] = useState<number>(0);
-
-  const [startTime, setStartTime] = useState<number>(0);
-  const [pauseTime, setPauseTime] = useState<number | undefined>(undefined);
-
-  const attributes = useAttributes(videoRef);
-
-  const controlButtons: ControlButtons = useMemo(() => new Map(), []);
-  const enabledButtons = useMemo(() => new Set(["power", "next", "pause", "volup"]), []);
-
-  const videosAvailable = useMemo(
-    () => ["/assets/guidedtour/sonic_ghz.mp4", "/assets/guidedtour/sonic_ss.mp4"],
-    [],
-  );
-
-  const [videoIndex, setVideoIndex] = useState<number>(0);
-  const [videoURL, setVideoURL] = useState<string>(videosAvailable[videoIndex]);
-  const [volume, setVolume] = useState<number>(0);
-
   const controlIcons = useMemo(
     () => [
       "/assets/guidedtour/texture_button_power.png",
@@ -55,6 +33,33 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     ],
     [],
   );
+  const enabledEmissive = 12;
+  const disabledEmissive = 0.1;
+  const dimEmissive = 3.0;
+
+  const [videoRef, setVideoRef] = useState<MVideoElement | null>(null);
+
+  const [startedAt, setStartedAt] = useState<number>(0);
+  const [lastPaused, setLastPaused] = useState<number>(0);
+
+  const [startTime, setStartTime] = useState<number>(0);
+  const [pauseTime, setPauseTime] = useState<number | undefined>(undefined);
+
+  const [enabled, setEnabled] = useState<boolean>(true);
+
+  const attributes = useAttributes(videoRef);
+
+  const controlButtons: ControlButtons = useMemo(() => new Map(), []);
+  const enabledButtons = useMemo(() => new Set(["power", "next", "pause"]), []);
+
+  const videosAvailable = useMemo(
+    () => ["/assets/guidedtour/sonic_ghz.mp4", "/assets/guidedtour/sonic_ss.mp4"],
+    [],
+  );
+
+  const [videoIndex, setVideoIndex] = useState<number>(0);
+  const [videoURL, setVideoURL] = useState<string>(videosAvailable[videoIndex]);
+  const [volume, setVolume] = useState<number>(0);
 
   const resumeVideo = useCallback(() => {
     if (pauseTime === undefined) {
@@ -86,7 +91,13 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
 
   const toggleVolume = useCallback(() => {
     setVolume(volume === 0 ? 1 : 0);
-  }, [volume]);
+    if (!enabledButtons.has("volup") && volume === 0) {
+      enabledButtons.add("volup");
+    }
+    if (enabledButtons.has("volup") && volume === 1) {
+      enabledButtons.delete("volup");
+    }
+  }, [enabledButtons, volume]);
 
   const nextVideo = useCallback(() => {
     const newIndex = videoIndex + 1 > videosAvailable.length - 1 ? 0 : videoIndex + 1;
@@ -98,14 +109,26 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     setStartedAt(newStartedAt);
     setStartTime(newStartedAt);
     setLastPaused(newStartedAt);
-
     setPauseTime(undefined);
-  }, [videoIndex, videosAvailable]);
+
+    if (!enabledButtons.has("pause")) enabledButtons.add("pause");
+    if (enabledButtons.has("play")) enabledButtons.delete("play");
+  }, [enabledButtons, videoIndex, videosAvailable]);
+
+  const togglePower = useCallback(() => {
+    setEnabled(!enabled);
+    if (enabled) {
+      if (enabledButtons.has("power")) enabledButtons.delete("power");
+    } else {
+      if (!enabledButtons.has("power")) enabledButtons.add("power");
+    }
+  }, [enabled, enabledButtons]);
 
   const handleControlClick = useCallback(
     (name: string) => {
       switch (name) {
         case "power":
+          togglePower();
           break;
         case "volup":
           toggleVolume();
@@ -123,7 +146,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
           break;
       }
     },
-    [nextVideo, pauseVideo, resumeVideo, toggleVolume],
+    [nextVideo, pauseVideo, resumeVideo, togglePower, toggleVolume],
   );
 
   useEffect(() => {
@@ -143,7 +166,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
 
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
-      <m-group sx={2} sy={2} sz={2} x={-1.1} y={3.5} z={1.1} onClick={() => nextVideo()}>
+      <m-group sx={2} sy={2} sz={2} x={-1.1} y={3.5} z={1.1}>
         <m-video
           ref={setVideoRef}
           src={videoURL}
@@ -154,6 +177,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
           emissive={2}
           start-time={startTime}
           pause-time={pauseTime || undefined}
+          enabled={enabled}
         ></m-video>
       </m-group>
       <m-group ry={180} x={-9.5} y={2.25} z={3.5}>
@@ -190,7 +214,13 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
                 src={control.icon}
                 width={0.5}
                 height={0.5}
-                emissive={enabledButtons.has(control.name) ? 7 : 0.1}
+                emissive={
+                  enabledButtons.has(control.name)
+                    ? enabledEmissive
+                    : control.name === "volup"
+                      ? dimEmissive
+                      : disabledEmissive
+                }
                 ry={180}
               ></m-image>
             </m-group>
