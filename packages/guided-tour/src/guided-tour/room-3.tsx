@@ -3,6 +3,7 @@ import * as React from "react";
 import { useRef } from "react";
 
 import { useVisibilityProbe } from "./helpers/use-visibility-probe";
+import { AudioSequencer } from "./react-examples/audio-sequencer";
 import { GamingVideo } from "./react-examples/gaming-video";
 
 export function Room3() {
@@ -16,6 +17,7 @@ export function Room3() {
       <m-position-probe ref={probeRef} />
       <m-group ref={groupRef}>
         <GamingVideo x={10} z={10} />
+        <AudioSequencer x={-17.3} y={2.05} ry={90} />
       </m-group>
     </m-group>
   );
