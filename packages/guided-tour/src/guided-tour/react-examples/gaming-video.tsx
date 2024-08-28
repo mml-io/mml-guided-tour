@@ -215,9 +215,9 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
                 width={0.5}
                 height={0.5}
                 emissive={
-                  enabledButtons.has(control.name)
+                  enabledButtons.has(control.name) && enabled
                     ? enabledEmissive
-                    : control.name === "volup"
+                    : control.name === "volup" && enabled
                       ? dimEmissive
                       : disabledEmissive
                 }
