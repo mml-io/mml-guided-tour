@@ -104,41 +104,54 @@ const Channel = memo(
     controlButtons,
     toggleButton,
     bpm,
+    muted,
   }: {
     index: number;
     yPos: number;
     controlButtons: ButtonsState;
     toggleButton: (id: string) => void;
     bpm: number;
+    muted: boolean;
   }) => {
     const halfWidth = (bars * buttonSize) / 2 + ((bars - 1) * buttonsGap) / 2 - buttonSize / 2;
     const beatDuration = bpmToMS(bpm * 2);
     const loopDuration = beatDuration * bars;
 
     return (
-      <m-group y={yPos} id={`channel-${index}`}>
+      <m-group id={`channel-${index}`}>
         {Array.from(controlButtons.entries()).map(([id, control], idx) => (
-          <m-group key={id} x={idx * (buttonSize + buttonsGap) - halfWidth}>
-            <m-cube
-              width={buttonSize}
-              height={buttonSize}
-              depth={buttonDepth}
-              z={bodyDepth / 2 + buttonDepth}
-              color={
-                control.on
-                  ? `hsl(${(360 / bars) * idx}, ${onSatLight})`
-                  : `hsl(${(360 / bars) * idx}, ${offSatLight})`
-              }
-              onClick={() => toggleButton(id)}
-            />
-            {control.on && (
-              <m-audio
-                src={audioSrcs[index]}
-                enabled="true"
-                start-time={idx * beatDuration - loopDuration / 2}
-                loop-duration={loopDuration}
+          <m-group key={id}>
+            <m-group>
+              {control.on && (
+                <m-audio
+                  debug={false}
+                  y={14}
+                  z={2}
+                  rx={90}
+                  cone-angle={85}
+                  cone-falloff-angle={105}
+                  src={audioSrcs[index]}
+                  enabled="true"
+                  start-time={idx * beatDuration - loopDuration / 2}
+                  loop-duration={loopDuration}
+                  volume={muted === true ? 0 : 3}
+                />
+              )}
+            </m-group>
+            <m-group key={id} y={yPos} x={idx * (buttonSize + buttonsGap) - halfWidth}>
+              <m-cube
+                width={buttonSize}
+                height={buttonSize}
+                depth={buttonDepth}
+                z={bodyDepth / 2 + buttonDepth}
+                color={
+                  control.on
+                    ? `hsl(${(360 / bars) * idx}, ${onSatLight})`
+                    : `hsl(${(360 / bars) * idx}, ${offSatLight})`
+                }
+                onClick={() => toggleButton(id)}
               />
-            )}
+            </m-group>
           </m-group>
         ))}
       </m-group>
@@ -183,10 +196,12 @@ const Channels = memo(
     bpm,
     controlButtons,
     setControlButtons,
+    muted,
   }: {
     bpm: number;
     controlButtons: ButtonsState[];
     setControlButtons: Dispatch<SetStateAction<ButtonsState[]>>;
+    muted: boolean;
   }) => {
     const beatDuration = bpmToMS(bpm * 2);
     const cursorXStart = -((bars * buttonSize + (bars - 1) * buttonsGap) / 2 - buttonSize / 2);
@@ -215,6 +230,7 @@ const Channels = memo(
               controlButtons={controlButtons[index]}
               toggleButton={(id) => toggleButton(index, id)}
               bpm={bpm}
+              muted={muted}
             />
             {index !== 0 && (
               <m-group y={(index - 1) * (buttonSize + buttonsGap) - 1.5}>
@@ -242,6 +258,7 @@ type AudioSequencerProps = {
 };
 export const AudioSequencer = memo(({ x, y, z, ry, visibleTo }: AudioSequencerProps) => {
   const [bpm, setBPM] = useState<number>(initialBPM);
+  const [muted, setMuted] = useState<boolean>(false);
 
   const increaseBPM = useCallback(() => {
     if (bpm < maxBPM) {
@@ -304,9 +321,22 @@ export const AudioSequencer = memo(({ x, y, z, ry, visibleTo }: AudioSequencerPr
       <Button text="-" cb={() => decreaseBPM()} x={-7.7} y={0.5} width={1} color={red} />
       <Button text="+" cb={() => increaseBPM()} x={-6.6} y={0.5} width={1} color={green} />
       <Button text={`${bpm} BPM`} cb={() => {}} x={-5} y={0.5} width={2} color={green} />
+      <Button
+        text={`${muted ? "🔊 UNMUTE" : "🔈 MUTE"}`}
+        cb={() => setMuted((prev) => !prev)}
+        x={-2.5}
+        y={0.5}
+        width={2.5}
+        color={green}
+      />
       <Button text="PRESET" cb={applyPreset} x={5.05} y={0.5} width={2} color={green} />
       <Button text="CLEAR" cb={clearAllButtons} x={7.15} y={0.5} width={2} color={red} />
-      <Channels controlButtons={controlButtons} setControlButtons={setControlButtons} bpm={bpm} />
+      <Channels
+        controlButtons={controlButtons}
+        setControlButtons={setControlButtons}
+        bpm={bpm}
+        muted={muted}
+      />
     </m-group>
   );
 });
