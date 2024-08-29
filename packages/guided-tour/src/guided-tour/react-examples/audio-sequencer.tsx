@@ -125,16 +125,16 @@ const Channel = memo(
               {control.on && (
                 <m-audio
                   debug={false}
-                  y={14}
+                  y={15}
                   z={2}
                   rx={90}
-                  cone-angle={85}
-                  cone-falloff-angle={105}
+                  cone-angle={80}
+                  cone-falloff-angle={100}
                   src={audioSrcs[index]}
                   enabled="true"
                   start-time={idx * beatDuration - loopDuration / 2}
                   loop-duration={loopDuration}
-                  volume={muted === true ? 0 : 3}
+                  volume={muted === true ? 0 : 2}
                 />
               )}
             </m-group>
