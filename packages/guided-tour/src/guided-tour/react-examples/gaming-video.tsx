@@ -167,7 +167,6 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
       };
       controlButtons.set(name, button);
     });
-    console.log("reset");
   }, [controlButtons, controlIcons, handleControlClick]);
 
   return (
