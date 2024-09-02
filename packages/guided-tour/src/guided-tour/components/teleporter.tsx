@@ -22,7 +22,7 @@ type TeleporterProps = {
 export const Teleporter = memo(
   ({ startX, startY, startZ, startRY, endX, endY, endZ, endRY, visibleTo }: TeleporterProps) => {
     const baseYOffset = 0.6;
-    const transporterAnimTravel = 0.103;
+    const transporterAnimTravel = 0.115;
     const transporterAnimDuration = 1200;
     const probeRadius = 1.3;
     const probeYOffset = baseYOffset;
@@ -43,9 +43,7 @@ export const Teleporter = memo(
         travelTimeOut.current = setTimeout(() => {
           setAnimatingStart(false);
 
-          setTimeout(() => {
-            setAnimatingEnd(true);
-          }, 100);
+          setTimeout(() => setAnimatingEnd(true), transporterAnimDuration * (1 / 3));
 
           setTimeout(() => {
             setAnimatingEnd(false);
@@ -90,9 +88,10 @@ export const Teleporter = memo(
           }
           z={animatingStart === false && travelTimeOut.current ? endZ : startZ}
         >
-          {(animatingStart === true || animatingEnd === true) && (
-            <m-attr-lerp attr="y" duration={transporterAnimDuration}></m-attr-lerp>
-          )}
+          <m-attr-lerp
+            attr={`${animatingStart || animatingEnd ? "y" : "ry"}`}
+            duration={transporterAnimDuration}
+          ></m-attr-lerp>
         </m-model>
         <m-model
           id="teleporter-start"
