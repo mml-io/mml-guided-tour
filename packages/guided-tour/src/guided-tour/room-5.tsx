@@ -15,9 +15,9 @@ export function Room5() {
   return (
     <m-group>
       <Teleporter
-        startX={-10}
+        startX={-15}
         startY={0}
-        startZ={-10}
+        startZ={-10.75}
         startRY={180}
         endX={10}
         endY={500}
