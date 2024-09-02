@@ -14,6 +14,7 @@ const platformerSpinnerURL = "/assets/guidedtour/platformer_spinner.glb";
 const hammersBaseURL = "/assets/guidedtour/platformer_hammers_base.glb";
 const hammersEdgeURL = "/assets/guidedtour/platformer_hammers_edge.glb";
 const hammerURL = "/assets/guidedtour/platformer_hammer.glb";
+const hexagonURL = "/assets/guidedtour/platformer_hexagon.glb";
 
 type StartProps = {
   x: number;
@@ -148,14 +149,65 @@ const Hammers = memo(({ x, y, z, ry, difficulty, active }: HammersProps) => {
 });
 Hammers.displayName = "Hammer";
 
+type SineHexPlatformsProps = {
+  x: number;
+  y: number;
+  z: number;
+  ry: number;
+  difficulty: 1 | 2;
+  active: boolean;
+};
+const SineHexPlatforms = memo(({ x, y, z, ry, difficulty, active }: SineHexPlatformsProps) => {
+  const platforms = 10;
+  const hexOffset = 12;
+  const duration = difficulty < 2 ? 12000 : 8000;
+  const yAnimDuration = duration * (2 / 3);
+  return (
+    <m-group x={x} y={y} z={z} ry={ry}>
+      {Array.from({ length: platforms }).map((_, i) => {
+        return (
+          <m-model key={i} src={hexagonURL} z={i * hexOffset}>
+            {active && (
+              <>
+                <m-attr-anim
+                  attr="x"
+                  start={-6}
+                  end={6}
+                  duration={duration}
+                  loop={true}
+                  ping-pong={true}
+                  easing="easeInOutSine"
+                  start-time={(document.timeline.currentTime as number) - i * 1000}
+                ></m-attr-anim>
+                <m-attr-anim
+                  attr="y"
+                  start={0}
+                  end={-0.5}
+                  duration={yAnimDuration}
+                  start-time={(document.timeline.currentTime as number) - i * 1000}
+                  ping-pong={true}
+                  easing={"easeInOutSine"}
+                ></m-attr-anim>
+              </>
+            )}
+          </m-model>
+        );
+      })}
+    </m-group>
+  );
+});
+SineHexPlatforms.displayName = "SineHexPlatforms";
+
 export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGameProps) => {
   const yPos = 0;
   const active = true;
+  const difficulty = 1;
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <Start x={0} y={yPos} z={0} />
       <Spinners x={7.35} y={yPos} z={39.55} width={23} depth={35} active={active} />
-      <Hammers x={0} y={yPos} z={75.6} ry={0} difficulty={1} active={active} />
+      <Hammers x={0} y={yPos} z={75.6} ry={0} difficulty={difficulty} active={active} />
+      <SineHexPlatforms x={0} y={yPos} z={100.15} ry={0} difficulty={difficulty} active={active} />
     </m-group>
   );
 });
