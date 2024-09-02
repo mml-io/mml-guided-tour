@@ -1,6 +1,8 @@
 import * as React from "react";
 import { memo } from "react";
 
+import { Travelator } from "../components/travelator";
+
 type PlatformerGameProps = {
   x?: number;
   y?: number;
@@ -278,6 +280,17 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
       <SineHexPlatforms x={0} y={yPos} z={100.15} ry={0} difficulty={difficulty} active={active} />
       <AxesPlatform x={0} y={yPos} z={233.2} ry={0} difficulty={difficulty} active={active} />
       <End x={0} y={yPos} z={270.9} ry={180} />
+      <Travelator
+        x={-20}
+        y={yPos}
+        z={-9.4}
+        ry={0}
+        width={10}
+        depth={290}
+        steps={30}
+        travelTime={15000}
+        reverse={false}
+      />
     </m-group>
   );
 });
