@@ -22,7 +22,7 @@ export function Room5() {
         endX={0}
         endY={500}
         endZ={-5}
-        endRY={-90}
+        endRY={90}
       />
       <PlatformerGame y={500} />
       <m-position-probe ref={probeRef} />
