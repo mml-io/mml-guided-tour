@@ -22,13 +22,15 @@ type TeleporterProps = {
 export const Teleporter = memo(
   ({ startX, startY, startZ, startRY, endX, endY, endZ, endRY, visibleTo }: TeleporterProps) => {
     const baseYOffset = 0.6;
-    const transporterAnimTravel = 0.115;
+    const transporterAnimTravel = 0.103;
     const transporterAnimDuration = 1200;
     const probeRadius = 1.3;
     const probeYOffset = baseYOffset;
     const sfxDuration = 4000;
 
     const startProbeRef = useRef<MPositionProbeElement | null>(null);
+
+    const [shouldLerpY, setShouldLerpY] = useState<boolean>(false);
 
     const [animatingStart, setAnimatingStart] = useState<boolean>(false);
     const [animatingEnd, setAnimatingEnd] = useState<boolean>(false);
@@ -43,13 +45,13 @@ export const Teleporter = memo(
         travelTimeOut.current = setTimeout(() => {
           setAnimatingStart(false);
 
-          setTimeout(() => setAnimatingEnd(true), transporterAnimDuration * (1 / 3));
+          setTimeout(() => setAnimatingEnd(true), transporterAnimDuration);
 
           setTimeout(() => {
+            travelTimeOut.current = null;
             setAnimatingEnd(false);
             setStartAudioTime((document.timeline.currentTime as number) - sfxDuration);
-            travelTimeOut.current = null;
-          }, transporterAnimDuration * 2);
+          }, transporterAnimDuration * 2.5);
         }, transporterAnimDuration);
 
         setAnimatingStart(true);
@@ -71,6 +73,12 @@ export const Teleporter = memo(
       };
     }, [startProbeRef, teleportToEnd]);
 
+    useEffect(() => {
+      const isAnimating = animatingStart === true || animatingEnd === true;
+      const shouldLerp = isAnimating && travelTimeOut.current !== null;
+      setShouldLerpY(shouldLerp);
+    }, [animatingEnd, animatingStart]);
+
     return (
       <m-group visible-to={visibleTo}>
         <m-model
@@ -82,14 +90,14 @@ export const Teleporter = memo(
               ? transporterAnimTravel
               : travelTimeOut.current
                 ? animatingEnd === true
-                  ? endY - baseYOffset
+                  ? endY - transporterAnimTravel
                   : endY + transporterAnimTravel
                 : startY
           }
           z={animatingStart === false && travelTimeOut.current ? endZ : startZ}
         >
           <m-attr-lerp
-            attr={`${animatingStart || animatingEnd ? "y" : "ry"}`}
+            attr={`${(animatingStart === true || animatingEnd === true) && travelTimeOut.current ? "y" : undefined}`}
             duration={transporterAnimDuration}
           ></m-attr-lerp>
         </m-model>
