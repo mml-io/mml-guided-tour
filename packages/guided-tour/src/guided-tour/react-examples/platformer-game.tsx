@@ -10,6 +10,7 @@ type PlatformerGameProps = {
 };
 
 const platformerStartURL = "/assets/guidedtour/platformer_start.glb";
+const platformerEndURL = "/assets/guidedtour/platformer_end.glb";
 const platformerSpinnerURL = "/assets/guidedtour/platformer_spinner.glb";
 const hammersBaseURL = "/assets/guidedtour/platformer_hammers_base.glb";
 const hammersEdgeURL = "/assets/guidedtour/platformer_hammers_edge.glb";
@@ -23,15 +24,31 @@ type StartProps = {
   x: number;
   y: number;
   z: number;
+  ry?: number;
 };
-const Start = memo(({ x, y, z }: StartProps) => {
+const Start = memo(({ x, y, z, ry }: StartProps) => {
   return (
-    <m-group x={x} y={y} z={z}>
+    <m-group x={x} y={y} z={z} ry={ry}>
       <m-model src={platformerStartURL}></m-model>
     </m-group>
   );
 });
 Start.displayName = "Start";
+
+type EndProps = {
+  x: number;
+  y: number;
+  z: number;
+  ry?: number;
+};
+const End = memo(({ x, y, z, ry }: EndProps) => {
+  return (
+    <m-group x={x} y={y} z={z} ry={ry}>
+      <m-model src={platformerEndURL}></m-model>
+    </m-group>
+  );
+});
+End.displayName = "End";
 
 type SpinnersProps = {
   x: number;
@@ -251,7 +268,7 @@ AxesPlatform.displayName = "AxesPlatform";
 
 export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGameProps) => {
   const yPos = 0;
-  const active = true;
+  const active = false;
   const difficulty = 1;
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
@@ -260,6 +277,7 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
       <Hammers x={0} y={yPos} z={75.6} ry={0} difficulty={difficulty} active={active} />
       <SineHexPlatforms x={0} y={yPos} z={100.15} ry={0} difficulty={difficulty} active={active} />
       <AxesPlatform x={0} y={yPos} z={233.2} ry={0} difficulty={difficulty} active={active} />
+      <End x={0} y={yPos} z={270.9} ry={180} />
     </m-group>
   );
 });
