@@ -4,6 +4,7 @@ import { useRef } from "react";
 
 import { Teleporter } from "./components/teleporter";
 import { useVisibilityProbe } from "./helpers/use-visibility-probe";
+import { PlatformerGame } from "./react-examples/platformer-game";
 
 export function Room5() {
   const probeRef = useRef<MPositionProbeElement | null>(null);
@@ -13,19 +14,19 @@ export function Room5() {
 
   return (
     <m-group>
+      <Teleporter
+        startX={-10}
+        startY={0}
+        startZ={-10}
+        startRY={180}
+        endX={10}
+        endY={500}
+        endZ={10}
+        endRY={0}
+      />
+      <PlatformerGame y={500} />
       <m-position-probe ref={probeRef} />
-      <m-group ref={groupRef}>
-        <Teleporter
-          startX={-10}
-          startY={0}
-          startZ={-10}
-          startRY={180}
-          endX={10}
-          endY={0}
-          endZ={10}
-          endRY={0}
-        />
-      </m-group>
+      <m-group ref={groupRef}></m-group>
     </m-group>
   );
 }
