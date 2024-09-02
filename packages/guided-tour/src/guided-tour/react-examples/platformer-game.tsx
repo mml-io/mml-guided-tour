@@ -1,6 +1,7 @@
 import * as React from "react";
 import { memo } from "react";
 
+import { Teleporter } from "../components/teleporter";
 import { Travelator } from "../components/travelator";
 
 type PlatformerGameProps = {
@@ -270,7 +271,7 @@ AxesPlatform.displayName = "AxesPlatform";
 
 export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGameProps) => {
   const yPos = 0;
-  const active = false;
+  const active = true;
   const difficulty = 1;
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
@@ -290,6 +291,16 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
         steps={30}
         travelTime={15000}
         reverse={false}
+      />
+      <Teleporter
+        startX={-20}
+        startY={0}
+        startZ={-10}
+        startRY={90}
+        endX={-15}
+        endY={-500}
+        endZ={-6.5}
+        endRY={180}
       />
     </m-group>
   );
