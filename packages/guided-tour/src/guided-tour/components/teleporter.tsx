@@ -42,7 +42,10 @@ export const Teleporter = memo(
       if (travelTimeOut.current === null) {
         travelTimeOut.current = setTimeout(() => {
           setAnimatingStart(false);
-          setAnimatingEnd(true);
+
+          setTimeout(() => {
+            setAnimatingEnd(true);
+          }, 100);
 
           setTimeout(() => {
             setAnimatingEnd(false);
@@ -81,7 +84,7 @@ export const Teleporter = memo(
               ? transporterAnimTravel
               : travelTimeOut.current
                 ? animatingEnd === true
-                  ? endY - transporterAnimTravel / 2
+                  ? endY - baseYOffset
                   : endY + transporterAnimTravel
                 : startY
           }
