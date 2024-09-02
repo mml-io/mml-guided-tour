@@ -19,10 +19,10 @@ export function Room5() {
         startY={0}
         startZ={-10.75}
         startRY={180}
-        endX={10}
+        endX={0}
         endY={500}
-        endZ={10}
-        endRY={0}
+        endZ={-5}
+        endRY={-90}
       />
       <PlatformerGame y={500} />
       <m-position-probe ref={probeRef} />
