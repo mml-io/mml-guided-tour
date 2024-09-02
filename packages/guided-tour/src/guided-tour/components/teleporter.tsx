@@ -97,7 +97,7 @@ export const Teleporter = memo(
           z={animatingStart === false && travelTimeOut.current ? endZ : startZ}
         >
           <m-attr-lerp
-            attr={`${(animatingStart === true || animatingEnd === true) && travelTimeOut.current ? "y" : undefined}`}
+            attr={`${shouldLerpY ? "y" : undefined}`}
             duration={transporterAnimDuration}
           ></m-attr-lerp>
         </m-model>
