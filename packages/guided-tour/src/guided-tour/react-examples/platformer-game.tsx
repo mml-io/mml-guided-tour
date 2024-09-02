@@ -15,6 +15,9 @@ const hammersBaseURL = "/assets/guidedtour/platformer_hammers_base.glb";
 const hammersEdgeURL = "/assets/guidedtour/platformer_hammers_edge.glb";
 const hammerURL = "/assets/guidedtour/platformer_hammer.glb";
 const hexagonURL = "/assets/guidedtour/platformer_hexagon.glb";
+const axesBaseURL = "/assets/guidedtour/platformer_axe_base.glb";
+const axesRodURL = "/assets/guidedtour/platformer_axe_rod.glb";
+const axesBladeURL = "/assets/guidedtour/platformer_axe_blade.glb";
 
 type StartProps = {
   x: number;
@@ -167,7 +170,7 @@ const SineHexPlatforms = memo(({ x, y, z, ry, difficulty, active }: SineHexPlatf
       {Array.from({ length: platforms }).map((_, i) => {
         return (
           <m-model key={i} src={hexagonURL} z={i * hexOffset}>
-            {active && (
+            {active && i < platforms - 1 && (
               <>
                 <m-attr-anim
                   attr="x"
@@ -198,6 +201,54 @@ const SineHexPlatforms = memo(({ x, y, z, ry, difficulty, active }: SineHexPlatf
 });
 SineHexPlatforms.displayName = "SineHexPlatforms";
 
+type AxesPlatformProps = {
+  x: number;
+  y: number;
+  z: number;
+  ry: number;
+  difficulty: 1 | 2;
+  active: boolean;
+};
+const AxesPlatform = memo(({ x, y, z, ry, difficulty, active }: AxesPlatformProps) => {
+  const totalAxes = 8;
+  const axesSwingTime = difficulty < 2 ? 5000 : 3500;
+  const zOffset = -17;
+  let space = 4.4;
+  return (
+    <m-group x={x} y={y} z={z} ry={ry}>
+      <m-model src={axesBaseURL}></m-model>
+      {Array.from({ length: totalAxes }).map((_, i) => {
+        if (i === 3) {
+          space += 0.5;
+        }
+        return (
+          <m-group key={i} z={i * space + zOffset} y={20}>
+            {active && (
+              <m-attr-anim
+                attr="rz"
+                start={-45}
+                end={45}
+                duration={axesSwingTime}
+                loop={true}
+                ping-pong={true}
+                ping-pong-delay={difficulty < 2 ? axesSwingTime * 0.035 : 0}
+                start-time={
+                  (document.timeline.currentTime as number) - i * (difficulty < 2 ? 200 : 350)
+                }
+                easing={difficulty < 2 ? "easeInOutQuad" : "easeInOutSine"}
+              ></m-attr-anim>
+            )}
+            <m-model src={axesRodURL} x={0}>
+              <m-model src={axesBladeURL} y={0} sz={1.5}></m-model>
+            </m-model>
+          </m-group>
+        );
+      })}
+    </m-group>
+  );
+});
+AxesPlatform.displayName = "AxesPlatform";
+
 export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGameProps) => {
   const yPos = 0;
   const active = true;
@@ -208,6 +259,7 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
       <Spinners x={7.35} y={yPos} z={39.55} width={23} depth={35} active={active} />
       <Hammers x={0} y={yPos} z={75.6} ry={0} difficulty={difficulty} active={active} />
       <SineHexPlatforms x={0} y={yPos} z={100.15} ry={0} difficulty={difficulty} active={active} />
+      <AxesPlatform x={0} y={yPos} z={233.2} ry={0} difficulty={difficulty} active={active} />
     </m-group>
   );
 });
