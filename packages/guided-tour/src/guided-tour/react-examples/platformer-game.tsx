@@ -1,5 +1,11 @@
+import {
+  MCubeElement,
+  MCylinderElement,
+  MMLCollisionMoveEvent,
+  MMLCollisionStartEvent,
+} from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo } from "react";
+import { createRef, memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Teleporter } from "../components/teleporter";
 import { Travelator } from "../components/travelator";
@@ -269,6 +275,226 @@ const AxesPlatform = memo(({ x, y, z, ry, difficulty, active }: AxesPlatformProp
 });
 AxesPlatform.displayName = "AxesPlatform";
 
+type RespawnerProps = {
+  distance: number;
+  interval: number;
+};
+const Respawner = memo(({ distance, interval }: RespawnerProps) => {
+  const width = 100000;
+  const depth = 100000;
+  const totalTransporters = 20;
+  const transporterThickness = 0.01;
+
+  const respawnerRef = useRef<MCubeElement>(null);
+
+  const transportersRef = useRef<Array<React.RefObject<MCylinderElement>>>(
+    Array.from({ length: totalTransporters }, () => createRef<MCylinderElement>()),
+  );
+
+  const [activeTransporterIndex, setActiveTransporterIndex] = useState(0);
+
+  const animate = (
+    element: HTMLElement,
+    attr: string,
+    start: number,
+    end: number,
+    duration: number,
+    easing: string,
+  ) => {
+    const anim = document.createElement("m-attr-anim");
+    anim.setAttribute("attr", attr);
+    anim.setAttribute("start", `${start}`);
+    anim.setAttribute("end", `${end}`);
+    anim.setAttribute("start-time", `${document.timeline.currentTime}`);
+    anim.setAttribute("end-time", `${(document.timeline.currentTime as number) + duration}`);
+    anim.setAttribute("duration", `${duration}`);
+    anim.setAttribute("easing", easing);
+    anim.setAttribute("loop", "false");
+    element.appendChild(anim);
+    setTimeout(() => {
+      element.setAttribute(attr, `${end}`);
+      element.removeChild(anim);
+    }, duration);
+    return anim;
+  };
+
+  type Instructions = {
+    attr: string;
+    start: number;
+    end: number;
+  };
+  type CallBackFunction = () => void;
+  type Sequence = Array<Instructions | Array<Instructions>>;
+  type ArrayOfFunctions = Array<CallBackFunction>;
+  type ArrayOrFunction = CallBackFunction | Array<CallBackFunction>;
+
+  const createSequence = useCallback(
+    (
+      element: HTMLElement,
+      sequence: Sequence,
+      easing: string,
+      duration: number,
+      pauses: number,
+      loop = false,
+    ) => {
+      const timeAction = (cb: CallBackFunction, delay: number) => setTimeout(() => cb(), delay);
+
+      const animSequence: Array<ArrayOrFunction> = [];
+
+      for (let i = 0; i < sequence.length; i++) {
+        const seq = sequence[i];
+        if (Array.isArray(seq)) {
+          const subSeqArr: ArrayOfFunctions = [];
+          for (let j = 0; j < seq.length; j++) {
+            const subSeq = seq[j];
+            subSeqArr.push(() =>
+              animate(element, subSeq.attr, subSeq.start, subSeq.end, duration, easing),
+            );
+          }
+          animSequence.push(subSeqArr);
+        } else {
+          animSequence.push(() => animate(element, seq.attr, seq.start, seq.end, duration, easing));
+        }
+      }
+
+      const seqSize = animSequence.length;
+      const seqDuration = seqSize * duration + seqSize * pauses;
+
+      const playSeq = () => {
+        for (let i = 0; i < seqSize; i++) {
+          const seqItem = animSequence[i];
+          if (typeof seqItem === "function") {
+            timeAction(seqItem, duration * i + pauses * i);
+          } else if (Array.isArray(seqItem)) {
+            for (let j = 0; j < seqItem.length; j++) {
+              timeAction(seqItem[j], duration * i + pauses * i);
+            }
+          }
+        }
+      };
+
+      playSeq();
+      if (loop === true) {
+        setInterval(() => playSeq(), seqDuration);
+      } else {
+        setTimeout(() => {
+          element.setAttribute("x", "0");
+          element.setAttribute("y", `${-distance - Math.random() * 2 - 1}`);
+          element.setAttribute("z", "0");
+          element.setAttribute("visible", "false");
+        }, seqDuration + 100);
+      }
+    },
+    [distance],
+  );
+
+  const randomIntPoN = (val: number) => {
+    val = Math.abs(val);
+    return Math.floor(Math.random() * (val * 2 + 1)) - val;
+  };
+
+  const handleRespawnerCollision = useCallback(
+    (event: MMLCollisionStartEvent | MMLCollisionMoveEvent) => {
+      const xPos = event.detail.position.x * depth;
+      const yPos = -distance;
+      const zPos = event.detail.position.z * width;
+      let newTransporterIndex = activeTransporterIndex + 1;
+      if (newTransporterIndex >= totalTransporters) {
+        newTransporterIndex = 0;
+      }
+      const transporter = transportersRef.current[newTransporterIndex].current;
+      if (transporter) {
+        transporter.setAttribute("visible", "true");
+        transporter.setAttribute("x", `${xPos}`);
+        transporter.setAttribute("y", `${yPos}`);
+        transporter.setAttribute("z", `${zPos}`);
+
+        const targetY = 0;
+
+        const coinFlip = Math.random() < 0.5;
+
+        const firstX = (-10 - Math.random() * 20) * (coinFlip ? -1 : 1);
+        const firstY = targetY - 15 + Math.random() * 20;
+        const firstZ = -70 + randomIntPoN(10);
+
+        const secondX = Math.random() * 10 * (coinFlip ? -1 : 1);
+        const secondY = targetY + 20 + Math.random() * 10;
+        const secondZ = -30 + Math.random() * 20;
+
+        const finalX = randomIntPoN(12);
+        const finalZ = randomIntPoN(10);
+
+        const transportSequence = [
+          [
+            { attr: "x", start: xPos, end: firstX },
+            { attr: "y", start: yPos, end: firstY },
+            { attr: "z", start: zPos, end: firstZ },
+          ],
+          [
+            { attr: "x", start: firstX, end: secondX },
+            { attr: "y", start: firstY, end: secondY },
+            { attr: "z", start: firstZ, end: secondZ },
+          ],
+          [
+            { attr: "x", start: secondX, end: finalX },
+            { attr: "y", start: secondY, end: targetY - transporterThickness * 2 },
+            { attr: "z", start: secondZ, end: finalZ },
+          ],
+        ];
+        createSequence(transporter, transportSequence, "easeInOutQuad", 2000, 0, false);
+
+        setActiveTransporterIndex(newTransporterIndex);
+      }
+    },
+    [activeTransporterIndex, createSequence, depth, distance, width],
+  );
+
+  useEffect(() => {
+    const respawner = respawnerRef.current;
+    if (respawner) {
+      respawner.addEventListener("collisionstart", handleRespawnerCollision);
+      respawner.addEventListener("collisionmove", handleRespawnerCollision);
+    }
+    return () => {
+      if (respawner) {
+        respawner.removeEventListener("collisionstart", handleRespawnerCollision);
+        respawner.removeEventListener("collisionmove", handleRespawnerCollision);
+      }
+    };
+  }, [depth, distance, handleRespawnerCollision, width]);
+
+  return (
+    <m-group id="respawner">
+      <m-cube
+        ref={respawnerRef}
+        y={-distance}
+        width={width}
+        height={0.1}
+        depth={depth}
+        collision-interval={interval}
+        opacity={0}
+        visible={false}
+      ></m-cube>
+      {Array.from({ length: totalTransporters }).map((_, i) => {
+        return (
+          <m-cylinder
+            radius={2}
+            height={transporterThickness}
+            x={0}
+            y={-distance - i * 0.1}
+            z={0}
+            key={i}
+            ref={transportersRef.current[i]}
+            color="#4D96ED"
+            visible={false}
+          ></m-cylinder>
+        );
+      })}
+    </m-group>
+  );
+});
+Respawner.displayName = "Respawner";
+
 export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGameProps) => {
   const yPos = 0;
   const active = true;
@@ -302,6 +528,7 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
         endZ={-6.5}
         endRY={180}
       />
+      <Respawner distance={80} interval={200} />
     </m-group>
   );
 });
