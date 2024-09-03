@@ -523,8 +523,8 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
         startY={0}
         startZ={-10}
         startRY={90}
-        endX={-15}
-        endY={-500}
+        endX={x ? -x - 15 : -15}
+        endY={y ? -y : 0}
         endZ={-6.5}
         endRY={180}
       />

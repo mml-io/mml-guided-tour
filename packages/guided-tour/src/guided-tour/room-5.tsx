@@ -12,6 +12,9 @@ export function Room5() {
 
   useVisibilityProbe(probeRef, groupRef, 32, 500);
 
+  const platformerGamePosX = 1000;
+  const platformerGamePosY = 1000;
+
   return (
     <m-group>
       <Teleporter
@@ -19,12 +22,12 @@ export function Room5() {
         startY={0}
         startZ={-10.75}
         startRY={180}
-        endX={0}
-        endY={500}
+        endX={platformerGamePosX}
+        endY={platformerGamePosY}
         endZ={-5}
         endRY={90}
       />
-      <PlatformerGame y={500} />
+      <PlatformerGame x={platformerGamePosX} y={platformerGamePosY} />
       <m-position-probe ref={probeRef} />
       <m-group ref={groupRef}></m-group>
     </m-group>
