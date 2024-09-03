@@ -28,6 +28,8 @@ const hexagonURL = "/assets/guidedtour/platformer_hexagon.glb";
 const axesBaseURL = "/assets/guidedtour/platformer_axe_base.glb";
 const axesRodURL = "/assets/guidedtour/platformer_axe_rod.glb";
 const axesBladeURL = "/assets/guidedtour/platformer_axe_blade.glb";
+const heliBodyURL = "/assets/guidedtour/platformer_heli_body.glb";
+const heliBladeURL = "/assets/guidedtour/platformer_heli_blade.glb";
 
 type StartProps = {
   x: number;
@@ -275,6 +277,64 @@ const AxesPlatform = memo(({ x, y, z, ry, difficulty, active }: AxesPlatformProp
 });
 AxesPlatform.displayName = "AxesPlatform";
 
+type HelisProps = {
+  y: number;
+  z: number;
+  amount: number;
+  rowsDistance: number;
+  active: boolean;
+};
+const Helis = memo(({ y, z, amount, rowsDistance, active }: HelisProps) => {
+  const spacing = 21;
+  return (
+    <m-group>
+      {Array.from({ length: 2 }).map((_, i) => {
+        return (
+          <m-group
+            key={i}
+            id={`heli-row-${i}`}
+            x={i % 2 === 0 ? -rowsDistance : rowsDistance}
+            y={y}
+            z={z}
+          >
+            {Array.from({ length: amount }).map((_, j) => {
+              return (
+                <m-group key={j} z={j * spacing}>
+                  <m-attr-anim
+                    attr="y"
+                    start={0}
+                    end={1}
+                    duration={7000}
+                    loop={true}
+                    start-time={(document.timeline.currentTime as number) - j * 1000}
+                    ping-pong={true}
+                    ping-pong-delay={350}
+                    easing={"easeInOutSine"}
+                  ></m-attr-anim>
+                  <m-model src={heliBodyURL}></m-model>
+                  <m-model src={heliBladeURL}>
+                    {active && (
+                      <m-attr-anim
+                        attr="ry"
+                        start={0}
+                        end={360}
+                        duration={250}
+                        loop={true}
+                        start-time={(document.timeline.currentTime as number) - j * 100}
+                      ></m-attr-anim>
+                    )}
+                  </m-model>
+                </m-group>
+              );
+            })}
+          </m-group>
+        );
+      })}
+    </m-group>
+  );
+});
+Helis.displayName = "Helis";
+
 type RespawnerProps = {
   distance: number;
   interval: number;
@@ -502,6 +562,7 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <Start x={0} y={yPos} z={0} />
+      <Helis y={yPos} z={30} amount={8} rowsDistance={15} active={active} />
       <Spinners x={7.35} y={yPos} z={39.55} width={23} depth={35} active={active} />
       <Hammers x={0} y={yPos} z={75.6} ry={0} difficulty={difficulty} active={active} />
       <SineHexPlatforms x={0} y={yPos} z={100.15} ry={0} difficulty={difficulty} active={active} />
