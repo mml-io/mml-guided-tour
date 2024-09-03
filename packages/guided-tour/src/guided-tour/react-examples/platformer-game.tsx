@@ -30,6 +30,7 @@ const axesRodURL = "/assets/guidedtour/platformer_axe_rod.glb";
 const axesBladeURL = "/assets/guidedtour/platformer_axe_blade.glb";
 const heliBodyURL = "/assets/guidedtour/platformer_heli_body.glb";
 const heliBladeURL = "/assets/guidedtour/platformer_heli_blade.glb";
+const bgmURL = "/assets/guidedtour/bgm_kabalevsky.mp3";
 
 type StartProps = {
   x: number;
@@ -303,7 +304,7 @@ const Helis = memo(({ y, z, amount, rowsDistance, active }: HelisProps) => {
                   <m-attr-anim
                     attr="y"
                     start={0}
-                    end={1}
+                    end={1.3}
                     duration={7000}
                     loop={true}
                     start-time={(document.timeline.currentTime as number) - j * 1000}
@@ -334,6 +335,71 @@ const Helis = memo(({ y, z, amount, rowsDistance, active }: HelisProps) => {
   );
 });
 Helis.displayName = "Helis";
+
+type BackgroundMusicProps = {
+  x: number;
+  y: number;
+  z: number;
+  speakers: number;
+  length: number;
+  rowsDistance: number;
+  volume: number;
+  angle: number;
+  fallOffAngle: number;
+  active: boolean;
+  debug?: boolean;
+};
+const BackgroundMusic = memo(
+  ({
+    x,
+    y,
+    z,
+    speakers,
+    length,
+    rowsDistance,
+    volume,
+    angle,
+    fallOffAngle,
+    active,
+    debug,
+  }: BackgroundMusicProps) => {
+    return (
+      <m-group x={x} y={y} z={z}>
+        {Array.from({ length: speakers }).map((_, i) => {
+          return (
+            <m-group key={i}>
+              <m-audio
+                x={-rowsDistance}
+                z={(i * length) / speakers}
+                src={bgmURL}
+                volume={active ? volume : 0}
+                loop={true}
+                rx={90}
+                ry={90}
+                cone-angle={angle}
+                cone-falloff-angle={fallOffAngle}
+                debug={debug}
+              ></m-audio>
+              <m-audio
+                x={rowsDistance}
+                z={(i * length) / speakers}
+                src={bgmURL}
+                volume={active ? volume : 0}
+                loop={true}
+                rz={-90}
+                ry={-90}
+                cone-angle={angle}
+                cone-falloff-angle={fallOffAngle}
+                debug={debug}
+              ></m-audio>
+            </m-group>
+          );
+        })}
+      </m-group>
+    );
+  },
+);
+BackgroundMusic.displayName = "BackgroundMusic";
 
 type RespawnerProps = {
   distance: number;
@@ -562,7 +628,20 @@ export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGamePr
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <Start x={0} y={yPos} z={0} />
-      <Helis y={yPos} z={30} amount={8} rowsDistance={15} active={active} />
+      <BackgroundMusic
+        x={0}
+        y={yPos + 2}
+        z={0}
+        length={300}
+        speakers={12}
+        rowsDistance={30}
+        volume={3}
+        angle={90}
+        fallOffAngle={130}
+        active={active}
+        debug={false}
+      />
+      <Helis y={yPos + 2} z={30} amount={8} rowsDistance={15} active={active} />
       <Spinners x={7.35} y={yPos} z={39.55} width={23} depth={35} active={active} />
       <Hammers x={0} y={yPos} z={75.6} ry={0} difficulty={difficulty} active={active} />
       <SineHexPlatforms x={0} y={yPos} z={100.15} ry={0} difficulty={difficulty} active={active} />
