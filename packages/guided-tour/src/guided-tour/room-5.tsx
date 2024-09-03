@@ -13,7 +13,7 @@ export function Room5() {
   useVisibilityProbe(probeRef, groupRef, 32, 500);
 
   const platformerGamePosX = 1000;
-  const platformerGamePosY = 1000;
+  const platformerGamePosY = 10000;
 
   return (
     <m-group>
