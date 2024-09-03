@@ -8,6 +8,64 @@ const teleporterBaseURL = "/assets/guidedtour/teleporter_base_plinth.glb";
 const teleporterPlatformURL = "/assets/guidedtour/teleporter_platform.glb";
 const teleporterSFXURL = "/assets/guidedtour/sfx_charge.mp3";
 
+type TransporterPlatformProps = {
+  animatingStart: boolean;
+  animatingEnd: boolean;
+  shouldLerpY: boolean;
+  transporterAnimTravel: number;
+  transporterAnimDuration: number;
+  startX: number;
+  startY: number;
+  startZ: number;
+  endX: number;
+  endY: number;
+  endZ: number;
+  travelTimeOut: NodeJS.Timeout | null;
+};
+
+const TransporterPlatform = memo(
+  ({
+    animatingStart,
+    animatingEnd,
+    shouldLerpY,
+    transporterAnimTravel,
+    transporterAnimDuration,
+    startX,
+    startY,
+    startZ,
+    endX,
+    endY,
+    endZ,
+    travelTimeOut,
+  }: TransporterPlatformProps) => {
+    return (
+      <m-model
+        id="transporter-platform"
+        src={teleporterPlatformURL}
+        x={animatingStart === false && travelTimeOut ? endX : startX}
+        y={
+          animatingStart === true
+            ? transporterAnimTravel
+            : travelTimeOut
+              ? animatingEnd === true
+                ? endY - transporterAnimTravel
+                : endY + transporterAnimTravel
+              : startY
+        }
+        z={animatingStart === false && travelTimeOut ? endZ : startZ}
+        visible={travelTimeOut !== null}
+      >
+        <m-attr-lerp
+          attr={`${shouldLerpY ? "y" : undefined}`}
+          duration={transporterAnimDuration}
+        ></m-attr-lerp>
+      </m-model>
+    );
+  },
+);
+
+TransporterPlatform.displayName = "TransporterPlatform";
+
 type TeleporterProps = {
   startX: number;
   startY: number;
@@ -19,6 +77,7 @@ type TeleporterProps = {
   endRY?: number;
   visibleTo?: string | number;
 };
+
 export const Teleporter = memo(
   ({ startX, startY, startZ, startRY, endX, endY, endZ, endRY, visibleTo }: TeleporterProps) => {
     const baseYOffset = 0.6;
@@ -31,7 +90,6 @@ export const Teleporter = memo(
     const startProbeRef = useRef<MPositionProbeElement | null>(null);
 
     const [shouldLerpY, setShouldLerpY] = useState<boolean>(false);
-
     const [animatingStart, setAnimatingStart] = useState<boolean>(false);
     const [animatingEnd, setAnimatingEnd] = useState<boolean>(false);
     const [startAudioTime, setStartAudioTime] = useState<number>(
@@ -81,26 +139,20 @@ export const Teleporter = memo(
 
     return (
       <m-group visible-to={visibleTo}>
-        <m-model
-          id="platform-start"
-          src={teleporterPlatformURL}
-          x={animatingStart === false && travelTimeOut.current ? endX : startX}
-          y={
-            animatingStart === true
-              ? transporterAnimTravel
-              : travelTimeOut.current
-                ? animatingEnd === true
-                  ? endY - transporterAnimTravel
-                  : endY + transporterAnimTravel
-                : startY
-          }
-          z={animatingStart === false && travelTimeOut.current ? endZ : startZ}
-        >
-          <m-attr-lerp
-            attr={`${shouldLerpY ? "y" : undefined}`}
-            duration={transporterAnimDuration}
-          ></m-attr-lerp>
-        </m-model>
+        <TransporterPlatform
+          animatingStart={animatingStart}
+          animatingEnd={animatingEnd}
+          shouldLerpY={shouldLerpY}
+          transporterAnimTravel={transporterAnimTravel}
+          transporterAnimDuration={transporterAnimDuration}
+          startX={startX}
+          startY={startY}
+          startZ={startZ}
+          endX={endX}
+          endY={endY}
+          endZ={endZ}
+          travelTimeOut={travelTimeOut.current}
+        />
         <m-model
           id="teleporter-start"
           src={teleporterBaseURL}
@@ -154,4 +206,5 @@ export const Teleporter = memo(
     );
   },
 );
+
 Teleporter.displayName = "AudioSequencer";
