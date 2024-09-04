@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { CinemaScreen } from "./react-examples/cinema-screen";
 import { MMLLogo } from "./react-examples/mml-logo";
 import { TrackingDuck } from "./react-examples/tracking-duck";
 
@@ -13,6 +14,7 @@ export function ExternalArea({ x, y, z }: ExternalAreaProps) {
     <m-group x={x} y={y} z={z}>
       <MMLLogo x={-30} y={-2.5} z={13.5} sx={0.65} sy={0.65} sz={0.65} />
       <TrackingDuck x={-25} y={5} z={67.5} />
+      <CinemaScreen x={10} y={-10} z={120} ry={-90} />
     </m-group>
   );
 }
