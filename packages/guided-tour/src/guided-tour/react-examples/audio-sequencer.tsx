@@ -258,7 +258,7 @@ type AudioSequencerProps = {
 };
 export const AudioSequencer = memo(({ x, y, z, ry, visibleTo }: AudioSequencerProps) => {
   const [bpm, setBPM] = useState<number>(initialBPM);
-  const [muted, setMuted] = useState<boolean>(false);
+  const [muted, setMuted] = useState<boolean>(true);
 
   const increaseBPM = useCallback(() => {
     if (bpm < maxBPM) {
