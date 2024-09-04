@@ -8,6 +8,7 @@ import { Hallway } from "./components/hallway";
 import { RoomPoster } from "./components/room-poster";
 import { ExternalArea } from "./external-area";
 import { RoomsRoot } from "./rooms-root";
+import { ServiceCorridor } from "./service-corridor";
 
 function App() {
   const guidedTourYPos = 0;
@@ -47,6 +48,17 @@ function App() {
     <>
       <ExternalArea x={21} />
       {rooms}
+      <ServiceCorridor
+        x={-10.5}
+        y={0}
+        z={148}
+        width={30}
+        height={22.5}
+        depth={314}
+        wallColor="#aaaaaa"
+        glassColor="black"
+        glassOpacity={0.9}
+      />
     </>
   );
 }
