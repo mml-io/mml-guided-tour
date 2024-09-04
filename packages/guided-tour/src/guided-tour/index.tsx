@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 
 import { Hallway } from "./components/hallway";
 import { RoomPoster } from "./components/room-poster";
+import { ExternalArea } from "./external-area";
 import { RoomsRoot } from "./rooms-root";
 
 function App() {
@@ -42,7 +43,12 @@ function App() {
     }
   }
 
-  return <>{rooms}</>;
+  return (
+    <>
+      <ExternalArea x={21} />
+      {rooms}
+    </>
+  );
 }
 
 const container =
