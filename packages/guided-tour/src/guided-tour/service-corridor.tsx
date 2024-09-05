@@ -30,7 +30,7 @@ export const ServiceCorridor = memo(
     const closeGapDistance = 4.75;
     const travelatorWidth = 8;
     const travelatorDepth = 40;
-    const travelatorSteps = 6;
+    const travelatorSteps = 5;
     const travelatorTravelTime = 3000;
     return (
       <m-group x={x} y={y} z={z}>
