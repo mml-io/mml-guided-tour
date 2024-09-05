@@ -30,7 +30,7 @@ export const ServiceCorridor = memo(
     const closeGapDistance = 4.75;
     const travelatorWidth = 8;
     const travelatorDepth = 40;
-    const travelatorSteps = 10;
+    const travelatorSteps = 6;
     const travelatorTravelTime = 3000;
     return (
       <m-group x={x} y={y} z={z}>
@@ -100,19 +100,20 @@ export const ServiceCorridor = memo(
             <m-group key={i}>
               <Travelator
                 x={-width / 2 - 2}
-                y={0.1}
+                y={0.08}
                 z={-depth / 2 + 48.5 + i * 53.65}
                 ry={0}
                 width={travelatorWidth}
                 depth={travelatorDepth}
                 steps={travelatorSteps}
                 travelTime={travelatorTravelTime}
-                saturation={20}
+                saturation={42}
                 lightness={60}
+                baseColor="#bbbbbb"
               />
               <Travelator
                 x={-width / 2 - 12}
-                y={0.1}
+                y={0.08}
                 z={-depth / 2 + 48.5 + i * 53.65}
                 ry={0}
                 width={travelatorWidth}
@@ -120,8 +121,9 @@ export const ServiceCorridor = memo(
                 steps={travelatorSteps}
                 travelTime={travelatorTravelTime}
                 reverse={true}
-                saturation={20}
+                saturation={42}
                 lightness={60}
+                baseColor="#bbbbbb"
               />
             </m-group>
           );
