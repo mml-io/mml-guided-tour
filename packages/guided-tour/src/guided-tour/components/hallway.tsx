@@ -1,6 +1,10 @@
+import { MModelElement } from "@mml-io/mml-react-types";
 import * as React from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Door } from "./door";
+
+const secretDoorURL = "/assets/guidedtour/hallway_secret_wall.glb";
 
 type HallwayProps = {
   x: number;
@@ -8,7 +12,54 @@ type HallwayProps = {
   z: number;
 };
 
-export function Hallway({ x, y, z }: HallwayProps) {
+const SecterDoor = memo(() => {
+  const secretDoorRef = useRef<MModelElement | null>(null);
+  const animating = useRef<boolean>(false);
+  const [doorOpen, setDoorOpen] = useState(false);
+
+  const handleClick = useCallback(() => {
+    if (animating.current) return;
+    animating.current = true;
+    setDoorOpen(true);
+    setTimeout(() => {
+      setDoorOpen(false);
+      setTimeout(() => {
+        animating.current = false;
+      }, 5000);
+    }, 5000);
+  }, []);
+
+  useEffect(() => {
+    const secretDoor = secretDoorRef.current;
+    if (secretDoor) {
+      secretDoor.addEventListener("click", handleClick);
+    }
+
+    return () => {
+      if (secretDoor) {
+        secretDoor.removeEventListener("click", handleClick);
+      }
+    };
+  }, [handleClick]);
+
+  return (
+    <m-group>
+      <m-model
+        ref={secretDoorRef}
+        src={secretDoorURL}
+        y={doorOpen ? 4 : 0}
+        sx={doorOpen ? 1.003 : 1}
+      >
+        {animating.current && (
+          <m-attr-lerp attr="all" easing="easeInOutQuad" duration={2000}></m-attr-lerp>
+        )}
+      </m-model>
+    </m-group>
+  );
+});
+SecterDoor.displayName = "SecterDoor";
+
+export const Hallway = memo(({ x, y, z }: HallwayProps) => {
   const doorWidth = 5;
   const doorHeight = 6;
   const doorDepth = 0.1;
@@ -17,12 +68,13 @@ export function Hallway({ x, y, z }: HallwayProps) {
   const doorAnimDuration = 1050;
 
   return (
-    <m-group>
-      <m-model src={"/assets/guidedtour/hallway.glb"} x={x} y={y} z={z}></m-model>
+    <m-group x={x} y={y} z={z}>
+      <m-model src={"/assets/guidedtour/hallway.glb"} sx={0.9999}></m-model>
+      <SecterDoor />
       <Door
         x={-12.5}
-        y={y}
-        z={z - 4.13}
+        y={0}
+        z={-4.13}
         width={doorWidth}
         height={doorHeight}
         depth={doorDepth}
@@ -32,8 +84,8 @@ export function Hallway({ x, y, z }: HallwayProps) {
       />
       <Door
         x={12.5}
-        y={y}
-        z={z + 3.85}
+        y={0}
+        z={3.85}
         width={doorWidth}
         height={doorHeight}
         depth={doorDepth}
@@ -44,4 +96,5 @@ export function Hallway({ x, y, z }: HallwayProps) {
       />
     </m-group>
   );
-}
+});
+Hallway.displayName = "Hallway";
