@@ -11,28 +11,42 @@ type TravelatorProps = {
   steps: number;
   travelTime: number;
   reverse?: boolean;
+  saturation?: number;
+  lightness?: number;
 };
 export const Travelator = memo(
-  ({ x, y, z, ry, width, depth, steps, travelTime, reverse }: TravelatorProps) => {
-    const height = 0.1;
-    const startEndOverlap = depth / steps / 10;
+  ({
+    x,
+    y,
+    z,
+    ry,
+    width,
+    depth,
+    steps,
+    travelTime,
+    reverse,
+    saturation,
+    lightness,
+  }: TravelatorProps) => {
+    const height = 0.2;
+    const startEndOverlap = (depth / steps) * 0.25;
     return (
       <m-group x={x} y={y} z={z + depth / 2} ry={ry}>
         <m-cube
-          width={width}
+          width={width + 0.03}
           height={height}
           depth={depth / steps + startEndOverlap}
-          y={-height / 2}
-          z={-depth / 2 + startEndOverlap / 2}
+          y={-height + 0.03}
+          z={-depth / 2 + startEndOverlap / 2 - 0.5}
         ></m-cube>
         <m-cube
-          width={width}
+          width={width + 0.03}
           height={height}
           depth={depth / steps + startEndOverlap}
-          y={-height / 2}
-          z={depth / 2 - startEndOverlap / 2}
+          y={-height + 0.03}
+          z={depth / 2 - startEndOverlap / 2 + 0.5}
         ></m-cube>
-        {Array.from({ length: steps }).map((_, i) => {
+        {Array.from({ length: steps - 1 }).map((_, i) => {
           return (
             <m-cube
               key={i}
@@ -40,7 +54,7 @@ export const Travelator = memo(
               height={height}
               depth={depth / (steps - 1)}
               y={-height}
-              color={`hsl(${(360 / steps) * i}, 80%, 50%)`}
+              color={`hsl(${(360 / (steps - 1)) * i}, ${saturation ? `${saturation}%` : "80%"}, ${lightness ? `${lightness}%` : "50%"})`}
             >
               <m-attr-anim
                 attr="z"
