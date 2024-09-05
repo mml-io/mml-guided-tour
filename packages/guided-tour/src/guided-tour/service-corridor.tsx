@@ -1,6 +1,8 @@
 import * as React from "react";
 import { memo } from "react";
 
+import { Travelator } from "./components/travelator";
+
 type ServiceCorridorProps = {
   x: number;
   y: number;
@@ -26,6 +28,10 @@ export const ServiceCorridor = memo(
   }: ServiceCorridorProps) => {
     const wallThickness = 0.1;
     const closeGapDistance = 4.75;
+    const travelatorWidth = 8;
+    const travelatorDepth = 40;
+    const travelatorSteps = 10;
+    const travelatorTravelTime = 3000;
     return (
       <m-group x={x} y={y} z={z}>
         <m-cube
@@ -89,6 +95,37 @@ export const ServiceCorridor = memo(
           color={glassColor}
           cast-shadows={false}
         ></m-cube>
+        {Array.from({ length: 4 }).map((_, i) => {
+          return (
+            <m-group key={i}>
+              <Travelator
+                x={-width / 2 - 2}
+                y={0.1}
+                z={-depth / 2 + 48.5 + i * 53.65}
+                ry={0}
+                width={travelatorWidth}
+                depth={travelatorDepth}
+                steps={travelatorSteps}
+                travelTime={travelatorTravelTime}
+                saturation={20}
+                lightness={60}
+              />
+              <Travelator
+                x={-width / 2 - 12}
+                y={0.1}
+                z={-depth / 2 + 48.5 + i * 53.65}
+                ry={0}
+                width={travelatorWidth}
+                depth={travelatorDepth}
+                steps={travelatorSteps}
+                travelTime={travelatorTravelTime}
+                reverse={true}
+                saturation={20}
+                lightness={60}
+              />
+            </m-group>
+          );
+        })}
       </m-group>
     );
   },
