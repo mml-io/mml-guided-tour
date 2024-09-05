@@ -13,6 +13,7 @@ type TravelatorProps = {
   reverse?: boolean;
   saturation?: number;
   lightness?: number;
+  baseColor?: string;
 };
 export const Travelator = memo(
   ({
@@ -27,43 +28,45 @@ export const Travelator = memo(
     reverse,
     saturation,
     lightness,
+    baseColor,
   }: TravelatorProps) => {
     const height = 0.2;
-    const startEndOverlap = (depth / steps) * 0.25;
+    const stepDepth = depth / steps;
+    const startEndOverlap = stepDepth * 0.1;
     return (
       <m-group x={x} y={y} z={z + depth / 2} ry={ry}>
         <m-cube
           width={width + 0.03}
           height={height}
-          depth={depth / steps + startEndOverlap}
-          y={-height + 0.03}
-          z={-depth / 2 + startEndOverlap / 2 - 0.5}
+          depth={stepDepth + startEndOverlap}
+          y={-height + 0.004}
+          z={-depth / 2 + startEndOverlap / 2}
+          color={baseColor ? baseColor : "#aaaaaa"}
         ></m-cube>
         <m-cube
           width={width + 0.03}
           height={height}
-          depth={depth / steps + startEndOverlap}
-          y={-height + 0.03}
-          z={depth / 2 - startEndOverlap / 2 + 0.5}
+          depth={stepDepth + startEndOverlap}
+          y={-height + 0.004}
+          z={depth / 2 - startEndOverlap / 2}
+          color={baseColor ? baseColor : "#aaaaaa"}
         ></m-cube>
-        {Array.from({ length: steps - 1 }).map((_, i) => {
+        {Array.from({ length: steps }).map((_, i) => {
           return (
             <m-cube
               key={i}
               width={width}
               height={height}
-              depth={depth / (steps - 1)}
+              depth={stepDepth}
               y={-height}
-              color={`hsl(${(360 / (steps - 1)) * i}, ${saturation ? `${saturation}%` : "80%"}, ${lightness ? `${lightness}%` : "50%"})`}
+              color={`hsl(${(360 / steps) * i}, ${saturation ? `${saturation}%` : "80%"}, ${lightness ? `${lightness}%` : "50%"})`}
             >
               <m-attr-anim
                 attr="z"
                 start={reverse ? -depth / 2 : depth / 2}
                 end={reverse ? depth / 2 : -depth / 2}
                 duration={travelTime}
-                start-time={
-                  (document.timeline.currentTime as number) - (travelTime * 1000 * i) / (steps - 1)
-                }
+                start-time={(document.timeline.currentTime as number) - (travelTime * i) / steps}
               ></m-attr-anim>
             </m-cube>
           );
