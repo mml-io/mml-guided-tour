@@ -1,6 +1,8 @@
 import * as React from "react";
 import { memo } from "react";
 
+import { Teleporter } from "../components/teleporter";
+
 type StartProps = {
   x: number;
   y: number;
@@ -103,6 +105,29 @@ const Rails = memo(({ x, y, z, stepSizeX, stepGapX, length, thickness, color }: 
 });
 Rails.displayName = "Rails";
 
+type StepProps = {
+  x: number;
+  y: number;
+  z: number;
+  width: number;
+  height: number;
+  depth: number;
+  breakable: boolean;
+};
+const Step = memo(({ x, y, z, width, height, depth, breakable }: StepProps) => {
+  return (
+    <m-group x={x} y={y} z={z}>
+      <m-cube
+        width={width}
+        height={height}
+        depth={depth}
+        color={breakable ? "#000000" : "#550000"}
+      ></m-cube>
+    </m-group>
+  );
+});
+Step.displayName = "Step";
+
 type StepsProps = {
   y?: number;
   z?: number;
@@ -118,29 +143,31 @@ const Steps = memo(
     return (
       <m-group>
         {Array.from({ length: totalSteps }).map((_, i) => {
+          const leftStepXPos = i % 2 === 0 ? -stepGapX / 2 : stepGapX / 2;
+          const rightStepXPos = i % 2 !== 0 ? -stepGapX / 2 : stepGapX / 2;
+          const yPos = -thickness / 2;
           const zPos = stepSizeZ + i * stepSizeZ + i * stepGapZ;
+          const coinFlip = Math.random() > 0.5;
           return (
             <m-group key={i}>
-              <m-cube
-                x={i % 2 === 0 ? -stepGapX / 2 : stepGapX / 2}
-                y={y ? y - thickness / 2 : -thickness / 2}
+              <Step
+                x={leftStepXPos}
+                y={y ? y + yPos : yPos}
                 z={z ? z + zPos : zPos}
                 width={stepSizeX}
                 height={thickness}
                 depth={stepSizeZ}
-                color={"#000000"}
-                opacity={0.9}
-              ></m-cube>
-              <m-cube
-                x={i % 2 !== 0 ? -stepGapX / 2 : stepGapX / 2}
-                y={y ? y - thickness / 2 : -thickness / 2}
+                breakable={coinFlip}
+              ></Step>
+              <Step
+                x={rightStepXPos}
+                y={y ? y + yPos : yPos}
                 z={z ? z + zPos : zPos}
                 width={stepSizeX}
                 height={thickness}
                 depth={stepSizeZ}
-                color={"#000000"}
-                opacity={0.9}
-              ></m-cube>
+                breakable={!coinFlip}
+              ></Step>
             </m-group>
           );
         })}
@@ -159,11 +186,13 @@ type GlassBridgeGameProps = {
 };
 export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGameProps) => {
   const bridgeSteps = 7;
+
   const stepSizeZ = 4.2;
-  const stepSizeX = 3;
+  const stepSizeX = 3.5;
   const stepGapX = 7;
   const stepGapZ = 6;
   const stepThickness = 0.1;
+
   const baseColor = "#aaaaaa";
   const baseDepth = 20;
 
@@ -207,6 +236,16 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         height={0.1}
         depth={baseDepth}
         color={baseColor}
+      />
+      <Teleporter
+        startX={0}
+        startY={0}
+        startZ={railsLength + baseDepth / 2}
+        startRY={-90}
+        endX={x ? -x - 15 : -15}
+        endY={y ? -y : 0}
+        endZ={-2.25}
+        endRY={180}
       />
     </m-group>
   );
