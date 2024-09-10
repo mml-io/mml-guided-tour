@@ -1,6 +1,7 @@
 import * as React from "react";
 import { memo } from "react";
 
+import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
 
 type StartProps = {
@@ -194,7 +195,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
   const stepThickness = 0.1;
 
   const baseColor = "#aaaaaa";
-  const baseDepth = 20;
+  const baseDepth = 30;
 
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
   return (
@@ -246,6 +247,14 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         endY={y ? -y : 0}
         endZ={-2.25}
         endRY={180}
+      />
+      <Respawner
+        distance={80}
+        interval={200}
+        transporterColor={baseColor}
+        landingXRange={Math.floor(baseDepth * 0.4)}
+        landingZRange={Math.floor(baseDepth * 0.4)}
+        landingZOffset={-baseDepth / 2}
       />
     </m-group>
   );
