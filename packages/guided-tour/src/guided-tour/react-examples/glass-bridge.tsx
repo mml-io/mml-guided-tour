@@ -19,13 +19,39 @@ const Start = memo(({ x, y, z, width, height, depth, color }: StartProps) => {
         depth={depth}
         x={0}
         y={-height / 2}
-        z={0}
+        z={-depth / 2}
         color={color}
       ></m-cube>
     </m-group>
   );
 });
 Start.displayName = "Start";
+
+type EndProps = {
+  x: number;
+  y: number;
+  z: number;
+  width: number;
+  height: number;
+  depth: number;
+  color: string;
+};
+const End = memo(({ x, y, z, width, height, depth, color }: EndProps) => {
+  return (
+    <m-group x={x} y={y} z={z}>
+      <m-cube
+        width={width}
+        height={height}
+        depth={depth}
+        x={0}
+        y={-height / 2}
+        z={depth / 2}
+        color={color}
+      ></m-cube>
+    </m-group>
+  );
+});
+End.displayName = "End";
 
 type RailsProps = {
   x?: number;
@@ -36,47 +62,45 @@ type RailsProps = {
   stepSizeZ: number;
   stepGapX: number;
   stepGapZ: number;
+  length: number;
   thickness: number;
   color?: string;
 };
-const Rails = memo(
-  ({ x, y, z, steps, stepSizeX, stepSizeZ, stepGapX, stepGapZ, thickness, color }: RailsProps) => {
-    const length = steps * stepSizeZ + (steps - 1) * stepGapZ + stepSizeZ;
-    const zPos = z ? z + length / 2 : length / 2;
-    return (
-      <m-group x={x} z={z}>
-        {Array.from({ length: 4 }).map((_, i) => {
-          const xPos = i % 2 === 0 ? -stepGapX / 2 : stepGapX / 2;
-          return (
-            <m-group key={i}>
-              <m-cube
-                x={xPos - stepSizeX / 2 - thickness / 2}
-                y={y ? y - thickness / 2 : -thickness / 2}
-                z={zPos}
-                width={thickness}
-                height={thickness}
-                depth={length}
-                color={color ? color : "#aaaaaa"}
-                collide={false}
-              />
-              <m-cube
-                x={xPos + stepSizeX / 2 + thickness / 2}
-                y={y ? y - thickness / 2 : -thickness / 2}
-                z={zPos}
-                width={thickness}
-                height={thickness}
-                depth={length}
-                color={color ? color : "#aaaaaa"}
-                collide={false}
-              />
-            </m-group>
-          );
-        })}
-        ;
-      </m-group>
-    );
-  },
-);
+const Rails = memo(({ x, y, z, stepSizeX, stepGapX, length, thickness, color }: RailsProps) => {
+  const zPos = z ? z + length / 2 : length / 2;
+  return (
+    <m-group x={x} z={z}>
+      {Array.from({ length: 4 }).map((_, i) => {
+        const xPos = i % 2 === 0 ? -stepGapX / 2 : stepGapX / 2;
+        return (
+          <m-group key={i}>
+            <m-cube
+              x={xPos - stepSizeX / 2 - thickness / 2}
+              y={y ? y - thickness / 2 : -thickness / 2}
+              z={zPos}
+              width={thickness}
+              height={thickness}
+              depth={length}
+              color={color ? color : "#aaaaaa"}
+              collide={false}
+            />
+            <m-cube
+              x={xPos + stepSizeX / 2 + thickness / 2}
+              y={y ? y - thickness / 2 : -thickness / 2}
+              z={zPos}
+              width={thickness}
+              height={thickness}
+              depth={length}
+              color={color ? color : "#aaaaaa"}
+              collide={false}
+            />
+          </m-group>
+        );
+      })}
+      ;
+    </m-group>
+  );
+});
 Rails.displayName = "Rails";
 
 type StepsProps = {
@@ -94,12 +118,13 @@ const Steps = memo(
     return (
       <m-group>
         {Array.from({ length: totalSteps }).map((_, i) => {
+          const zPos = stepSizeZ + i * stepSizeZ + i * stepGapZ;
           return (
             <m-group key={i}>
               <m-cube
                 x={i % 2 === 0 ? -stepGapX / 2 : stepGapX / 2}
                 y={y ? y - thickness / 2 : -thickness / 2}
-                z={z ? z + (i * stepSizeZ + i * stepGapZ) : i * stepSizeZ + i * stepGapZ}
+                z={z ? z + zPos : zPos}
                 width={stepSizeX}
                 height={thickness}
                 depth={stepSizeZ}
@@ -109,7 +134,7 @@ const Steps = memo(
               <m-cube
                 x={i % 2 !== 0 ? -stepGapX / 2 : stepGapX / 2}
                 y={y ? y - thickness / 2 : -thickness / 2}
-                z={z ? z + (i * stepSizeZ + i * stepGapZ) : i * stepSizeZ + i * stepGapZ}
+                z={z ? z + zPos : zPos}
                 width={stepSizeX}
                 height={thickness}
                 depth={stepSizeZ}
@@ -140,27 +165,48 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
   const stepGapZ = 6;
   const stepThickness = 0.1;
   const baseColor = "#aaaaaa";
+  const baseDepth = 20;
+
+  const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
-      <Start x={0} y={0} z={0} width={20} height={0.1} depth={20} color={baseColor} />
+      <Start
+        x={0}
+        y={0}
+        z={-0.05}
+        width={baseDepth}
+        height={0.1}
+        depth={baseDepth}
+        color={baseColor}
+      />
       <Rails
         x={0}
-        z={5}
+        z={0}
         steps={bridgeSteps}
+        stepSizeX={stepSizeX}
+        stepSizeZ={stepSizeZ}
+        stepGapX={stepGapX}
+        stepGapZ={stepGapZ}
+        length={railsLength}
+        thickness={stepThickness}
+      />
+      <Steps
+        totalSteps={bridgeSteps}
+        z={0}
         stepSizeX={stepSizeX}
         stepSizeZ={stepSizeZ}
         stepGapX={stepGapX}
         stepGapZ={stepGapZ}
         thickness={stepThickness}
       />
-      <Steps
-        totalSteps={bridgeSteps}
-        z={15}
-        stepSizeX={stepSizeX}
-        stepSizeZ={stepSizeZ}
-        stepGapX={stepGapX}
-        stepGapZ={stepGapZ}
-        thickness={stepThickness}
+      <End
+        x={0}
+        y={0}
+        z={railsLength}
+        width={baseDepth}
+        height={0.1}
+        depth={baseDepth}
+        color={baseColor}
       />
     </m-group>
   );
