@@ -195,7 +195,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
   const stepThickness = 0.1;
 
   const baseColor = "#aaaaaa";
-  const baseDepth = 30;
+  const baseDepth = 40;
 
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
   return (
@@ -204,7 +204,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         x={0}
         y={0}
         z={-0.05}
-        width={baseDepth}
+        width={baseDepth - 10}
         height={0.1}
         depth={baseDepth}
         color={baseColor}
@@ -233,7 +233,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         x={0}
         y={0}
         z={railsLength}
-        width={baseDepth}
+        width={baseDepth - 10}
         height={0.1}
         depth={baseDepth}
         color={baseColor}
