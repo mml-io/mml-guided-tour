@@ -1,9 +1,18 @@
-import { MPositionProbeElement } from "@mml-io/mml-react-types";
+import { MCubeElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
+
+const start = document.timeline.currentTime as number;
+
+const gameDurationInMinutes = 4;
+
+// const bgmSRC = "/assets/guidedtour/bgm_suspense.mp3";
+const glassStepSRC = "/assets/guidedtour/glass_step.glb";
+const glassSFX = ["/assets/guidedtour/sfx_glass_A.mp3", "/assets/guidedtour/sfx_glass_B.mp3"];
+const glassSFXDuration = [2328, 2136];
 
 const millisecondsToTimeStamp = (ms: number) => {
   const minutes = Math.floor(ms / 60000);
@@ -149,14 +158,66 @@ type StepProps = {
   breakable: boolean;
 };
 const Step = memo(({ x, y, z, width, height, depth, breakable }: StepProps) => {
+  const stepRef = useRef<MCubeElement | null>(null);
+  const coinFlip = Math.random() > 0.5;
+
+  const sfxSRC = coinFlip ? glassSFX[0] : glassSFX[1];
+  const sfxDuration = coinFlip ? glassSFXDuration[0] : glassSFXDuration[1];
+
+  const [breakTime, setBreakTime] = useState<string | number | undefined>(undefined);
+  const [pauseTime, setPauseTime] = useState<string | number | undefined>(undefined);
+  const [shouldCollide, setShouldCollide] = useState<boolean>(true);
+
+  const handleBreak = useCallback(() => {
+    const now = document.timeline.currentTime as number;
+    setBreakTime(now);
+    setPauseTime(now + 4000);
+    setShouldCollide(false);
+  }, []);
+
+  useEffect(() => {
+    const step = stepRef.current;
+    if (step && breakable) {
+      step.addEventListener("collisionstart", handleBreak);
+    }
+    return () => {
+      if (step && breakable) {
+        step.removeEventListener("collisionstart", handleBreak);
+      }
+    };
+  }, [breakable, handleBreak]);
+
   return (
     <m-group x={x} y={y} z={z}>
       <m-cube
+        ref={stepRef}
         width={width}
         height={height}
         depth={depth}
-        color={breakable ? "#000000" : "#550000"}
+        collision-interval={breakable ? 20 : undefined}
+        collide={shouldCollide}
+        color={breakable ? "#550000" : "#000000"}
+        visible={false}
       ></m-cube>
+      <m-model
+        src={glassStepSRC}
+        collide={false}
+        ry={coinFlip ? 180 : 0}
+        anim={glassStepSRC}
+        anim-start-time={breakTime}
+        anim-pause-time={pauseTime}
+        anim-loop={false}
+      ></m-model>
+      {breakable && (
+        <m-audio
+          src={sfxSRC}
+          start-time={breakTime ? breakTime : start}
+          pause-time={pauseTime ? pauseTime : start + sfxDuration}
+          loop={false}
+          volume={2}
+          debug={true}
+        ></m-audio>
+      )}
     </m-group>
   );
 });
@@ -221,8 +282,8 @@ type GlassBridgeGameProps = {
 export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGameProps) => {
   const bridgeSteps = 7;
 
-  const stepSizeZ = 4.2;
-  const stepSizeX = 3.5;
+  const stepSizeZ = 3;
+  const stepSizeX = 4.2;
   const stepGapX = 7;
   const stepGapZ = 6;
   const stepThickness = 0.1;
@@ -232,6 +293,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
 
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
 
+  const [gameStart, setGameStart] = useState<number | null>(null);
   const [countDown, setCountDown] = useState<number | null>(null);
   const [resettingGame, setResettingGame] = useState<boolean>(false);
 
@@ -252,6 +314,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
       timerTick.current = undefined;
       timer.current = null;
       setCountDown(null);
+      setGameStart(null);
     }
   }, [resettingGame]);
 
@@ -267,7 +330,8 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
   const handleGameStart = useCallback(() => {
     if (timerTick.current === undefined) {
       console.log("Game started!");
-      timer.current = 1 * 10 * 1000;
+      setGameStart(document.timeline.currentTime as number);
+      timer.current = gameDurationInMinutes * 60 * 1000;
       timerTick.current = setInterval(handleTick, 1000);
     }
   }, [handleTick]);
@@ -354,6 +418,15 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         landingZRange={Math.floor(baseDepth * 0.25)}
         landingZOffset={-baseDepth / 2}
       />
+      <m-audio
+        // src={bgmSRC}
+        x={0}
+        y={10}
+        z={railsLength / 2}
+        debug={true}
+        start-time={gameStart ? gameStart : -100000}
+        pause-time={gameStart ? undefined : (document.timeline.currentTime as number)}
+      ></m-audio>
       <m-position-probe
         ref={startProbeRef}
         x={0}
