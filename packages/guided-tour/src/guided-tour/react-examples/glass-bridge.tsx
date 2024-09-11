@@ -1,5 +1,6 @@
+import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo } from "react";
+import { memo, useRef } from "react";
 
 import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
@@ -198,6 +199,9 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
   const baseDepth = 40;
 
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
+
+  const endProbeRef = useRef<MPositionProbeElement | null>(null);
+
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <Start
@@ -256,6 +260,14 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         landingZRange={Math.floor(baseDepth * 0.4)}
         landingZOffset={-baseDepth / 2}
       />
+      <m-position-probe
+        ref={endProbeRef}
+        x={0}
+        y={0}
+        z={railsLength + baseDepth / 2}
+        range={baseDepth / 2}
+        debug={true}
+      ></m-position-probe>
     </m-group>
   );
 });
