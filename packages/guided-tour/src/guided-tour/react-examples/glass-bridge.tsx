@@ -232,37 +232,66 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
 
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
 
-  const [timer, setTimer] = useState<number | null>(null);
+  const [countDown, setCountDown] = useState<number | null>(null);
+  const [resettingGame, setResettingGame] = useState<boolean>(false);
 
   const startProbeRef = useRef<MPositionProbeElement | null>(null);
   const endProbeRef = useRef<MPositionProbeElement | null>(null);
-  const timerTick = useRef<number | null>(null);
+  const timerTick = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timer = useRef<number | null>(null);
 
-  const handleProbeStart = useCallback(() => {
-    if (timer === null && timerTick.current === null) {
-      setTimer(4 * 60 * 1000);
-      timerTick.current = window.setInterval(() => {
-        setTimer((prev) => {
-          if (prev && prev > 0) {
-            return prev - 1000;
-          }
-          return 0;
-        });
-      }, 1000);
+  const handleGameEnd = useCallback(() => {
+    if (timer.current !== null && timerTick.current !== undefined) {
+      console.log("Game ended!");
+      setTimeout(() => {
+        setResettingGame(true);
+        console.log(`resseting game... ${resettingGame}`);
+        setTimeout(() => setResettingGame(false), 2000);
+      }, 4000);
+      clearInterval(timerTick.current);
+      timerTick.current = undefined;
+      timer.current = null;
+      setCountDown(null);
     }
-  }, [timer]);
+  }, [resettingGame]);
+
+  const handleTick = useCallback(() => {
+    timer.current = timer.current ? timer.current - 1000 : 0;
+    if (timer.current <= 0) {
+      console.log("Time out!");
+      handleGameEnd();
+    }
+    setCountDown(timer.current);
+  }, [handleGameEnd]);
+
+  const handleGameStart = useCallback(() => {
+    if (timerTick.current === undefined) {
+      console.log("Game started!");
+      timer.current = 1 * 10 * 1000;
+      timerTick.current = setInterval(handleTick, 1000);
+    }
+  }, [handleTick]);
 
   useEffect(() => {
     const startProbe = startProbeRef.current;
     const endProbe = endProbeRef.current;
 
     if (startProbe && endProbe) {
-      startProbe.addEventListener("positionenter", handleProbeStart);
-      startProbe.addEventListener("positionmove", handleProbeStart);
-      endProbe.addEventListener("positionenter", () => {});
-      endProbe.addEventListener("positionmove", () => {});
+      startProbe.addEventListener("positionenter", handleGameStart);
+      startProbe.addEventListener("positionmove", handleGameStart);
+      endProbe.addEventListener("positionenter", handleGameEnd);
+      endProbe.addEventListener("positionmove", handleGameEnd);
     }
-  }, [handleProbeStart]);
+
+    return () => {
+      if (startProbe && endProbe) {
+        startProbe.removeEventListener("positionenter", handleGameStart);
+        startProbe.removeEventListener("positionmove", handleGameStart);
+        endProbe.removeEventListener("positionenter", handleGameEnd);
+        endProbe.removeEventListener("positionmove", handleGameEnd);
+      }
+    };
+  }, [handleGameEnd, handleGameStart]);
 
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
@@ -286,15 +315,17 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         length={railsLength}
         thickness={stepThickness}
       />
-      <Steps
-        totalSteps={bridgeSteps}
-        z={0}
-        stepSizeX={stepSizeX}
-        stepSizeZ={stepSizeZ}
-        stepGapX={stepGapX}
-        stepGapZ={stepGapZ}
-        thickness={stepThickness}
-      />
+      {resettingGame === false && (
+        <Steps
+          totalSteps={bridgeSteps}
+          z={0}
+          stepSizeX={stepSizeX}
+          stepSizeZ={stepSizeZ}
+          stepGapX={stepGapX}
+          stepGapZ={stepGapZ}
+          thickness={stepThickness}
+        />
+      )}
       <End
         x={0}
         y={0}
@@ -303,7 +334,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         height={0.1}
         depth={baseDepth}
         color={baseColor}
-        timer={timer}
+        timer={countDown}
       />
       <Teleporter
         startX={0}
@@ -319,8 +350,8 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         distance={80}
         interval={200}
         transporterColor={baseColor}
-        landingXRange={Math.floor(baseDepth * 0.4)}
-        landingZRange={Math.floor(baseDepth * 0.4)}
+        landingXRange={Math.floor(baseDepth * 0.3)}
+        landingZRange={Math.floor(baseDepth * 0.25)}
         landingZOffset={-baseDepth / 2}
       />
       <m-position-probe
@@ -329,7 +360,6 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         y={0}
         z={0}
         range={baseDepth / 4}
-        debug={true}
       ></m-position-probe>
       <m-position-probe
         ref={endProbeRef}
@@ -337,7 +367,6 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         y={0}
         z={railsLength + baseDepth / 2}
         range={baseDepth / 2}
-        debug={true}
       ></m-position-probe>
     </m-group>
   );
