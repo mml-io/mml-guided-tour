@@ -34,7 +34,7 @@ export function Room5() {
           startRY={180}
           endX={glassBrigdeGamePosX}
           endY={glassBrigdeGamePosY}
-          endZ={-15}
+          endZ={-30}
           endRY={90}
         />
         <GlassBridgeGame x={glassBrigdeGamePosX} y={glassBrigdeGamePosY} />
