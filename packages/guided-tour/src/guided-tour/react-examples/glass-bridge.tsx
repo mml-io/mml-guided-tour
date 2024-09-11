@@ -1,9 +1,15 @@
 import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo, useRef } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
+
+const millisecondsToTimeStamp = (ms: number) => {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+};
 
 type StartProps = {
   x: number;
@@ -39,8 +45,9 @@ type EndProps = {
   height: number;
   depth: number;
   color: string;
+  timer?: number | null | undefined;
 };
-const End = memo(({ x, y, z, width, height, depth, color }: EndProps) => {
+const End = memo(({ x, y, z, width, height, depth, color, timer }: EndProps) => {
   return (
     <m-group x={x} y={y} z={z}>
       <m-cube
@@ -52,6 +59,31 @@ const End = memo(({ x, y, z, width, height, depth, color }: EndProps) => {
         z={depth / 2}
         color={color}
       ></m-cube>
+      <m-cube
+        width={timer ? width : 0}
+        height={timer ? depth / 4 : 0}
+        depth={timer ? 0.1 : 0}
+        x={0}
+        y={depth / 2}
+        z={depth / 2}
+      >
+        <m-label
+          alignment="center"
+          padding="false"
+          width={timer ? width - 1 : 0}
+          height={timer ? depth / 4 - 1 : 0}
+          content={timer ? millisecondsToTimeStamp(timer) : ""}
+          font-size={650}
+          font-color="#aaffaa"
+          color="black"
+          emissive={12}
+          z={-1}
+          ry={180}
+        >
+          <m-attr-lerp attr="all" easing="easeInOutQuad" duration={700}></m-attr-lerp>
+        </m-label>
+        <m-attr-lerp attr="all" easing="easeInOutQuad" duration={700}></m-attr-lerp>
+      </m-cube>
     </m-group>
   );
 });
@@ -200,7 +232,37 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
 
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
 
+  const [timer, setTimer] = useState<number | null>(null);
+
+  const startProbeRef = useRef<MPositionProbeElement | null>(null);
   const endProbeRef = useRef<MPositionProbeElement | null>(null);
+  const timerTick = useRef<number | null>(null);
+
+  const handleProbeStart = useCallback(() => {
+    if (timer === null && timerTick.current === null) {
+      setTimer(4 * 60 * 1000);
+      timerTick.current = window.setInterval(() => {
+        setTimer((prev) => {
+          if (prev && prev > 0) {
+            return prev - 1000;
+          }
+          return 0;
+        });
+      }, 1000);
+    }
+  }, [timer]);
+
+  useEffect(() => {
+    const startProbe = startProbeRef.current;
+    const endProbe = endProbeRef.current;
+
+    if (startProbe && endProbe) {
+      startProbe.addEventListener("positionenter", handleProbeStart);
+      startProbe.addEventListener("positionmove", handleProbeStart);
+      endProbe.addEventListener("positionenter", () => {});
+      endProbe.addEventListener("positionmove", () => {});
+    }
+  }, [handleProbeStart]);
 
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
@@ -241,6 +303,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         height={0.1}
         depth={baseDepth}
         color={baseColor}
+        timer={timer}
       />
       <Teleporter
         startX={0}
@@ -260,6 +323,14 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         landingZRange={Math.floor(baseDepth * 0.4)}
         landingZOffset={-baseDepth / 2}
       />
+      <m-position-probe
+        ref={startProbeRef}
+        x={0}
+        y={0}
+        z={0}
+        range={baseDepth / 4}
+        debug={true}
+      ></m-position-probe>
       <m-position-probe
         ref={endProbeRef}
         x={0}
