@@ -9,7 +9,7 @@ const start = document.timeline.currentTime as number;
 
 const gameDurationInMinutes = 4;
 
-// const bgmSRC = "/assets/guidedtour/bgm_suspense.mp3";
+const bgmSRC = "/assets/guidedtour/bgm_suspense.mp3";
 const semiCylinderSRC = "/assets/guidedtour/semi_cylinder.glb";
 const glassStepSRC = "/assets/guidedtour/glass_step.glb";
 const glassSFX = ["/assets/guidedtour/sfx_glass_A.mp3", "/assets/guidedtour/sfx_glass_B.mp3"];
@@ -476,11 +476,16 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         landingZOffset={-baseDepth / 2}
       />
       <m-audio
-        // src={bgmSRC}
+        src={bgmSRC}
         x={0}
-        y={10}
-        z={railsLength / 2}
+        y={0}
+        z={railsLength + baseDepth / 2}
         debug={debug}
+        cone-angle={60}
+        cone-falloff-angle={80}
+        ry={180}
+        rx={20}
+        volume={4}
         start-time={gameStart ? gameStart : -100000}
         pause-time={gameStart ? undefined : (document.timeline.currentTime as number)}
       ></m-audio>
