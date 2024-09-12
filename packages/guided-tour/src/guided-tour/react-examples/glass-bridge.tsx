@@ -10,6 +10,7 @@ const start = document.timeline.currentTime as number;
 const gameDurationInMinutes = 4;
 
 // const bgmSRC = "/assets/guidedtour/bgm_suspense.mp3";
+const semiCylinderSRC = "/assets/guidedtour/semi_cylinder.glb";
 const glassStepSRC = "/assets/guidedtour/glass_step.glb";
 const glassSFX = ["/assets/guidedtour/sfx_glass_A.mp3", "/assets/guidedtour/sfx_glass_B.mp3"];
 const glassSFXDuration = [2328, 2136];
@@ -41,6 +42,7 @@ const Start = memo(({ x, y, z, width, height, depth, color }: StartProps) => {
         z={-depth / 2}
         color={color}
       ></m-cube>
+      <m-model src={semiCylinderSRC} sy={0.1}></m-model>
     </m-group>
   );
 });
@@ -93,6 +95,7 @@ const End = memo(({ x, y, z, width, height, depth, color, timer }: EndProps) => 
         </m-label>
         <m-attr-lerp attr="all" easing="easeInOutQuad" duration={700}></m-attr-lerp>
       </m-cube>
+      <m-model src={semiCylinderSRC} sy={0.1} ry={180}></m-model>
     </m-group>
   );
 });
@@ -156,71 +159,88 @@ type StepProps = {
   height: number;
   depth: number;
   breakable: boolean;
+  breakNow?: boolean;
+  unbreakable?: boolean;
+  debug?: boolean;
 };
-const Step = memo(({ x, y, z, width, height, depth, breakable }: StepProps) => {
-  const stepRef = useRef<MCubeElement | null>(null);
-  const coinFlip = Math.random() > 0.5;
+const Step = memo(
+  ({ x, y, z, width, height, depth, breakable, breakNow, unbreakable, debug }: StepProps) => {
+    const stepRef = useRef<MCubeElement | null>(null);
+    const coinFlip = Math.random() > 0.5;
 
-  const sfxSRC = coinFlip ? glassSFX[0] : glassSFX[1];
-  const sfxDuration = coinFlip ? glassSFXDuration[0] : glassSFXDuration[1];
+    const sfxSRC = coinFlip ? glassSFX[0] : glassSFX[1];
+    const sfxDuration = coinFlip ? glassSFXDuration[0] : glassSFXDuration[1];
 
-  const [breakTime, setBreakTime] = useState<string | number | undefined>(undefined);
-  const [pauseTime, setPauseTime] = useState<string | number | undefined>(undefined);
-  const [shouldCollide, setShouldCollide] = useState<boolean>(true);
+    const [breakTime, setBreakTime] = useState<string | number | undefined>(undefined);
+    const [pauseTime, setPauseTime] = useState<string | number | undefined>(undefined);
+    const [shouldCollide, setShouldCollide] = useState<boolean>(true);
 
-  const handleBreak = useCallback(() => {
-    const now = document.timeline.currentTime as number;
-    setBreakTime(now);
-    setPauseTime(now + 4000);
-    setShouldCollide(false);
-  }, []);
-
-  useEffect(() => {
-    const step = stepRef.current;
-    if (step && breakable) {
-      step.addEventListener("collisionstart", handleBreak);
-    }
-    return () => {
-      if (step && breakable) {
-        step.removeEventListener("collisionstart", handleBreak);
+    const handleBreak = useCallback(() => {
+      if (unbreakable) {
+        return;
       }
-    };
-  }, [breakable, handleBreak]);
+      const now = document.timeline.currentTime as number;
+      setBreakTime(now);
+      setPauseTime(now + 4000);
+      setShouldCollide(false);
+    }, [unbreakable]);
 
-  return (
-    <m-group x={x} y={y} z={z}>
-      <m-cube
-        ref={stepRef}
-        width={width}
-        height={height}
-        depth={depth}
-        collision-interval={breakable ? 20 : undefined}
-        collide={shouldCollide}
-        color={breakable ? "#550000" : "#000000"}
-        visible={false}
-      ></m-cube>
-      <m-model
-        src={glassStepSRC}
-        collide={false}
-        ry={coinFlip ? 180 : 0}
-        anim={glassStepSRC}
-        anim-start-time={breakTime}
-        anim-pause-time={pauseTime}
-        anim-loop={false}
-      ></m-model>
-      {breakable && (
-        <m-audio
-          src={sfxSRC}
-          start-time={breakTime ? breakTime : start}
-          pause-time={pauseTime ? pauseTime : start + sfxDuration}
-          loop={false}
-          volume={2}
-          debug={true}
-        ></m-audio>
-      )}
-    </m-group>
-  );
-});
+    useEffect(() => {
+      if (breakNow) {
+        const now = (document.timeline.currentTime as number) + Math.random() * 1000;
+        setBreakTime(now);
+        setPauseTime(now + 4000);
+        setShouldCollide(false);
+      }
+    }, [breakNow]);
+
+    useEffect(() => {
+      const step = stepRef.current;
+      if (step && breakable) {
+        step.addEventListener("collisionstart", handleBreak);
+      }
+      return () => {
+        if (step && breakable) {
+          step.removeEventListener("collisionstart", handleBreak);
+        }
+      };
+    }, [breakable, handleBreak]);
+
+    return (
+      <m-group x={x} y={y} z={z}>
+        <m-cube
+          ref={stepRef}
+          width={width}
+          height={height}
+          depth={depth}
+          collision-interval={breakable ? 20 : undefined}
+          collide={shouldCollide}
+          color={breakable ? "#550000" : "#000000"}
+          visible={false}
+        ></m-cube>
+        <m-model
+          src={glassStepSRC}
+          collide={false}
+          ry={coinFlip ? 180 : 0}
+          anim={glassStepSRC}
+          anim-start-time={breakTime}
+          anim-pause-time={pauseTime}
+          anim-loop={false}
+        ></m-model>
+        {breakable && (
+          <m-audio
+            src={sfxSRC}
+            start-time={breakTime ? breakTime : start}
+            pause-time={pauseTime ? pauseTime : start + sfxDuration}
+            loop={false}
+            volume={2}
+            debug={debug}
+          ></m-audio>
+        )}
+      </m-group>
+    );
+  },
+);
 Step.displayName = "Step";
 
 type StepsProps = {
@@ -232,9 +252,24 @@ type StepsProps = {
   stepGapX: number;
   stepGapZ: number;
   thickness: number;
+  breakNow?: boolean;
+  unbreakable?: boolean;
+  debug?: boolean;
 };
 const Steps = memo(
-  ({ y, z, totalSteps, stepSizeX, stepSizeZ, stepGapX, stepGapZ, thickness }: StepsProps) => {
+  ({
+    y,
+    z,
+    totalSteps,
+    stepSizeX,
+    stepSizeZ,
+    stepGapX,
+    stepGapZ,
+    thickness,
+    breakNow,
+    unbreakable,
+    debug,
+  }: StepsProps) => {
     return (
       <m-group>
         {Array.from({ length: totalSteps }).map((_, i) => {
@@ -253,6 +288,9 @@ const Steps = memo(
                 height={thickness}
                 depth={stepSizeZ}
                 breakable={coinFlip}
+                breakNow={breakNow}
+                unbreakable={unbreakable}
+                debug={debug}
               ></Step>
               <Step
                 x={rightStepXPos}
@@ -262,6 +300,9 @@ const Steps = memo(
                 height={thickness}
                 depth={stepSizeZ}
                 breakable={!coinFlip}
+                breakNow={breakNow}
+                unbreakable={unbreakable}
+                debug={debug}
               ></Step>
             </m-group>
           );
@@ -291,11 +332,17 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
   const baseColor = "#aaaaaa";
   const baseDepth = 40;
 
+  const debug = false;
+
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
 
-  const [gameStart, setGameStart] = useState<number | null>(null);
   const [countDown, setCountDown] = useState<number | null>(null);
+
+  const [gameStart, setGameStart] = useState<number | null>(null);
+  const [gameEnd, setGameEnd] = useState<boolean>(false);
   const [resettingGame, setResettingGame] = useState<boolean>(false);
+
+  const [breakNow, setBreakNow] = useState<boolean>(false);
 
   const startProbeRef = useRef<MPositionProbeElement | null>(null);
   const endProbeRef = useRef<MPositionProbeElement | null>(null);
@@ -303,11 +350,16 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
   const timer = useRef<number | null>(null);
 
   const handleGameEnd = useCallback(() => {
+    if (gameEnd === true || resettingGame === true || gameStart === null) {
+      return;
+    }
     if (timer.current !== null && timerTick.current !== undefined) {
-      console.log("Game ended!");
+      setGameEnd(true);
+      setBreakNow(true);
       setTimeout(() => {
+        setBreakNow(false);
         setResettingGame(true);
-        console.log(`resseting game... ${resettingGame}`);
+        setGameEnd(false);
         setTimeout(() => setResettingGame(false), 2000);
       }, 4000);
       clearInterval(timerTick.current);
@@ -316,25 +368,27 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
       setCountDown(null);
       setGameStart(null);
     }
-  }, [resettingGame]);
+  }, [gameEnd, gameStart, resettingGame]);
 
   const handleTick = useCallback(() => {
     timer.current = timer.current ? timer.current - 1000 : 0;
     if (timer.current <= 0) {
-      console.log("Time out!");
       handleGameEnd();
     }
     setCountDown(timer.current);
   }, [handleGameEnd]);
 
   const handleGameStart = useCallback(() => {
+    if (resettingGame === true || gameEnd === true) {
+      return;
+    }
     if (timerTick.current === undefined) {
-      console.log("Game started!");
+      setResettingGame(false);
       setGameStart(document.timeline.currentTime as number);
       timer.current = gameDurationInMinutes * 60 * 1000;
       timerTick.current = setInterval(handleTick, 1000);
     }
-  }, [handleTick]);
+  }, [gameEnd, handleTick, resettingGame]);
 
   useEffect(() => {
     const startProbe = startProbeRef.current;
@@ -381,13 +435,16 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
       />
       {resettingGame === false && (
         <Steps
-          totalSteps={bridgeSteps}
           z={0}
+          totalSteps={bridgeSteps}
           stepSizeX={stepSizeX}
           stepSizeZ={stepSizeZ}
           stepGapX={stepGapX}
           stepGapZ={stepGapZ}
           thickness={stepThickness}
+          breakNow={breakNow}
+          unbreakable={gameStart === null}
+          debug={debug}
         />
       )}
       <End
@@ -423,7 +480,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         x={0}
         y={10}
         z={railsLength / 2}
-        debug={true}
+        debug={debug}
         start-time={gameStart ? gameStart : -100000}
         pause-time={gameStart ? undefined : (document.timeline.currentTime as number)}
       ></m-audio>
@@ -433,6 +490,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         y={0}
         z={0}
         range={baseDepth / 4}
+        debug={debug}
       ></m-position-probe>
       <m-position-probe
         ref={endProbeRef}
@@ -440,6 +498,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
         y={0}
         z={railsLength + baseDepth / 2}
         range={baseDepth / 2}
+        debug={debug}
       ></m-position-probe>
     </m-group>
   );
