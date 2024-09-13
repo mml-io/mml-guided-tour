@@ -6,7 +6,7 @@
   const conwayFrame = document.getElementById("conway-frame");
 
   const worldSizeX = 19; // Number of cells horizontally
-  const worldSizeY = 16; // Number of cells vertically
+  const worldSizeY = 8; // Number of cells vertically
   const squareSize = 6;
   const cellWidth = squareSize / worldSizeX;
   const cellHeight = squareSize / worldSizeY;
@@ -264,5 +264,5 @@
   createResetButton();
   initializeCubes();
   initWorld();
-  window.setInterval(update, 210);
+  window.setInterval(update, 1000.0 / 3.0);
 </script>
