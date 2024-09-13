@@ -51,11 +51,7 @@ LinkElement.displayName = "LinkElement";
 export function Room6() {
   const scale = 0.7;
   const logos = [dirscordLogoURL, githubLogoURL, wwwLogoURL];
-  const URLs = [
-    "https://discord.gg/qW6J5NXJdu",
-    "https://github.com/mml-io/mml",
-    "https://mml.io/",
-  ];
+  const URLs = ["http://discord.gg/msquared", "https://github.com/mml-io/mml", "https://mml.io/"];
   const debug = false;
   return (
     <m-group>
