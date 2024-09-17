@@ -2,7 +2,8 @@ import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import { memo, useRef } from "react";
 import * as React from "react";
 
-import { defaultRoomModel } from "../assets";
+import { defaultRoomModel, posters } from "../assets";
+import { RoomPoster } from "../components/room-poster";
 
 const dirscordLogoURL = "/assets/guidedtour/3d-icons-discord.glb";
 const githubLogoURL = "/assets/guidedtour/3d-icons-github.glb";
@@ -58,6 +59,7 @@ export function Room6() {
   return (
     <>
       <m-model src={defaultRoomModel}></m-model>
+      <RoomPoster src={posters.whatsNext} />
       <m-group>
         <m-cube
           x={-12.6}

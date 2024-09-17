@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import { defaultRoomModel } from "../assets";
+import { defaultRoomModel, posters } from "../assets";
+import { RoomPoster } from "../components/room-poster";
 import { PositionProbeLoaded } from "../helpers/use-visibility-probe";
 import { AudioSequencer } from "../react-examples/audio-sequencer";
 import { GamingVideo } from "../react-examples/gaming-video";
@@ -12,6 +13,7 @@ export function Room3() {
       <PositionProbeLoaded range={32} interval={500}>
         <GamingVideo x={10} z={10} />
         <AudioSequencer x={-17.49} y={2} ry={90} />
+        <RoomPoster src={posters.audioVideo} />
       </PositionProbeLoaded>
     </>
   );

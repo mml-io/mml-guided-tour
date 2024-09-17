@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import { defaultRoomModel } from "../assets";
+import { defaultRoomModel, posters } from "../assets";
+import { RoomPoster } from "../components/room-poster";
 import { Teleporter } from "../components/teleporter";
 import { GlassBridgeGame } from "../react-examples/glass-bridge";
 import { PlatformerGame } from "../react-examples/platformer-game";
@@ -15,6 +16,7 @@ export function Room5() {
   return (
     <m-group>
       <m-model src={defaultRoomModel}></m-model>
+      <RoomPoster src={posters.games} />
       <m-group id="platformer-game-wrapper">
         <Teleporter
           startX={-15}
