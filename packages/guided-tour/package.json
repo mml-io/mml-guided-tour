@@ -3,21 +3,23 @@
   "private": true,
   "scripts": {
     "build": "tsx ./build.ts --build",
-    "iterate": "tsx ./build.ts --watch",
+    "iterate": "tsx ./build.ts --local --watch",
     "type-check": "tsc --noEmit",
     "lint": "eslint -c ./.eslintrc.cjs \"./src/**/*.{js,jsx,ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint -c ./.eslintrc.cjs \"./src/**/*.{js,jsx,ts,tsx}\" --fix"
   },
   "dependencies": {
-    "@types/react": "18.3.2",
-    "@types/react-dom": "18.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@mml-io/esbuild-plugin-mml": "^0.2.1",
     "@mml-io/mml-react-types": "0.18.0",
+    "@mserve-io/mserve": "^0.2.0",
     "@types/proper-lockfile": "^4.1.4",
     "@types/uuid": "^10.0.0",
+    "@types/react": "18.3.2",
+    "@types/react-dom": "18.3.0",
     "proper-lockfile": "^4.1.2",
     "uuid": "^10.0.0"
   }
