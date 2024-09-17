@@ -2,9 +2,9 @@ import { MGroupElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { useRef } from "react";
 
-import { useVisibilityProbe } from "./helpers/use-visibility-probe";
-import { AudioSequencer } from "./react-examples/audio-sequencer";
-import { GamingVideo } from "./react-examples/gaming-video";
+import { useVisibilityProbe } from "../helpers/use-visibility-probe";
+import { AudioSequencer } from "../react-examples/audio-sequencer";
+import { GamingVideo } from "../react-examples/gaming-video";
 
 export function Room3() {
   const probeRef = useRef<MPositionProbeElement | null>(null);

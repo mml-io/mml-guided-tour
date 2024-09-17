@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { Teleporter } from "./components/teleporter";
-import { GlassBridgeGame } from "./react-examples/glass-bridge";
-import { PlatformerGame } from "./react-examples/platformer-game";
+import { Teleporter } from "../components/teleporter";
+import { GlassBridgeGame } from "../react-examples/glass-bridge";
+import { PlatformerGame } from "../react-examples/platformer-game";
 
 export function Room5() {
   const platformerGamePosX = 1000;

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { memo } from "react";
 
-import { Travelator } from "./components/travelator";
+import { Travelator } from "../components/travelator";
 
 type ServiceCorridorProps = {
   x: number;

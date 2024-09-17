@@ -2,8 +2,8 @@ import { MGroupElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { memo, useRef } from "react";
 
-import { useVisibilityProbe } from "./helpers/use-visibility-probe";
 import { firstInteraction, gliders } from "../examples";
+import { useVisibilityProbe } from "../helpers/use-visibility-probe";
 
 const teleporterBaseURL = "/assets/guidedtour/teleporter_base_plinth.glb";
 const botMeshURL = "/assets/guidedtour/bot_mesh.glb";

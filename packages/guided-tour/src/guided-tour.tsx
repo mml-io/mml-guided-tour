@@ -4,11 +4,11 @@ import * as React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 
+import { ExternalArea } from "./components/external-area";
 import { Hallway } from "./components/hallway";
 import { RoomPoster } from "./components/room-poster";
-import { ExternalArea } from "./external-area";
-import { RoomsRoot } from "./rooms-root";
-import { ServiceCorridor } from "./service-corridor";
+import { RoomsRoot } from "./rooms/rooms-root";
+import { ServiceCorridor } from "./rooms/service-corridor";
 
 function App() {
   const guidedTourYPos = 0;

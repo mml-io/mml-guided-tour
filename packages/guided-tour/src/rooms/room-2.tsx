@@ -2,10 +2,10 @@ import { MGroupElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 import { useRef } from "react";
 
-import { useVisibilityProbe } from "./helpers/use-visibility-probe";
-import { MemoryGame } from "./react-examples/memory-game";
-import { RaceCars } from "./react-examples/race-cars";
-import { RotatingCarPlinth } from "./react-examples/rotating-car-plinth";
+import { useVisibilityProbe } from "../helpers/use-visibility-probe";
+import { MemoryGame } from "../react-examples/memory-game";
+import { RaceCars } from "../react-examples/race-cars";
+import { RotatingCarPlinth } from "../react-examples/rotating-car-plinth";
 
 export function Room2() {
   const probeRef = useRef<MPositionProbeElement | null>(null);
