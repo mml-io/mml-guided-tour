@@ -1,17 +1,14 @@
-import { MPositionProbeElement } from "@mml-io/mml-react-types";
+import { MGroupElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import { useEffect, useRef, useState } from "react";
+import * as React from "react";
 
 import { setToCSVString } from "./js-helpers";
 
-export function useVisibilityProbe(
-  probeRef: React.RefObject<MPositionProbeElement>,
-  groupRef: React.RefObject<any>,
-  range: number,
-  interval: number,
-  debug?: boolean,
-) {
+export function useVisibilityProbe(range: number, interval: number, debug?: boolean) {
   const usersInProbe = useRef<Set<number>>(new Set());
   const [visibleTo, setVisibleTo] = useState<string>("");
+  const groupRef = useRef<MGroupElement>(null);
+  const probeRef = useRef<MPositionProbeElement>(null);
 
   useEffect(() => {
     if (probeRef.current) {
@@ -72,7 +69,25 @@ export function useVisibilityProbe(
     }
   }, [visibleTo, groupRef]);
 
-  return {
-    visibleTo,
-  };
+  return [groupRef, probeRef];
+}
+
+export function PositionProbeLoaded({
+  range,
+  interval,
+  debug,
+  children,
+}: React.PropsWithChildren<{
+  range: number;
+  interval: number;
+  debug?: boolean;
+}>) {
+  const [groupRef, probeRef] = useVisibilityProbe(range, interval, debug);
+
+  return (
+    <m-group>
+      <m-position-probe ref={probeRef} />
+      <m-group ref={groupRef}>{children}</m-group>
+    </m-group>
+  );
 }
