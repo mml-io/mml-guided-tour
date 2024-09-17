@@ -8,18 +8,16 @@ import { Room5 } from "./room-5";
 import { Room6 } from "./room-6";
 
 type RoomType = {
-  src: string;
   x: number;
   y: number;
   z: number;
   index: number;
 };
 
-export function RoomsRoot({ src, x, y, z, index }: RoomType) {
+export function RoomsRoot({ x, y, z, index }: RoomType) {
   const idx = index + 1;
   return (
     <m-group x={x} y={y} z={z}>
-      <m-model src={src}></m-model>
       {idx === 1 && <Room1 />}
       {idx === 2 && <Room2 />}
       {idx === 3 && <Room3 />}

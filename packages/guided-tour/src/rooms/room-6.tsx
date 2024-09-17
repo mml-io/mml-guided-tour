@@ -2,6 +2,8 @@ import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import { memo, useRef } from "react";
 import * as React from "react";
 
+import { defaultRoomModel } from "../assets";
+
 const dirscordLogoURL = "/assets/guidedtour/3d-icons-discord.glb";
 const githubLogoURL = "/assets/guidedtour/3d-icons-github.glb";
 const wwwLogoURL = "/assets/guidedtour/3d-icons-www.glb";
@@ -54,59 +56,62 @@ export function Room6() {
   const URLs = ["http://discord.gg/msquared", "https://github.com/mml-io/mml", "https://mml.io/"];
   const debug = false;
   return (
-    <m-group>
-      <m-cube
-        x={-12.6}
-        y={3.1}
-        z={22.7}
-        width={5}
-        height={6.2}
-        depth={0.35}
-        color="#777777"
-      ></m-cube>
-      <LinkElement
-        x={0}
-        y={0.5}
-        z={0}
-        sx={scale}
-        sy={scale}
-        sz={scale}
-        ry={-90}
-        range={15}
-        modelURL={mmlLogoURL}
-        href="https://mmleditor.com/"
-        debug={debug}
-      ></LinkElement>
-      {Array.from({ length: logos.length }).map((_, i) => {
-        const elements = logos.length;
-        const linkLogo = logos[i];
-        const linkURL = URLs[i];
+    <>
+      <m-model src={defaultRoomModel}></m-model>
+      <m-group>
+        <m-cube
+          x={-12.6}
+          y={3.1}
+          z={22.7}
+          width={5}
+          height={6.2}
+          depth={0.35}
+          color="#777777"
+        ></m-cube>
+        <LinkElement
+          x={0}
+          y={0.5}
+          z={0}
+          sx={scale}
+          sy={scale}
+          sz={scale}
+          ry={-90}
+          range={15}
+          modelURL={mmlLogoURL}
+          href="https://mmleditor.com/"
+          debug={debug}
+        ></LinkElement>
+        {Array.from({ length: logos.length }).map((_, i) => {
+          const elements = logos.length;
+          const linkLogo = logos[i];
+          const linkURL = URLs[i];
 
-        const angleStep = Math.PI / elements;
-        const angle = i * angleStep + 0.53;
+          const angleStep = Math.PI / elements;
+          const angle = i * angleStep + 0.53;
 
-        const radius = 15;
-        const x = radius * Math.cos(angle);
-        const y = 4;
-        const z = radius * Math.sin(angle) + 5;
-        const ry = -angle * (180 / Math.PI) - 90;
+          const radius = 15;
+          const x = radius * Math.cos(angle);
+          const y = 4;
+          const z = radius * Math.sin(angle) + 5;
+          const ry = -angle * (180 / Math.PI) - 90;
 
-        return (
-          <m-group key={i}>
-            <LinkElement
-              x={x}
-              y={y}
-              z={z}
-              ry={ry}
-              range={10}
-              modelURL={linkLogo}
-              href={linkURL}
-              startTime={i * -1000}
-              debug={debug}
-            />
-          </m-group>
-        );
-      })}
-    </m-group>
+          return (
+            <m-group key={i}>
+              <LinkElement
+                x={x}
+                y={y}
+                z={z}
+                ry={ry}
+                range={10}
+                modelURL={linkLogo}
+                href={linkURL}
+                startTime={i * -1000}
+                debug={debug}
+              />
+            </m-group>
+          );
+        })}
+      </m-group>
+    </>
   );
 }

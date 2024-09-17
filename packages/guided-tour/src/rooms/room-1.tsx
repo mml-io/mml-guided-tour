@@ -1,12 +1,9 @@
 import * as React from "react";
 import { memo } from "react";
 
+import { botAnimURL, botMeshURL, firstRoomModel, teleporterBaseURL } from "../assets";
 import { firstInteraction, gliders } from "../examples";
 import { PositionProbeLoaded } from "../helpers/use-visibility-probe";
-
-const teleporterBaseURL = "/assets/guidedtour/teleporter_base_plinth.glb";
-const botMeshURL = "/assets/guidedtour/bot_mesh.glb";
-const botAnimURL = "/assets/guidedtour/bot_anim_idle.glb";
 
 type FloatingAvatarsProps = {
   x: number;
@@ -67,10 +64,13 @@ FloatingAvatars.displayName = "FloatingAvatars";
 
 export function Room1() {
   return (
-    <PositionProbeLoaded range={32} interval={500}>
-      <m-frame src={firstInteraction}></m-frame>
-      <m-frame src={gliders} x={-17.65} y={2.05} sy={2.63} sz={3.14}></m-frame>
-      <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
-    </PositionProbeLoaded>
+    <>
+      <m-model src={firstRoomModel}></m-model>
+      <PositionProbeLoaded range={32} interval={500}>
+        <m-frame src={firstInteraction}></m-frame>
+        <m-frame src={gliders} x={-17.65} y={2.05} sy={2.63} sz={3.14}></m-frame>
+        <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
+      </PositionProbeLoaded>
+    </>
   );
 }
