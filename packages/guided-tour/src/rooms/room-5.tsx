@@ -1,8 +1,9 @@
 import * as React from "react";
 
-import { defaultRoomModel, posters } from "../assets";
+import { posters } from "../assets";
 import { RoomPoster } from "../components/room-poster";
 import { Teleporter } from "../components/teleporter";
+import { renderAsMML } from "../helpers/render-as-mml";
 import { GlassBridgeGame } from "../react-examples/glass-bridge";
 import { PlatformerGame } from "../react-examples/platformer-game";
 
@@ -14,8 +15,7 @@ export function Room5() {
   const glassBrigdeGamePosY = 15000;
 
   return (
-    <m-group>
-      <m-model src={defaultRoomModel}></m-model>
+    <>
       <RoomPoster src={posters.games} />
       <m-group id="platformer-game-wrapper">
         <Teleporter
@@ -43,6 +43,8 @@ export function Room5() {
         />
         <GlassBridgeGame x={glassBrigdeGamePosX} y={glassBrigdeGamePosY} />
       </m-group>
-    </m-group>
+    </>
   );
 }
+
+renderAsMML(<Room5 />);

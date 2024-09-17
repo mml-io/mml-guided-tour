@@ -1,9 +1,9 @@
 import * as React from "react";
 import { memo } from "react";
 
-import { botAnimURL, botMeshURL, firstRoomModel, teleporterBaseURL } from "../assets";
+import { botAnimURL, botMeshURL, teleporterBaseURL } from "../assets";
 import { firstInteraction, gliders } from "../examples";
-import { PositionProbeLoaded } from "../helpers/use-visibility-probe";
+import { renderAsMML } from "../helpers/render-as-mml";
 
 type FloatingAvatarsProps = {
   x: number;
@@ -62,15 +62,14 @@ const FloatingAvatars = memo(({ x, y, z, ry }: FloatingAvatarsProps) => {
 });
 FloatingAvatars.displayName = "FloatingAvatars";
 
-export function Room1() {
+export default function Room1Contents() {
   return (
     <>
-      <m-model src={firstRoomModel}></m-model>
-      <PositionProbeLoaded range={32} interval={500}>
-        <m-frame src={firstInteraction}></m-frame>
-        <m-frame src={gliders} x={-17.65} y={2.05} sy={2.63} sz={3.14}></m-frame>
-        <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
-      </PositionProbeLoaded>
+      <m-frame src={firstInteraction}></m-frame>
+      <m-frame src={gliders} x={-17.65} y={2.05} sy={2.63} sz={3.14}></m-frame>
+      <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
     </>
   );
 }
+
+renderAsMML(<Room1Contents />);

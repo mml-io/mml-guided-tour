@@ -1,20 +1,19 @@
 import * as React from "react";
 
-import { defaultRoomModel, posters } from "../assets";
+import { posters } from "../assets";
 import { RoomPoster } from "../components/room-poster";
-import { PositionProbeLoaded } from "../helpers/use-visibility-probe";
+import { renderAsMML } from "../helpers/render-as-mml";
 import { AudioSequencer } from "../react-examples/audio-sequencer";
 import { GamingVideo } from "../react-examples/gaming-video";
 
-export function Room3() {
+export function Room3Contents() {
   return (
     <>
-      <m-model src={defaultRoomModel}></m-model>
-      <PositionProbeLoaded range={32} interval={500}>
-        <GamingVideo x={10} z={10} />
-        <AudioSequencer x={-17.49} y={2} ry={90} />
-        <RoomPoster src={posters.audioVideo} />
-      </PositionProbeLoaded>
+      <GamingVideo x={10} z={10} />
+      <AudioSequencer x={-17.49} y={2} ry={90} />
+      <RoomPoster src={posters.audioVideo} />
     </>
   );
 }
+
+renderAsMML(<Room3Contents />);

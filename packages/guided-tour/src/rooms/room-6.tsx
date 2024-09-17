@@ -2,13 +2,9 @@ import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import { memo, useRef } from "react";
 import * as React from "react";
 
-import { defaultRoomModel, posters } from "../assets";
+import { logos, posters } from "../assets";
 import { RoomPoster } from "../components/room-poster";
-
-const dirscordLogoURL = "/assets/guidedtour/3d-icons-discord.glb";
-const githubLogoURL = "/assets/guidedtour/3d-icons-github.glb";
-const wwwLogoURL = "/assets/guidedtour/3d-icons-www.glb";
-const mmlLogoURL = "/assets/guidedtour/3d-mml-logo.glb";
+import { renderAsMML } from "../helpers/render-as-mml";
 
 type LinkElementProps = {
   x: number;
@@ -53,12 +49,11 @@ LinkElement.displayName = "LinkElement";
 
 export function Room6() {
   const scale = 0.7;
-  const logos = [dirscordLogoURL, githubLogoURL, wwwLogoURL];
+  const socials = [logos.discord, logos.github, logos.www];
   const URLs = ["http://discord.gg/msquared", "https://github.com/mml-io/mml", "https://mml.io/"];
   const debug = false;
   return (
     <>
-      <m-model src={defaultRoomModel}></m-model>
       <RoomPoster src={posters.whatsNext} />
       <m-group>
         <m-cube
@@ -79,13 +74,13 @@ export function Room6() {
           sz={scale}
           ry={-90}
           range={15}
-          modelURL={mmlLogoURL}
+          modelURL={logos.mml}
           href="https://mmleditor.com/"
           debug={debug}
         ></LinkElement>
-        {Array.from({ length: logos.length }).map((_, i) => {
-          const elements = logos.length;
-          const linkLogo = logos[i];
+        {Array.from({ length: socials.length }).map((_, i) => {
+          const elements = socials.length;
+          const linkLogo = socials[i];
           const linkURL = URLs[i];
 
           const angleStep = Math.PI / elements;
@@ -117,3 +112,5 @@ export function Room6() {
     </>
   );
 }
+
+renderAsMML(<Room6 />);

@@ -4,7 +4,12 @@ import * as React from "react";
 
 import { setToCSVString } from "./js-helpers";
 
-export function useVisibilityProbe(range: number, interval: number, debug?: boolean) {
+export function useVisibilityProbe(
+  range: number,
+  interval: number,
+  debug?: boolean,
+  persist?: boolean,
+) {
   const usersInProbe = useRef<Set<number>>(new Set());
   const [visibleTo, setVisibleTo] = useState<string>("");
   const groupRef = useRef<MGroupElement>(null);
@@ -29,6 +34,7 @@ export function useVisibilityProbe(range: number, interval: number, debug?: bool
       };
 
       const handlePositionLeave = (event: any) => {
+        if (persist) return;
         if (usersInProbe.current.has(event.detail.connectionId)) {
           usersInProbe.current.delete(event.detail.connectionId);
           setVisibleTo(setToCSVString(usersInProbe.current));
@@ -61,7 +67,7 @@ export function useVisibilityProbe(range: number, interval: number, debug?: bool
         window.removeEventListener("disconnected", handleDisconnect);
       };
     }
-  }, [probeRef, usersInProbe, range, interval, debug]);
+  }, [probeRef, usersInProbe, range, interval, debug, persist]);
 
   useEffect(() => {
     if (groupRef.current) {
@@ -73,19 +79,27 @@ export function useVisibilityProbe(range: number, interval: number, debug?: bool
 }
 
 export function PositionProbeLoaded({
+  x,
+  y,
+  z,
   range,
   interval,
   debug,
+  persist,
   children,
 }: React.PropsWithChildren<{
+  x?: number;
+  y?: number;
+  z?: number;
   range: number;
   interval: number;
   debug?: boolean;
+  persist?: boolean;
 }>) {
-  const [groupRef, probeRef] = useVisibilityProbe(range, interval, debug);
+  const [groupRef, probeRef] = useVisibilityProbe(range, interval, debug, persist);
 
   return (
-    <m-group>
+    <m-group x={x} y={y} z={z}>
       <m-position-probe ref={probeRef} />
       <m-group ref={groupRef}>{children}</m-group>
     </m-group>

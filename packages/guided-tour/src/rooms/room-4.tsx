@@ -1,13 +1,15 @@
 import * as React from "react";
 
-import { defaultRoomModel, posters } from "../assets";
+import { posters } from "../assets";
 import { RoomPoster } from "../components/room-poster";
+import { renderAsMML } from "../helpers/render-as-mml";
 
-export function Room4() {
+export function Room4Contents() {
   return (
-    <m-group>
-      <m-model src={defaultRoomModel}></m-model>
+    <>
       <RoomPoster src={posters.externalApi} />
-    </m-group>
+    </>
   );
 }
+
+renderAsMML(<Room4Contents />);
