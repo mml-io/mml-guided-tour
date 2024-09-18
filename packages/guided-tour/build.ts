@@ -20,7 +20,14 @@ if (args.length === 0) {
 }
 
 const [mode, verbose, local] = args.reduce<[string, boolean, boolean]>(
-  ([mode, verbose, local], arg) => {
+  (
+    [mode, verbose, local]: [string, boolean, boolean],
+    arg: string,
+  ):
+    | ["--build", boolean, boolean]
+    | ["--watch", boolean, boolean]
+    | [string, true, boolean]
+    | [string, boolean, true] => {
     switch (arg) {
       case buildMode:
         return [arg, verbose, local];
@@ -62,7 +69,7 @@ const buildOptions: esbuild.BuildOptions = {
       verbose,
       ...(!local
         ? {
-            outputProcessor: mserveOutputProcessor(MSERVE_PROJECT),
+            outputProcessor: mserveOutputProcessor(MSERVE_PROJECT!),
             documentPrefix: `${MMLHOSTING_PROTOCOL}://${MMLHOSTING_HOST}/v1/`,
             assetPrefix: "https://public.mml.io/",
             assetDir: "",
