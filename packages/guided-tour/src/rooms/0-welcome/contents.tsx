@@ -1,9 +1,8 @@
 import * as React from "react";
 import { memo } from "react";
 
-import { botAnimURL, botMeshURL, teleporterBaseURL } from "../assets";
-import { firstInteraction, gliders } from "../examples";
-import { renderAsMML } from "../helpers/render-as-mml";
+import { botAnimURL, botMeshURL, teleporterBaseURL } from "../../assets";
+import { firstInteraction, gliders } from "../../examples";
 
 type FloatingAvatarsProps = {
   x: number;
@@ -62,7 +61,7 @@ const FloatingAvatars = memo(({ x, y, z, ry }: FloatingAvatarsProps) => {
 });
 FloatingAvatars.displayName = "FloatingAvatars";
 
-export default function Room1Contents() {
+export function Contents() {
   return (
     <>
       <m-frame src={firstInteraction}></m-frame>
@@ -71,5 +70,3 @@ export default function Room1Contents() {
     </>
   );
 }
-
-renderAsMML(<Room1Contents />);

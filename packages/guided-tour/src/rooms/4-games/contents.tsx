@@ -1,13 +1,12 @@
 import * as React from "react";
 
-import { posters } from "../assets";
-import { RoomPoster } from "../components/room-poster";
-import { Teleporter } from "../components/teleporter";
-import { renderAsMML } from "../helpers/render-as-mml";
-import { GlassBridgeGame } from "../react-examples/glass-bridge";
-import { PlatformerGame } from "../react-examples/platformer-game";
+import { posters } from "../../assets";
+import { RoomPoster } from "../../components/room-poster";
+import { Teleporter } from "../../components/teleporter";
+import { GlassBridgeGame } from "../../react-examples/glass-bridge";
+import { PlatformerGame } from "../../react-examples/platformer-game";
 
-export function Room5() {
+export function GamesContents() {
   const platformerGamePosX = 1000;
   const platformerGamePosY = 10000;
 
@@ -46,5 +45,3 @@ export function Room5() {
     </>
   );
 }
-
-renderAsMML(<Room5 />);

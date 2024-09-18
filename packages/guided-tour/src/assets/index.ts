@@ -17,7 +17,11 @@ export const posters = {
   whatsNext: "/assets/guidedtour/poster_whats_next.jpeg",
 } as const;
 
+export type PosterSrc = (typeof posters)[keyof typeof posters];
+
 export const roomModels = {
   first: "/assets/guidedtour/room_1.glb",
   default: "/assets/guidedtour/room.glb",
 } as const;
+
+export type RoomModel = (typeof roomModels)[keyof typeof roomModels];

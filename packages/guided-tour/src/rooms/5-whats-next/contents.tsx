@@ -2,9 +2,8 @@ import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import { memo, useRef } from "react";
 import * as React from "react";
 
-import { logos, posters } from "../assets";
-import { RoomPoster } from "../components/room-poster";
-import { renderAsMML } from "../helpers/render-as-mml";
+import { logos, posters } from "../../assets";
+import { RoomPoster } from "../../components/room-poster";
 
 type LinkElementProps = {
   x: number;
@@ -47,7 +46,7 @@ const LinkElement = memo(
 );
 LinkElement.displayName = "LinkElement";
 
-export function Room6() {
+export function WhatsNextContents() {
   const scale = 0.7;
   const socials = [logos.discord, logos.github, logos.www];
   const URLs = ["http://discord.gg/msquared", "https://github.com/mml-io/mml", "https://mml.io/"];
@@ -112,5 +111,3 @@ export function Room6() {
     </>
   );
 }
-
-renderAsMML(<Room6 />);
