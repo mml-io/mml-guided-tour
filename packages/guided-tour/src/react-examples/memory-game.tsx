@@ -1,6 +1,5 @@
 import { MAudioElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { InfoButton } from "../components/info-button";
 import { PlayButton } from "../components/play-button";
@@ -55,7 +54,7 @@ const shuffleArray = (array: Array<string | Block>) => {
   return shuffled;
 };
 
-const GameFrame = memo(
+const GameFrame = React.memo(
   ({ x, y, z, color }: { x?: number; y?: number; z?: number; color: string }) => {
     const totalBlocks = numberOfImages * 2;
     const rows = Math.ceil(totalBlocks / columns);
@@ -120,22 +119,22 @@ const GameFrame = memo(
 );
 GameFrame.displayName = "GameFrame";
 
-const GameBlocks = memo(({ x, y, z }: { x?: number; y?: number; z?: number }) => {
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [images, setImages] = useState<string[]>([]);
+const GameBlocks = React.memo(({ x, y, z }: { x?: number; y?: number; z?: number }) => {
+  const [blocks, setBlocks] = React.useState<Block[]>([]);
+  const [images, setImages] = React.useState<string[]>([]);
 
-  const mounted = useRef<boolean>(false);
-  const audioRef = useRef<MAudioElement | null>(null);
+  const mounted = React.useRef<boolean>(false);
+  const audioRef = React.useRef<MAudioElement | null>(null);
 
-  const [firstIndexSelected, setFirstIndexSelected] = useState<number | null>(null);
-  const [secondIndexSelected, setSecondIndexSelected] = useState<number | null>(null);
-  const [animating, setAnimating] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
-  const [gameInProgress, setGameInProgress] = useState(false);
+  const [firstIndexSelected, setFirstIndexSelected] = React.useState<number | null>(null);
+  const [secondIndexSelected, setSecondIndexSelected] = React.useState<number | null>(null);
+  const [animating, setAnimating] = React.useState(false);
+  const [isResetting, setIsResetting] = React.useState(false);
+  const [gameInProgress, setGameInProgress] = React.useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_gamesPlayed, setGamesPlayed] = useState(new Date().getTime());
+  const [_gamesPlayed, setGamesPlayed] = React.useState(new Date().getTime());
 
-  const playSFX = useCallback((sfx: "play" | "yes" | "no" | "win") => {
+  const playSFX = React.useCallback((sfx: "play" | "yes" | "no" | "win") => {
     const now = document.timeline.currentTime as number;
     if (audioRef.current) {
       switch (sfx) {
@@ -165,7 +164,7 @@ const GameBlocks = memo(({ x, y, z }: { x?: number; y?: number; z?: number }) =>
     }
   }, []);
 
-  const initializeBlocks = useCallback(() => {
+  const initializeBlocks = React.useCallback(() => {
     const newBlocks = Array.from({ length: numberOfImages * 2 }, (_, index) => {
       const row = Math.floor(index / columns);
       const col = index % columns;
@@ -181,43 +180,43 @@ const GameBlocks = memo(({ x, y, z }: { x?: number; y?: number; z?: number }) =>
     setBlocks(newBlocks);
   }, [setBlocks, images]);
 
-  const initializeImages = useCallback(() => {
+  const initializeImages = React.useCallback(() => {
     const newImages = shuffleArray(availableImages).slice(0, numberOfImages);
     const duplicatedImages = newImages.concat(newImages);
     const shuffledImages = shuffleArray(duplicatedImages);
     setImages(shuffledImages as Array<string>);
   }, [setImages]);
 
-  const revealBlock = useCallback((blockId: number) => {
+  const revealBlock = React.useCallback((blockId: number) => {
     setBlocks((prevBlocks) =>
       prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: false, color: "#eeeeee" } : b)),
     );
   }, []);
 
-  const hideBlock = useCallback((blockId: number) => {
+  const hideBlock = React.useCallback((blockId: number) => {
     setBlocks((prevBlocks) =>
       prevBlocks.map((b) => (b.id === blockId ? { ...b, hidden: true, color: "#424242" } : b)),
     );
   }, []);
 
-  const hideAllBlocks = useCallback(() => {
+  const hideAllBlocks = React.useCallback(() => {
     setBlocks((prevBlocks) =>
       prevBlocks.map((block) => ({ ...block, hidden: true, color: "#424242" })),
     );
   }, []);
 
-  const revealAllBlocks = useCallback(() => {
+  const revealAllBlocks = React.useCallback(() => {
     setBlocks((prevBlocks) => prevBlocks.map((block) => ({ ...block, hidden: false })));
   }, []);
 
-  const startGame = useCallback(() => {
+  const startGame = React.useCallback(() => {
     revealAllBlocks();
     playSFX("play");
     setTimeout(() => hideAllBlocks(), revealTime);
     setTimeout(() => setIsResetting(false), revealTime + animationTime);
   }, [hideAllBlocks, playSFX, revealAllBlocks]);
 
-  const resetGame = useCallback(() => {
+  const resetGame = React.useCallback(() => {
     setGamesPlayed((prev) => prev + 1);
     setIsResetting(true);
     hideAllBlocks();
@@ -226,7 +225,7 @@ const GameBlocks = memo(({ x, y, z }: { x?: number; y?: number; z?: number }) =>
     setGameInProgress(false);
   }, [hideAllBlocks, initializeImages, startGame]);
 
-  const checkIfGameOver = useCallback(() => {
+  const checkIfGameOver = React.useCallback(() => {
     if (gameInProgress === false) return;
     if (blocks.every((block) => block.matched)) {
       playSFX("win");
@@ -236,7 +235,7 @@ const GameBlocks = memo(({ x, y, z }: { x?: number; y?: number; z?: number }) =>
     }
   }, [blocks, gameInProgress, playSFX, resetGame]);
 
-  const handleBlockClick = useCallback(
+  const handleBlockClick = React.useCallback(
     (blockId: number) => {
       if (animating || isResetting) return;
 
@@ -295,10 +294,10 @@ const GameBlocks = memo(({ x, y, z }: { x?: number; y?: number; z?: number }) =>
     ],
   );
 
-  useEffect(() => initializeBlocks(), [images, initializeBlocks]);
-  useEffect(() => checkIfGameOver(), [blocks, checkIfGameOver]);
+  React.useEffect(() => initializeBlocks(), [images, initializeBlocks]);
+  React.useEffect(() => checkIfGameOver(), [blocks, checkIfGameOver]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (mounted.current === false) {
       mounted.current = true;
       initializeImages();
@@ -361,7 +360,7 @@ type MemoryGameProps = {
   visibleTo?: string | number;
 };
 
-export const MemoryGame = memo(({ x, y, z, ry, visibleTo }: MemoryGameProps) => {
+export const MemoryGame = React.memo(({ x, y, z, ry, visibleTo }: MemoryGameProps) => {
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <InfoButton x={-1} z={3.6} ry={180} infoAudioURL={infoAudioURL} infoAudioDuration={21000} />

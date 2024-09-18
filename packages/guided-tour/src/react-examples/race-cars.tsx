@@ -1,6 +1,5 @@
 import { MAttrAnimElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo, useRef, useState } from "react";
 
 import { InfoButton } from "../components/info-button";
 import { PlayButton } from "../components/play-button";
@@ -60,7 +59,7 @@ for (let i = 0; i < availableCars.length; i++) {
 }
 
 const countDownAudioURL = "/assets/guidedtour/sfx_countdown.mp3";
-const CountDownSound = memo(
+const CountDownSound = React.memo(
   ({ startTime, pauseTime, volume }: { startTime: number; pauseTime: number; volume: number }) => (
     <m-audio
       src={countDownAudioURL}
@@ -73,7 +72,7 @@ const CountDownSound = memo(
 );
 CountDownSound.displayName = "CountDownSound";
 
-const CountDown = memo(({ countDown, show }: { countDown: string; show: boolean }) => (
+const CountDown = React.memo(({ countDown, show }: { countDown: string; show: boolean }) => (
   <m-group>
     <m-label
       content={countDown}
@@ -93,7 +92,7 @@ const CountDown = memo(({ countDown, show }: { countDown: string; show: boolean 
 ));
 CountDown.displayName = "CountDown";
 
-const Cars = memo(
+const Cars = React.memo(
   ({
     animations,
     audio,
@@ -148,7 +147,7 @@ const Cars = memo(
 );
 Cars.displayName = "Cars";
 
-const RaceTrack = memo(() => (
+const RaceTrack = React.memo(() => (
   <m-group id="race-track">
     <m-cube
       color="#424242"
@@ -171,7 +170,7 @@ const RaceTrack = memo(() => (
 ));
 RaceTrack.displayName = "RaceTrack";
 
-const Winner = memo(
+const Winner = React.memo(
   ({ content, color, show }: { content: string; color: string; show: boolean }) => (
     <m-group>
       <m-cube color="#424242" width={6.75} depth={0.5} height={2.75} y={0.1} z={0.25} rx={-45}>
@@ -195,22 +194,22 @@ const Winner = memo(
 );
 Winner.displayName = "Winner";
 
-export const RaceCars = memo(({ x, y, z, ry, visibleTo }: RaceCarsProps) => {
-  const racing = useRef(false);
+export const RaceCars = React.memo(({ x, y, z, ry, visibleTo }: RaceCarsProps) => {
+  const racing = React.useRef(false);
 
-  const [animRef, setAnimRef] = useState<MAttrAnimElement | null>(null);
+  const [animRef, setAnimRef] = React.useState<MAttrAnimElement | null>(null);
 
-  const [animationProps, setAnimationProps] = useState<AnimationProps[]>([]);
-  const [audioProps, setAudioProps] = useState<AudioProps[]>([]);
+  const [animationProps, setAnimationProps] = React.useState<AnimationProps[]>([]);
+  const [audioProps, setAudioProps] = React.useState<AudioProps[]>([]);
 
-  const [winnerIndex, setWinnerIndex] = useState<number>(0);
+  const [winnerIndex, setWinnerIndex] = React.useState<number>(0);
 
-  const [countDown, setCountDown] = useState<string>("");
-  const [countDownStart, setCountDownStart] = useState<number>(0);
-  const [countDownPause, setCountDownPause] = useState<number>(0);
-  const [countDownVolume, setCountDownVolume] = useState<number>(0);
+  const [countDown, setCountDown] = React.useState<string>("");
+  const [countDownStart, setCountDownStart] = React.useState<number>(0);
+  const [countDownPause, setCountDownPause] = React.useState<number>(0);
+  const [countDownVolume, setCountDownVolume] = React.useState<number>(0);
 
-  const [winnerText, setWinnerText] = useState<string>("");
+  const [winnerText, setWinnerText] = React.useState<string>("");
 
   const attributes = useAttributes(animRef);
 

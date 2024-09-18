@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Dispatch, memo, SetStateAction, useCallback, useState } from "react";
 
 const audioSrcs = [
   "/assets/guidedtour/sfx_808_kick.wav",
@@ -42,7 +41,7 @@ type ButtonProps = {
   text: string;
   cb: () => void;
 };
-const Button = memo(({ x, y, width, color, text, cb }: ButtonProps) => {
+const Button = React.memo(({ x, y, width, color, text, cb }: ButtonProps) => {
   return (
     <m-group x={x} y={y} z={bodyDepth / 2 + buttonDepth} onClick={cb}>
       <m-cube
@@ -74,7 +73,7 @@ type BodyProps = {
   depth: number;
   color: string;
 };
-const Body = memo(({ width, height, depth, color }: BodyProps) => {
+const Body = React.memo(({ width, height, depth, color }: BodyProps) => {
   return (
     <m-group>
       <m-cube width={width} height={height} depth={depth} color={color} y={height / 2}>
@@ -97,7 +96,7 @@ type ButtonState = {
 };
 type ButtonsState = Map<string, ButtonState>;
 
-const Channel = memo(
+const Channel = React.memo(
   ({
     index,
     yPos,
@@ -165,7 +164,7 @@ type CursorProps = {
   cursorXEnd: number;
   beatDuration: number;
 };
-const Cursor = memo(({ cursorXStart, cursorXEnd, beatDuration }: CursorProps) => {
+const Cursor = React.memo(({ cursorXStart, cursorXEnd, beatDuration }: CursorProps) => {
   return (
     <m-group>
       <m-cube
@@ -191,7 +190,7 @@ const Cursor = memo(({ cursorXStart, cursorXEnd, beatDuration }: CursorProps) =>
 });
 Cursor.displayName = "Cursor";
 
-const Channels = memo(
+const Channels = React.memo(
   ({
     bpm,
     controlButtons,
@@ -200,7 +199,7 @@ const Channels = memo(
   }: {
     bpm: number;
     controlButtons: ButtonsState[];
-    setControlButtons: Dispatch<SetStateAction<ButtonsState[]>>;
+    setControlButtons: React.Dispatch<React.SetStateAction<ButtonsState[]>>;
     muted: boolean;
   }) => {
     const beatDuration = bpmToMS(bpm * 2);
@@ -256,11 +255,11 @@ type AudioSequencerProps = {
   ry?: number;
   visibleTo?: string | number;
 };
-export const AudioSequencer = memo(({ x, y, z, ry, visibleTo }: AudioSequencerProps) => {
-  const [bpm, setBPM] = useState<number>(initialBPM);
-  const [muted, setMuted] = useState<boolean>(true);
+export const AudioSequencer = React.memo(({ x, y, z, ry, visibleTo }: AudioSequencerProps) => {
+  const [bpm, setBPM] = React.useState<number>(initialBPM);
+  const [muted, setMuted] = React.useState<boolean>(true);
 
-  const increaseBPM = useCallback(() => {
+  const increaseBPM = React.useCallback(() => {
     if (bpm < maxBPM) {
       const newValue = bpm + bpmStep;
       const remainder = newValue % bpmStep;
@@ -269,7 +268,7 @@ export const AudioSequencer = memo(({ x, y, z, ry, visibleTo }: AudioSequencerPr
     }
   }, [bpm]);
 
-  const decreaseBPM = useCallback(() => {
+  const decreaseBPM = React.useCallback(() => {
     if (bpm > minBPM) {
       const newValue = bpm - bpmStep;
       const remainder = newValue % bpmStep;
@@ -281,7 +280,7 @@ export const AudioSequencer = memo(({ x, y, z, ry, visibleTo }: AudioSequencerPr
     }
   }, [bpm]);
 
-  const [controlButtons, setControlButtons] = useState<ButtonsState[]>(() =>
+  const [controlButtons, setControlButtons] = React.useState<ButtonsState[]>(() =>
     [...Array(instruments)].map((_, index) => {
       const buttons: ButtonsState = new Map();
       for (let i = 0; i < bars; i++) {

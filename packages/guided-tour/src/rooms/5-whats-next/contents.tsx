@@ -1,5 +1,4 @@
 import { MPositionProbeElement } from "@mml-io/mml-react-types";
-import { memo, useRef } from "react";
 import * as React from "react";
 
 import { logos, posters } from "../../assets";
@@ -19,9 +18,9 @@ type LinkElementProps = {
   startTime?: number;
   debug?: boolean;
 };
-const LinkElement = memo(
+const LinkElement = React.memo(
   ({ x, y, z, ry, sx, sy, sz, range, modelURL, href, startTime, debug }: LinkElementProps) => {
-    const probeRef = useRef<MPositionProbeElement | null>(null);
+    const probeRef = React.useRef<MPositionProbeElement | null>(null);
     return (
       <m-link href={href}>
         <m-group x={x} y={y} z={z} ry={ry}>

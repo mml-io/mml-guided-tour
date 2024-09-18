@@ -1,5 +1,4 @@
 import * as React from "react";
-import { memo } from "react";
 
 type AnimationProps = {
   attr: string;
@@ -8,7 +7,7 @@ type AnimationProps = {
   duration: number;
   delay: number;
 };
-const Animation = memo(({ attr, start, end, duration, delay }: AnimationProps) => {
+const Animation = React.memo(({ attr, start, end, duration, delay }: AnimationProps) => {
   return (
     <m-attr-anim
       attr={attr}
@@ -34,7 +33,7 @@ type MMLLogoProps = {
   ry?: number;
   visibleTo?: string;
 };
-export const MMLLogo = memo(({ x, y, z, sx, sy, sz, ry, visibleTo }: MMLLogoProps) => {
+export const MMLLogo = React.memo(({ x, y, z, sx, sy, sz, ry, visibleTo }: MMLLogoProps) => {
   const duration = 21 * 1000;
   const delay = 7 * 1000;
   return (

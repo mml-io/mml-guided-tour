@@ -1,6 +1,5 @@
 import { MCubeElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
@@ -30,7 +29,7 @@ type StartProps = {
   depth: number;
   color: string;
 };
-const Start = memo(({ x, y, z, width, height, depth, color }: StartProps) => {
+const Start = React.memo(({ x, y, z, width, height, depth, color }: StartProps) => {
   return (
     <m-group x={x} y={y} z={z}>
       <m-cube
@@ -58,7 +57,7 @@ type EndProps = {
   color: string;
   timer?: number | null | undefined;
 };
-const End = memo(({ x, y, z, width, height, depth, color, timer }: EndProps) => {
+const End = React.memo(({ x, y, z, width, height, depth, color, timer }: EndProps) => {
   return (
     <m-group x={x} y={y} z={z}>
       <m-cube
@@ -114,41 +113,43 @@ type RailsProps = {
   thickness: number;
   color?: string;
 };
-const Rails = memo(({ x, y, z, stepSizeX, stepGapX, length, thickness, color }: RailsProps) => {
-  const zPos = z ? z + length / 2 : length / 2;
-  return (
-    <m-group x={x} z={z}>
-      {Array.from({ length: 4 }).map((_, i) => {
-        const xPos = i % 2 === 0 ? -stepGapX / 2 : stepGapX / 2;
-        return (
-          <m-group key={i}>
-            <m-cube
-              x={xPos - stepSizeX / 2 - thickness / 2}
-              y={y ? y - thickness / 2 : -thickness / 2}
-              z={zPos}
-              width={thickness}
-              height={thickness}
-              depth={length}
-              color={color ? color : "#aaaaaa"}
-              collide={false}
-            />
-            <m-cube
-              x={xPos + stepSizeX / 2 + thickness / 2}
-              y={y ? y - thickness / 2 : -thickness / 2}
-              z={zPos}
-              width={thickness}
-              height={thickness}
-              depth={length}
-              color={color ? color : "#aaaaaa"}
-              collide={false}
-            />
-          </m-group>
-        );
-      })}
-      ;
-    </m-group>
-  );
-});
+const Rails = React.memo(
+  ({ x, y, z, stepSizeX, stepGapX, length, thickness, color }: RailsProps) => {
+    const zPos = z ? z + length / 2 : length / 2;
+    return (
+      <m-group x={x} z={z}>
+        {Array.from({ length: 4 }).map((_, i) => {
+          const xPos = i % 2 === 0 ? -stepGapX / 2 : stepGapX / 2;
+          return (
+            <m-group key={i}>
+              <m-cube
+                x={xPos - stepSizeX / 2 - thickness / 2}
+                y={y ? y - thickness / 2 : -thickness / 2}
+                z={zPos}
+                width={thickness}
+                height={thickness}
+                depth={length}
+                color={color ? color : "#aaaaaa"}
+                collide={false}
+              />
+              <m-cube
+                x={xPos + stepSizeX / 2 + thickness / 2}
+                y={y ? y - thickness / 2 : -thickness / 2}
+                z={zPos}
+                width={thickness}
+                height={thickness}
+                depth={length}
+                color={color ? color : "#aaaaaa"}
+                collide={false}
+              />
+            </m-group>
+          );
+        })}
+        ;
+      </m-group>
+    );
+  },
+);
 Rails.displayName = "Rails";
 
 type StepProps = {
@@ -163,19 +164,19 @@ type StepProps = {
   unbreakable?: boolean;
   debug?: boolean;
 };
-const Step = memo(
+const Step = React.memo(
   ({ x, y, z, width, height, depth, breakable, breakNow, unbreakable, debug }: StepProps) => {
-    const stepRef = useRef<MCubeElement | null>(null);
+    const stepRef = React.useRef<MCubeElement | null>(null);
     const coinFlip = Math.random() > 0.5;
 
     const sfxSRC = coinFlip ? glassSFX[0] : glassSFX[1];
     const sfxDuration = coinFlip ? glassSFXDuration[0] : glassSFXDuration[1];
 
-    const [breakTime, setBreakTime] = useState<string | number | undefined>(undefined);
-    const [pauseTime, setPauseTime] = useState<string | number | undefined>(undefined);
-    const [shouldCollide, setShouldCollide] = useState<boolean>(true);
+    const [breakTime, setBreakTime] = React.useState<string | number | undefined>(undefined);
+    const [pauseTime, setPauseTime] = React.useState<string | number | undefined>(undefined);
+    const [shouldCollide, setShouldCollide] = React.useState<boolean>(true);
 
-    const handleBreak = useCallback(() => {
+    const handleBreak = React.useCallback(() => {
       if (unbreakable) {
         return;
       }
@@ -185,7 +186,7 @@ const Step = memo(
       setShouldCollide(false);
     }, [unbreakable]);
 
-    useEffect(() => {
+    React.useEffect(() => {
       if (breakNow) {
         const now = (document.timeline.currentTime as number) + Math.random() * 1000;
         setBreakTime(now);
@@ -194,7 +195,7 @@ const Step = memo(
       }
     }, [breakNow]);
 
-    useEffect(() => {
+    React.useEffect(() => {
       const step = stepRef.current;
       if (step && breakable) {
         step.addEventListener("collisionstart", handleBreak);
@@ -256,7 +257,7 @@ type StepsProps = {
   unbreakable?: boolean;
   debug?: boolean;
 };
-const Steps = memo(
+const Steps = React.memo(
   ({
     y,
     z,
@@ -320,7 +321,7 @@ type GlassBridgeGameProps = {
   ry?: number;
   visibleTo?: string;
 };
-export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGameProps) => {
+export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBridgeGameProps) => {
   const bridgeSteps = 7;
 
   const stepSizeZ = 3;
@@ -336,20 +337,20 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
 
   const railsLength = bridgeSteps * stepSizeZ + (bridgeSteps - 1) * stepGapZ + stepSizeZ;
 
-  const [countDown, setCountDown] = useState<number | null>(null);
+  const [countDown, setCountDown] = React.useState<number | null>(null);
 
-  const [gameStart, setGameStart] = useState<number | null>(null);
-  const [gameEnd, setGameEnd] = useState<boolean>(false);
-  const [resettingGame, setResettingGame] = useState<boolean>(false);
+  const [gameStart, setGameStart] = React.useState<number | null>(null);
+  const [gameEnd, setGameEnd] = React.useState<boolean>(false);
+  const [resettingGame, setResettingGame] = React.useState<boolean>(false);
 
-  const [breakNow, setBreakNow] = useState<boolean>(false);
+  const [breakNow, setBreakNow] = React.useState<boolean>(false);
 
-  const startProbeRef = useRef<MPositionProbeElement | null>(null);
-  const endProbeRef = useRef<MPositionProbeElement | null>(null);
-  const timerTick = useRef<NodeJS.Timeout | undefined>(undefined);
-  const timer = useRef<number | null>(null);
+  const startProbeRef = React.useRef<MPositionProbeElement | null>(null);
+  const endProbeRef = React.useRef<MPositionProbeElement | null>(null);
+  const timerTick = React.useRef<NodeJS.Timeout | undefined>(undefined);
+  const timer = React.useRef<number | null>(null);
 
-  const handleGameEnd = useCallback(() => {
+  const handleGameEnd = React.useCallback(() => {
     if (gameEnd === true || resettingGame === true || gameStart === null) {
       return;
     }
@@ -370,7 +371,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
     }
   }, [gameEnd, gameStart, resettingGame]);
 
-  const handleTick = useCallback(() => {
+  const handleTick = React.useCallback(() => {
     timer.current = timer.current ? timer.current - 1000 : 0;
     if (timer.current <= 0) {
       handleGameEnd();
@@ -378,7 +379,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
     setCountDown(timer.current);
   }, [handleGameEnd]);
 
-  const handleGameStart = useCallback(() => {
+  const handleGameStart = React.useCallback(() => {
     if (resettingGame === true || gameEnd === true) {
       return;
     }
@@ -390,7 +391,7 @@ export const GlassBridgeGame = memo(({ x, y, z, ry, visibleTo }: GlassBridgeGame
     }
   }, [gameEnd, handleTick, resettingGame]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const startProbe = startProbeRef.current;
     const endProbe = endProbeRef.current;
 

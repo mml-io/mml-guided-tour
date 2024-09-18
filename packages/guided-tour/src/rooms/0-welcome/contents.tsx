@@ -1,5 +1,4 @@
 import * as React from "react";
-import { memo } from "react";
 
 import { botAnimURL, botMeshURL, teleporterBaseURL } from "../../assets";
 import { firstInteraction, gliders } from "../../examples";
@@ -10,7 +9,7 @@ type FloatingAvatarsProps = {
   z: number;
   ry: number;
 };
-const FloatingAvatars = memo(({ x, y, z, ry }: FloatingAvatarsProps) => {
+const FloatingAvatars = React.memo(({ x, y, z, ry }: FloatingAvatarsProps) => {
   const now = document.timeline.currentTime as number;
   return (
     <m-group x={x} y={y} z={z} ry={ry}>

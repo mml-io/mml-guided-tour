@@ -1,5 +1,4 @@
 import * as React from "react";
-import { memo } from "react";
 
 import { Travelator } from "../components/travelator";
 
@@ -14,7 +13,7 @@ type ServiceCorridorProps = {
   glassColor: string;
   glassOpacity: number;
 };
-export const ServiceCorridor = memo(
+export const ServiceCorridor = React.memo(
   ({
     x,
     y,

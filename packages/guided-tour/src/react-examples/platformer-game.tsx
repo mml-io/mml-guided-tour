@@ -1,5 +1,4 @@
 import * as React from "react";
-import { memo } from "react";
 
 import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
@@ -33,7 +32,7 @@ type StartProps = {
   z: number;
   ry?: number;
 };
-const Start = memo(({ x, y, z, ry }: StartProps) => {
+const Start = React.memo(({ x, y, z, ry }: StartProps) => {
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
       <m-model src={platformerStartURL}></m-model>
@@ -48,7 +47,7 @@ type EndProps = {
   z: number;
   ry?: number;
 };
-const End = memo(({ x, y, z, ry }: EndProps) => {
+const End = React.memo(({ x, y, z, ry }: EndProps) => {
   return (
     <m-group x={x} y={y} z={z} ry={ry}>
       <m-model src={platformerEndURL}></m-model>
@@ -65,7 +64,7 @@ type SpinnersProps = {
   depth: number;
   active: boolean;
 };
-const Spinners = memo(({ x, y, z, width, depth, active }: SpinnersProps) => {
+const Spinners = React.memo(({ x, y, z, width, depth, active }: SpinnersProps) => {
   const spinnerRadius = 3.4999;
   const spinnerDiameter = spinnerRadius * 2;
   const hexHeight = (spinnerDiameter * Math.sqrt(3)) / 2;
@@ -129,7 +128,7 @@ type HammersProps = {
   difficulty: 1 | 2;
   active: boolean;
 };
-const Hammers = memo(({ x, y, z, ry, difficulty, active }: HammersProps) => {
+const Hammers = React.memo(({ x, y, z, ry, difficulty, active }: HammersProps) => {
   const xOffset = 6;
   const zOffset = 18;
   const baseSpeed = 2100;
@@ -184,45 +183,47 @@ type SineHexPlatformsProps = {
   difficulty: 1 | 2;
   active: boolean;
 };
-const SineHexPlatforms = memo(({ x, y, z, ry, difficulty, active }: SineHexPlatformsProps) => {
-  const platforms = 10;
-  const hexOffset = 12;
-  const duration = difficulty < 2 ? 12000 : 8000;
-  const yAnimDuration = duration * (2 / 3);
-  return (
-    <m-group x={x} y={y} z={z} ry={ry}>
-      {Array.from({ length: platforms }).map((_, i) => {
-        return (
-          <m-model key={i} src={hexagonURL} z={i * hexOffset}>
-            {active && i < platforms - 1 && (
-              <>
-                <m-attr-anim
-                  attr="x"
-                  start={-6}
-                  end={6}
-                  duration={duration}
-                  loop={true}
-                  ping-pong={true}
-                  easing="easeInOutSine"
-                  start-time={(document.timeline.currentTime as number) - i * 1000}
-                ></m-attr-anim>
-                <m-attr-anim
-                  attr="y"
-                  start={0}
-                  end={-0.5}
-                  duration={yAnimDuration}
-                  start-time={(document.timeline.currentTime as number) - i * 1000}
-                  ping-pong={true}
-                  easing={"easeInOutSine"}
-                ></m-attr-anim>
-              </>
-            )}
-          </m-model>
-        );
-      })}
-    </m-group>
-  );
-});
+const SineHexPlatforms = React.memo(
+  ({ x, y, z, ry, difficulty, active }: SineHexPlatformsProps) => {
+    const platforms = 10;
+    const hexOffset = 12;
+    const duration = difficulty < 2 ? 12000 : 8000;
+    const yAnimDuration = duration * (2 / 3);
+    return (
+      <m-group x={x} y={y} z={z} ry={ry}>
+        {Array.from({ length: platforms }).map((_, i) => {
+          return (
+            <m-model key={i} src={hexagonURL} z={i * hexOffset}>
+              {active && i < platforms - 1 && (
+                <>
+                  <m-attr-anim
+                    attr="x"
+                    start={-6}
+                    end={6}
+                    duration={duration}
+                    loop={true}
+                    ping-pong={true}
+                    easing="easeInOutSine"
+                    start-time={(document.timeline.currentTime as number) - i * 1000}
+                  ></m-attr-anim>
+                  <m-attr-anim
+                    attr="y"
+                    start={0}
+                    end={-0.5}
+                    duration={yAnimDuration}
+                    start-time={(document.timeline.currentTime as number) - i * 1000}
+                    ping-pong={true}
+                    easing={"easeInOutSine"}
+                  ></m-attr-anim>
+                </>
+              )}
+            </m-model>
+          );
+        })}
+      </m-group>
+    );
+  },
+);
 SineHexPlatforms.displayName = "SineHexPlatforms";
 
 type AxesPlatformProps = {
@@ -233,7 +234,7 @@ type AxesPlatformProps = {
   difficulty: 1 | 2;
   active: boolean;
 };
-const AxesPlatform = memo(({ x, y, z, ry, difficulty, active }: AxesPlatformProps) => {
+const AxesPlatform = React.memo(({ x, y, z, ry, difficulty, active }: AxesPlatformProps) => {
   const totalAxes = 8;
   const axesSwingTime = difficulty < 2 ? 5000 : 3500;
   const zOffset = -17;
@@ -280,7 +281,7 @@ type HelisProps = {
   rowsDistance: number;
   active: boolean;
 };
-const Helis = memo(({ y, z, amount, rowsDistance, active }: HelisProps) => {
+const Helis = React.memo(({ y, z, amount, rowsDistance, active }: HelisProps) => {
   const spacing = 21;
   return (
     <m-group>
@@ -344,7 +345,7 @@ type BackgroundMusicProps = {
   active: boolean;
   debug?: boolean;
 };
-const BackgroundMusic = memo(
+const BackgroundMusic = React.memo(
   ({
     x,
     y,
@@ -396,7 +397,7 @@ const BackgroundMusic = memo(
 );
 BackgroundMusic.displayName = "BackgroundMusic";
 
-export const PlatformerGame = memo(({ x, y, z, ry, visibleTo }: PlatformerGameProps) => {
+export const PlatformerGame = React.memo(({ x, y, z, ry, visibleTo }: PlatformerGameProps) => {
   const yPos = 0;
   const active = true;
   const difficulty = 1;

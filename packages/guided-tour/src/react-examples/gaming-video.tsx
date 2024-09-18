@@ -1,6 +1,5 @@
 import { MVideoElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { useAttributes } from "../helpers/use-attributes";
@@ -22,8 +21,8 @@ type ControlButton = {
 
 type ControlButtons = Map<string, ControlButton>;
 
-export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) => {
-  const controlIcons = useMemo(
+export const GamingVideo = React.memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) => {
+  const controlIcons = React.useMemo(
     () => [
       "/assets/guidedtour/texture_button_power.png",
       "/assets/guidedtour/texture_button_volup.png",
@@ -37,31 +36,31 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
   const disabledEmissive = 0.1;
   const dimEmissive = 4.0;
 
-  const [videoRef, setVideoRef] = useState<MVideoElement | null>(null);
+  const [videoRef, setVideoRef] = React.useState<MVideoElement | null>(null);
 
-  const [startedAt, setStartedAt] = useState<number>(0);
-  const [lastPaused, setLastPaused] = useState<number>(0);
+  const [startedAt, setStartedAt] = React.useState<number>(0);
+  const [lastPaused, setLastPaused] = React.useState<number>(0);
 
-  const [startTime, setStartTime] = useState<number>(0);
-  const [pauseTime, setPauseTime] = useState<number | undefined>(undefined);
+  const [startTime, setStartTime] = React.useState<number>(0);
+  const [pauseTime, setPauseTime] = React.useState<number | undefined>(undefined);
 
-  const [enabled, setEnabled] = useState<boolean>(true);
+  const [enabled, setEnabled] = React.useState<boolean>(true);
 
   const attributes = useAttributes(videoRef);
 
-  const controlButtons: ControlButtons = useMemo(() => new Map(), []);
-  const enabledButtons = useMemo(() => new Set(["power", "next", "pause"]), []);
+  const controlButtons: ControlButtons = React.useMemo(() => new Map(), []);
+  const enabledButtons = React.useMemo(() => new Set(["power", "next", "pause"]), []);
 
-  const videosAvailable = useMemo(
+  const videosAvailable = React.useMemo(
     () => ["/assets/guidedtour/sonic_ghz.mp4", "/assets/guidedtour/sonic_ss.mp4"],
     [],
   );
 
-  const [videoIndex, setVideoIndex] = useState<number>(0);
-  const [videoURL, setVideoURL] = useState<string>(videosAvailable[videoIndex]);
-  const [volume, setVolume] = useState<number>(0);
+  const [videoIndex, setVideoIndex] = React.useState<number>(0);
+  const [videoURL, setVideoURL] = React.useState<string>(videosAvailable[videoIndex]);
+  const [volume, setVolume] = React.useState<number>(0);
 
-  const resumeVideo = useCallback(() => {
+  const resumeVideo = React.useCallback(() => {
     if (pauseTime === undefined || !enabled) {
       return;
     }
@@ -76,7 +75,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     setPauseTime(undefined);
   }, [enabled, enabledButtons, lastPaused, pauseTime, startedAt]);
 
-  const pauseVideo = useCallback(() => {
+  const pauseVideo = React.useCallback(() => {
     if (pauseTime !== undefined || !enabled) {
       return;
     }
@@ -89,7 +88,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     setPauseTime(newLastPaused);
   }, [enabled, enabledButtons, pauseTime]);
 
-  const toggleVolume = useCallback(() => {
+  const toggleVolume = React.useCallback(() => {
     if (!enabled) {
       return;
     }
@@ -102,7 +101,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     }
   }, [enabled, enabledButtons, volume]);
 
-  const nextVideo = useCallback(() => {
+  const nextVideo = React.useCallback(() => {
     if (!enabled) {
       return;
     }
@@ -121,7 +120,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     if (enabledButtons.has("play")) enabledButtons.delete("play");
   }, [enabled, enabledButtons, videoIndex, videosAvailable]);
 
-  const togglePower = useCallback(() => {
+  const togglePower = React.useCallback(() => {
     setEnabled(!enabled);
     if (enabled) {
       if (enabledButtons.has("power")) enabledButtons.delete("power");
@@ -130,7 +129,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     }
   }, [enabled, enabledButtons]);
 
-  const handleControlClick = useCallback(
+  const handleControlClick = React.useCallback(
     (name: string) => {
       switch (name) {
         case "power":
@@ -155,7 +154,7 @@ export const GamingVideo = memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) =
     [nextVideo, pauseVideo, resumeVideo, togglePower, toggleVolume],
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     controlIcons.forEach((icon) => {
       const name = `${icon.split("_").pop()?.split(".").shift()}`;
       const enabled = ["power", "next", "pause", "volup"].includes(name);
