@@ -46,6 +46,7 @@ module.exports = {
     "no-unused-vars": "off",
     "no-var": ["error"],
     "no-console": "off",
+    "import/no-unresolved": ["error", { ignore: ["^mml:"] }],
     "import/order": [
       "error",
       {
@@ -86,9 +87,6 @@ module.exports = {
         alwaysTryTypes: true,
         project: "tsconfig.json",
       },
-    },
-    "import/no-unresolved": {
-      ignore: ['^mml:']
     },
     "import/internal-regex": "^~",
     react: {

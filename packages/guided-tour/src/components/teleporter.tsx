@@ -207,4 +207,4 @@ export const Teleporter = memo(
   },
 );
 
-Teleporter.displayName = "AudioSequencer";
+Teleporter.displayName = "Teleporter";

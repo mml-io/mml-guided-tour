@@ -1,13 +1,8 @@
-import { MGroupElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
-import { memo, useRef } from "react";
+import { memo } from "react";
 
-import { useVisibilityProbe } from "./helpers/use-visibility-probe";
-import { firstInteraction, gliders } from "../examples";
-
-const teleporterBaseURL = "/assets/guidedtour/teleporter_base_plinth.glb";
-const botMeshURL = "/assets/guidedtour/bot_mesh.glb";
-const botAnimURL = "/assets/guidedtour/bot_anim_idle.glb";
+import { botAnimURL, botMeshURL, teleporterBaseURL } from "../../assets";
+import { firstInteraction, gliders } from "../../examples";
 
 type FloatingAvatarsProps = {
   x: number;
@@ -66,20 +61,12 @@ const FloatingAvatars = memo(({ x, y, z, ry }: FloatingAvatarsProps) => {
 });
 FloatingAvatars.displayName = "FloatingAvatars";
 
-export function Room1() {
-  const probeRef = useRef<MPositionProbeElement | null>(null);
-  const groupRef = useRef<MGroupElement | null>(null);
-
-  useVisibilityProbe(probeRef, groupRef, 32, 500);
-
+export function Contents() {
   return (
-    <m-group>
-      <m-position-probe ref={probeRef} />
-      <m-group ref={groupRef}>
-        <m-frame src={firstInteraction}></m-frame>
-        <m-frame src={gliders} x={-17.65} y={2.05} sy={2.63} sz={3.14}></m-frame>
-        <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
-      </m-group>
-    </m-group>
+    <>
+      <m-frame src={firstInteraction}></m-frame>
+      <m-frame src={gliders} x={-17.65} y={2.05} sy={2.63} sz={3.14}></m-frame>
+      <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
+    </>
   );
 }

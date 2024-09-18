@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { CinemaScreen } from "./react-examples/cinema-screen";
-import { MMLLogo } from "./react-examples/mml-logo";
-import { TrackingDuck } from "./react-examples/tracking-duck";
+import { CinemaScreen } from "../react-examples/cinema-screen";
+import { MMLLogo } from "../react-examples/mml-logo";
+import { TrackingDuck } from "../react-examples/tracking-duck";
 
 type ExternalAreaProps = {
   x?: number;

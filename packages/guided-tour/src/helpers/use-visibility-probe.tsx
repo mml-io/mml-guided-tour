@@ -1,17 +1,19 @@
-import { MPositionProbeElement } from "@mml-io/mml-react-types";
+import { MGroupElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import { useEffect, useRef, useState } from "react";
+import * as React from "react";
 
 import { setToCSVString } from "./js-helpers";
 
 export function useVisibilityProbe(
-  probeRef: React.RefObject<MPositionProbeElement>,
-  groupRef: React.RefObject<any>,
   range: number,
   interval: number,
   debug?: boolean,
+  persist?: boolean,
 ) {
   const usersInProbe = useRef<Set<number>>(new Set());
   const [visibleTo, setVisibleTo] = useState<string>("");
+  const groupRef = useRef<MGroupElement>(null);
+  const probeRef = useRef<MPositionProbeElement>(null);
 
   useEffect(() => {
     if (probeRef.current) {
@@ -32,6 +34,7 @@ export function useVisibilityProbe(
       };
 
       const handlePositionLeave = (event: any) => {
+        if (persist) return;
         if (usersInProbe.current.has(event.detail.connectionId)) {
           usersInProbe.current.delete(event.detail.connectionId);
           setVisibleTo(setToCSVString(usersInProbe.current));
@@ -64,7 +67,7 @@ export function useVisibilityProbe(
         window.removeEventListener("disconnected", handleDisconnect);
       };
     }
-  }, [probeRef, usersInProbe, range, interval, debug]);
+  }, [probeRef, usersInProbe, range, interval, debug, persist]);
 
   useEffect(() => {
     if (groupRef.current) {
@@ -72,7 +75,33 @@ export function useVisibilityProbe(
     }
   }, [visibleTo, groupRef]);
 
-  return {
-    visibleTo,
-  };
+  return [groupRef, probeRef];
+}
+
+export function PositionProbeLoaded({
+  x,
+  y,
+  z,
+  range,
+  interval,
+  debug,
+  persist,
+  children,
+}: React.PropsWithChildren<{
+  x?: number;
+  y?: number;
+  z?: number;
+  range: number;
+  interval: number;
+  debug?: boolean;
+  persist?: boolean;
+}>) {
+  const [groupRef, probeRef] = useVisibilityProbe(range, interval, debug, persist);
+
+  return (
+    <m-group x={x} y={y} z={z}>
+      <m-position-probe ref={probeRef} />
+      <m-group ref={groupRef}>{children}</m-group>
+    </m-group>
+  );
 }
