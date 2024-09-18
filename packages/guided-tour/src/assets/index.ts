@@ -25,3 +25,13 @@ export const roomModels = {
 } as const;
 
 export type RoomModel = (typeof roomModels)[keyof typeof roomModels];
+
+export const sequencer = {
+  kick: "/assets/guidedtour/sfx_808_kick.wav",
+  cymbol: "/assets/guidedtour/sfx_808_cymbol.wav",
+  hihat: "/assets/guidedtour/sfx_808_hihat.wav",
+  snare: "/assets/guidedtour/sfx_808_snare.wav",
+  bodyTexture: "/assets/guidedtour/texture_808.jpg",
+};
+
+export type SequencerSrc = (typeof sequencer)[keyof typeof sequencer];

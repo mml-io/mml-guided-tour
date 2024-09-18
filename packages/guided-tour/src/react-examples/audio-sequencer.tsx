@@ -1,13 +1,14 @@
 import * as React from "react";
 
-const audioSrcs = [
-  "/assets/guidedtour/sfx_808_kick.wav",
-  "/assets/guidedtour/sfx_808_cymbol.wav",
-  "/assets/guidedtour/sfx_808_hihat.wav",
-  "/assets/guidedtour/sfx_808_snare.wav",
-];
+import { sequencer, SequencerSrc } from "../assets";
 
-const bodyTextureURL = "/assets/guidedtour/texture_808.jpg";
+const audioSrcs: Array<SequencerSrc> = [
+  sequencer.kick,
+  sequencer.cymbol,
+  sequencer.hihat,
+  sequencer.snare,
+];
+const bodyTextureURL: SequencerSrc = sequencer.bodyTexture;
 
 const bars = 16;
 const instruments = 4;
