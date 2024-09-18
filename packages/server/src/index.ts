@@ -1,4 +1,5 @@
 import fs from "fs";
+import os from "os";
 import path from "path";
 import url from "url";
 
@@ -15,10 +16,21 @@ dotenv.config();
 const dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const PORT = process.env.PORT || 8080;
 const webClientBuildDir = path.join(dirname, "../../web-client/build/");
-const assetsDir = path.join(dirname, "../../assets/");
+const staticAssetsDir = path.join(dirname, "../../assets/");
 const indexContent = fs.readFileSync(path.join(webClientBuildDir, "index.html"), "utf8");
 const MML_DOCUMENT_ROOT = path.join(dirname, "../../guided-tour/build/");
 const MML_DOCUMENT_WATCH_PATTERN = "**/*.html";
+// FIXME: Add this when we have some bundled assets
+//const packagedAssetsDir = path.join(dirname, "../../guided-tour/build/assets");
+const assetsDir = fs.mkdtempSync(path.join(os.tmpdir(), "mml-assets-"));
+
+console.log("Copying assets to", assetsDir);
+fs.cpSync(staticAssetsDir, assetsDir, { recursive: true });
+//fs.cpSync(packagedAssetsDir, assetsDir, { recursive: true });
+
+fs.cpSync(path.join(MML_DOCUMENT_ROOT, "world.json"), path.join(webClientBuildDir, "world.json"), {
+  force: true,
+});
 
 // Specify the avatar to use here:
 const characterDescription: CharacterDescription = {

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "lerna run --stream build",
     "start": "npm run start -w @mml-guided-tour/server",
-    "iterate": "npm run build && lerna run --parallel --stream iterate",
+    "iterate": "lerna run --parallel --stream iterate",
     "type-check-all": "lerna run --stream type-check",
     "lint-all": "lerna run --stream lint",
     "lint-fix-all": "lerna run --stream lint:fix"

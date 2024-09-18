@@ -1,6 +1,12 @@
 {
-  "watch": ["build/", "../packages/*/build/"],
-  "ignore": [],
-  "ext": "ts,js,json",
+  "watch": [
+    "build/",
+    "../packages/*/build/**"
+  ],
+  "ignore": [
+    "../guided-tour/build/**/*.js",
+    "../web-client/build/world.json"
+  ],
+  "ext": "ts,js,json,glb",
   "exec": "node build/index.js"
 }

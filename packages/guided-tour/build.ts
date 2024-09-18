@@ -1,261 +1,83 @@
-import crypto from "node:crypto";
-import fs from "node:fs";
-import fsp from "node:fs/promises";
-import path, { join, relative, resolve } from "node:path";
+import path from "node:path";
+import url from "node:url";
 
+import { mml } from "@mml-io/esbuild-plugin-mml";
+import { mserveOutputProcessor } from "@mserve-io/mserve";
 import * as esbuild from "esbuild";
-import { lockSync, unlockSync } from "proper-lockfile";
 
 const buildMode = "--build";
 const watchMode = "--watch";
-
-const helpString = `Mode must be provided as one of ${buildMode} or ${watchMode}`;
-
-const jsExt = /\.js$/;
-
-function cleanupJS(path: string, log?: (...args: any[]) => void) {
-  const stat = fs.statSync(path);
-  const isJS = stat.isFile() && jsExt.test(path);
-  if (isJS) {
-    fs.rmSync(path);
-    return;
-  }
-  if (!stat.isDirectory()) {
-    return;
-  }
-  let files = fs.readdirSync(path);
-  if (files.length > 0) {
-    for (const file of files) {
-      cleanupJS(join(path, file), log);
-    }
-    // re-evaluate files; after deleting subfolder
-    // we may have parent folder empty now
-    files = fs.readdirSync(path);
-  }
-
-  if (files.length === 0) {
-    log?.("Removing:", path);
-    fs.rmdirSync(path);
-    return;
-  }
-}
-
-type MMLRenamer = (path: string) => string;
-
-export function mserveRenamer(): MMLRenamer {
-  return function (inPath) {
-    const extname = path.extname(inPath);
-
-    const dirname = path.dirname(inPath);
-    let basename = path.basename(inPath, extname);
-
-    const id = crypto.hash("sha1", inPath, "hex").slice(-8);
-
-    if (basename === "index") {
-      basename = path.basename(dirname);
-    }
-
-    return `${basename.slice(0, 16)}-${id}${extname}`;
-  };
-}
-
-export type MMLPluginOptions = {
-  verbose?: boolean;
-  renamer?: (path: string) => string;
-  pathPrefix?: string;
-};
-
-function mmlPlugin({
-  verbose = false,
-  pathPrefix = "ws:///",
-  renamer,
-}: MMLPluginOptions = {}): esbuild.Plugin {
-  const log = verbose ? (...args: any[]) => console.log("[mml]:", ...args) : () => {};
-
-  let results: esbuild.BuildResult[] = [];
-  let importStubs: Record<string, string> = {};
-
-  // We create a new non-root instance of the plugin anytime we need to run a child build process
-  // This signifies to the the child plugin that it should store its result in the `results` array
-  // so that the root instance can merge them for the final result.
-  const makePlugin = (isRoot: boolean = false): esbuild.Plugin => ({
-    name: "mml",
-    setup(build) {
-      // We rely on the metfile to perform JS-to-HTML embedding and file renames.
-      build.initialOptions.metafile = true;
-      const outdir = resolve(__dirname, build.initialOptions.outdir ?? "build");
-
-      build.onStart(() => {
-        if (isRoot) {
-          log("onStart: acquiring lock on build directory");
-          fs.mkdirSync(outdir, { recursive: true });
-          try {
-            lockSync(outdir);
-          } catch (error) {
-            return {
-              errors: [{ text: "failed to acquire lock on build directory", detail: error }],
-            };
-          }
-          results = [];
-          importStubs = {};
-        }
-      });
-
-      // Main entry point for any imports that are prefixed with "mml:".
-      // We strip the prefix and resolve the path with esbuild before handing off to
-      // an mml loader.
-      build.onResolve({ filter: /^mml:/ }, async (args) => {
-        log("onResolve", args);
-        const { path, ...rest } = args;
-        const result = await build.resolve(path.slice("mml:".length), rest);
-        return { ...result, namespace: "mml" };
-      });
-
-      // Loader for any (originally) mml-prefixed paths. This requests the file be built by a
-      // child esbuild instance, however we control the rewriting of the import paths using the
-      // "text" loader to embed the path to the document as a string within the importer.
-      build.onLoad({ filter: /.*/, namespace: "mml" }, async (args) => {
-        log("onLoad", args);
-        const { path } = args;
-        const result = await build.esbuild.build({
-          ...build.initialOptions,
-          metafile: true,
-          entryPoints: [path],
-          plugins: [makePlugin()],
-        });
-        const outPath = Object.keys(result.metafile.outputs)[0];
-        const relativeOutPath = relative(outdir, outPath).replace(/\.[tj]sx?/, ".html");
-        const importStub = `mml:${relativeOutPath}`;
-
-        importStubs[relativeOutPath] = importStub;
-
-        return { contents: importStub, loader: "text" };
-      });
-
-      // Any raw HTML files should just be copied to the build directory.
-      // TODO: These could contain script tags with references to local files,
-      //       we may want to consider loading and embedding them directly into the HTML.
-      build.onLoad({ filter: /\.html$/ }, async (args) => {
-        log("onLoad", args);
-        const { path } = args;
-        const contents = await fsp.readFile(path, { encoding: "utf8" });
-        return { contents, loader: "copy" };
-      });
-
-      build.onEnd(async (result) => {
-        if (!isRoot) {
-          results.push(result);
-          return;
-        }
-
-        // We are in the root plugin instance. All child instances have finished and
-        // pushed their results into the array. Now we combine all the results into one.
-        const combinedResults = results.reduce(
-          (acc, val) => ({
-            errors: acc.errors.concat(val.errors),
-            warnings: acc.warnings.concat(val.warnings),
-            outputFiles: (acc.outputFiles ?? []).concat(val.outputFiles ?? []),
-            metafile: {
-              inputs: { ...acc.metafile?.inputs, ...val.metafile?.inputs },
-              outputs: { ...acc.metafile?.outputs, ...val.metafile?.outputs },
-            },
-            mangleCache: { ...acc.mangleCache, ...val.mangleCache },
-          }),
-          result,
-        );
-
-        Object.assign(result, combinedResults);
-
-        if (result.errors.length > 0) {
-          log("onEnd: errors in build, releasing lock on build directory");
-          unlockSync(outdir);
-          return;
-        }
-
-        // If we have a any js files, that do not have a corresponding HTML file,
-        // we need to create one and embed the JavaScript into a <script> tag.
-        // Then we can delete the JavaScript file as it is no longer needed.
-        const outputs = result.metafile!.outputs;
-        for (const [jsPath, meta] of Object.entries(outputs)) {
-          if (jsExt.test(jsPath)) {
-            const htmlPath = jsPath.replace(/\.js$/, ".html");
-            if (!(htmlPath in outputs)) {
-              delete outputs[jsPath];
-              const js = await fsp.readFile(jsPath, { encoding: "utf8" });
-              const cleanedJs = js.replace(/\/\*[\s\S]*?\*\//g, "");
-              const html = `<body></body><script>${cleanedJs}</script>`;
-              await fsp.writeFile(htmlPath, html);
-              outputs[htmlPath] = { ...meta, bytes: meta.bytes + 30 };
-            }
-          }
-        }
-
-        // Use the user-provided renamer to generate a new name for the files, then
-        // update the filenames on disk, metafile.outputs and the importStubs (if present).
-        if (renamer) {
-          for (const [output, meta] of Object.entries(outputs)) {
-            const path = relative(outdir, output);
-            const newPath = renamer(path);
-            const newOutput = relative(__dirname, join(outdir, newPath));
-            log("Renaming:", path, "->", newPath);
-            await fsp.rename(output, newOutput);
-            if (path in importStubs) {
-              importStubs[newPath] = importStubs[path];
-            }
-            outputs[newOutput] = meta;
-            delete outputs[output];
-            delete importStubs[path];
-          }
-        }
-
-        cleanupJS(outdir, log);
-
-        // Now we go through all of the output files and rewrite the import stubs to
-        // correct output path.
-        Object.keys(outputs).forEach(async (output) => {
-          let contents = await fsp.readFile(output, { encoding: "utf8" });
-          for (const [path, stub] of Object.entries(importStubs)) {
-            const replacement = pathPrefix + path;
-            log(`Replacing(${path}):`, stub, "->", replacement);
-            contents = contents.replaceAll(stub, replacement);
-          }
-          await fsp.writeFile(output, contents);
-        });
-
-        log("onEnd: releasing lock on build directory");
-        unlockSync(outdir);
-
-        log("onEnd", JSON.stringify(result, undefined, 2));
-      });
-    },
-  });
-
-  return makePlugin(true);
-}
-
-const outdir = path.join(__dirname, "build");
-
-const buildOptions: esbuild.BuildOptions = {
-  entryPoints: ["./src/guided-tour/index.tsx"],
-  outdir,
-  outbase: "src",
-  bundle: true,
-  write: true,
-  treeShaking: true,
-  minify: true,
-  assetNames: "[dir]/[name]",
-  entryNames: "[dir]/[name]",
-  plugins: [mmlPlugin({ verbose: false })],
-};
+const verboseFlag = "--verbose";
+const localFlag = "--local";
 
 const args = process.argv.splice(2);
 
-if (args.length !== 1) {
+const helpString = `Mode must be provided as one of ${buildMode} or ${watchMode}`;
+
+if (args.length === 0) {
   console.error(helpString);
   process.exit(1);
 }
 
-const mode = args[0];
+const [mode, verbose, local] = args.reduce<[string, boolean, boolean]>(
+  (
+    [mode, verbose, local]: [string, boolean, boolean],
+    arg: string,
+  ):
+    | ["--build", boolean, boolean]
+    | ["--watch", boolean, boolean]
+    | [string, true, boolean]
+    | [string, boolean, true] => {
+    switch (arg) {
+      case buildMode:
+        return [arg, verbose, local];
+      case watchMode:
+        return [arg, verbose, local];
+      case verboseFlag:
+        return [mode, true, local];
+      case localFlag:
+        return [mode, verbose, true];
+      default:
+        console.error("Unknown flag:", arg);
+        process.exit(1);
+    }
+  },
+  [buildMode, false, false],
+);
+
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const outdir = path.join(__dirname, "build");
+
+const { MSERVE_PROJECT, MMLHOSTING_PROTOCOL = "wss", MMLHOSTING_HOST } = process.env;
+
+if (!local && (!MSERVE_PROJECT || !MMLHOSTING_HOST)) {
+  console.error(
+    "MSERVE_PROJECT and MMLHOSTING_HOST must be provided in the environment for non-local builds.",
+  );
+  process.exit(1);
+}
+
+const buildOptions: esbuild.BuildOptions = {
+  entryPoints: ["src/world.ts"],
+  outdir,
+  bundle: true,
+  minify: true,
+  plugins: [
+    mml({
+      verbose,
+      ...(!local
+        ? {
+            outputProcessor: mserveOutputProcessor(MSERVE_PROJECT!),
+            documentPrefix: `${MMLHOSTING_PROTOCOL}://${MMLHOSTING_HOST}/v1/`,
+            assetPrefix: "https://public.mml.io/",
+            assetDir: "",
+          }
+        : {}),
+    }),
+  ],
+};
 
 switch (mode) {
   case buildMode:
