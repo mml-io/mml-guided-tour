@@ -3,10 +3,9 @@ import * as React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Particles } from "./particles";
-
-const teleporterBaseURL = "/assets/guidedtour/teleporter_base_plinth.glb";
-const teleporterPlatformURL = "/assets/guidedtour/teleporter_platform.glb";
-const teleporterSFXURL = "/assets/guidedtour/sfx_charge.mp3";
+import teleporterBaseURL from "../assets/models/teleporter_base_plinth.glb";
+import teleporterPlatformURL from "../assets/models/teleporter_platform.glb";
+import teleporterSFXURL from "../assets/sounds/sfx_charge.mp3";
 
 type TransporterPlatformProps = {
   animatingStart: boolean;
@@ -125,8 +124,8 @@ export const Teleporter = memo(
       }
       return () => {
         if (startProbe) {
-          startProbe.removeEventListener("positionenter", () => {});
-          startProbe.removeEventListener("positionmove", () => {});
+          startProbe.removeEventListener("positionenter", () => { });
+          startProbe.removeEventListener("positionmove", () => { });
         }
       };
     }, [startProbeRef, teleportToEnd]);

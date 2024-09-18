@@ -3,8 +3,8 @@ import * as React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Door } from "./door";
-
-const secretDoorURL = "/assets/guidedtour/hallway_secret_wall.glb";
+import hallway from "../assets/models/hallway.glb";
+import secretDoorURL from "../assets/models/hallway_secret_wall.glb";
 
 type HallwayProps = {
   x: number;
@@ -69,7 +69,7 @@ export const Hallway = memo(({ x, y, z }: HallwayProps) => {
 
   return (
     <m-group x={x} y={y} z={z}>
-      <m-model src={"/assets/guidedtour/hallway.glb"} sx={0.9999}></m-model>
+      <m-model src={hallway} sx={0.9999}></m-model>
       <SecterDoor />
       <Door
         x={-12.5}

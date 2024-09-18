@@ -11,6 +11,11 @@ type PlayButtonProps = {
   overrideReenable?: boolean;
 };
 
+import baseURL from "../assets/models/floor_button_base.glb";
+import offURL from "../assets/models/floor_play_button_off.glb";
+import onURL from "../assets/models/floor_play_button_on.glb";
+import sfxURL from "../assets/sounds/sfx_button.mp3";
+
 export const PlayButton = memo(
   ({ x, y, z, ry, reEnableTime, callback, overrideReenable }: PlayButtonProps) => {
     const sfxDuration = 1200;
@@ -25,11 +30,6 @@ export const PlayButton = memo(
     const [sfxPlaying, setSFXPlaying] = useState<boolean>(false);
     const [onScale, setOnScale] = useState<number>(enabled ? 1 : 0.001);
     const [offScale, setOffScale] = useState<number>(enabled ? 0.001 : 1);
-
-    const onURL = "/assets/guidedtour/floor_play_button_on.glb";
-    const offURL = "/assets/guidedtour/floor_play_button_off.glb";
-    const baseURL = "/assets/guidedtour/floor_button_base.glb";
-    const sfxURL = "/assets/guidedtour/sfx_button.mp3";
 
     const buttonTravel = 0.03;
 

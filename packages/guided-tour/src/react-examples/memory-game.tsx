@@ -1,6 +1,26 @@
 import { MAudioElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
+import tile00URL from "../assets/images/texture_memgame_00.jpg";
+import tile01URL from "../assets/images/texture_memgame_01.jpg";
+import tile02URL from "../assets/images/texture_memgame_02.jpg";
+import tile03URL from "../assets/images/texture_memgame_03.jpg";
+import tile04URL from "../assets/images/texture_memgame_04.jpg";
+import tile05URL from "../assets/images/texture_memgame_05.jpg";
+import tile06URL from "../assets/images/texture_memgame_06.jpg";
+import tile07URL from "../assets/images/texture_memgame_07.jpg";
+import tile08URL from "../assets/images/texture_memgame_08.jpg";
+import tile09URL from "../assets/images/texture_memgame_09.jpg";
+import tile10URL from "../assets/images/texture_memgame_10.jpg";
+import tile11URL from "../assets/images/texture_memgame_11.jpg";
+import tile12URL from "../assets/images/texture_memgame_12.jpg";
+import tile13URL from "../assets/images/texture_memgame_13.jpg";
+import tile14URL from "../assets/images/texture_memgame_14.jpg";
+import infoAudioURL from "../assets/sounds/sfx_memgame_info.mp3";
+import sfxNoURL from "../assets/sounds/sfx_memgame_no.mp3";
+import sfxPlayURL from "../assets/sounds/sfx_memgame_play.mp3";
+import sfxWinURL from "../assets/sounds/sfx_memgame_win.mp3";
+import sfxYesURL from "../assets/sounds/sfx_memgame_yes.mp3";
 import { InfoButton } from "../components/info-button";
 import { PlayButton } from "../components/play-button";
 
@@ -24,17 +44,23 @@ const blockSelectedColor = "#ffffff";
 
 const frameColor = "#cccccc";
 
-const infoAudioURL = "/assets/guidedtour/sfx_memgame_info.mp3";
-
-const sfxPlayURL = "/assets/guidedtour/sfx_memgame_play.mp3";
-const sfxWinURL = "/assets/guidedtour/sfx_memgame_win.mp3";
-const sfxYesURL = "/assets/guidedtour/sfx_memgame_yes.mp3";
-const sfxNoURL = "/assets/guidedtour/sfx_memgame_no.mp3";
-
-const availableImages = Array.from(
-  { length: 15 },
-  (_, i) => `/assets/guidedtour/texture_memgame_${i.toString().padStart(2, "0")}.jpg`,
-);
+const availableImages = [
+  tile00URL,
+  tile01URL,
+  tile02URL,
+  tile03URL,
+  tile04URL,
+  tile05URL,
+  tile06URL,
+  tile07URL,
+  tile08URL,
+  tile09URL,
+  tile10URL,
+  tile11URL,
+  tile12URL,
+  tile13URL,
+  tile14URL,
+];
 
 type Block = {
   id: number;

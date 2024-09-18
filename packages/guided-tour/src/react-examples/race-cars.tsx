@@ -1,13 +1,21 @@
 import { MAttrAnimElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
+import textureCheckered from "../assets/images/texture_checkered.jpg";
+import codeDisplay from "../assets/models/code_display.glb";
+import blueCarModel from "../assets/models/f1_race_car_blue.glb";
+import greenCarModel from "../assets/models/f1_race_car_green.glb";
+import pinkCarModel from "../assets/models/f1_race_car_pink.glb";
+import redCarModel from "../assets/models/f1_race_car_red.glb";
+import yellowCarModel from "../assets/models/f1_race_car_yellow.glb";
+import countDownAudioURL from "../assets/sounds/sfx_countdown.mp3";
+import infoAudioURL from "../assets/sounds/sfx_info_placeholder.mp3";
+import sfxRacing from "../assets/sounds/sfx_racing.mp3";
 import { InfoButton } from "../components/info-button";
 import { PlayButton } from "../components/play-button";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { randomArrayElement, randomInt } from "../helpers/js-helpers";
 import { useAttributes } from "../helpers/use-attributes";
-
-const infoAudioURL = "/assets/guidedtour/sfx_info_placeholder.mp3";
 
 type PossibleEasings = "easeInOutQuad" | "easeInOutCubic" | "easeInOutQuart";
 type EasingsArray = Array<PossibleEasings>;
@@ -52,13 +60,21 @@ const carColors = [
 ];
 
 const easings: EasingsArray = ["easeInOutQuad", "easeInOutCubic", "easeInOutQuart"];
-const availableCars = ["yellow", "green", "blue", "pink", "red"];
-const availableCarsModels: Record<string, string> = {};
-for (let i = 0; i < availableCars.length; i++) {
-  availableCarsModels[availableCars[i]] = `/assets/guidedtour/f1_race_car_${availableCars[i]}.glb`;
-}
+const availableCarsModels = {
+  yellow: yellowCarModel,
+  green: greenCarModel,
+  blue: blueCarModel,
+  pink: pinkCarModel,
+  red: redCarModel,
+};
+const availableCars: (keyof typeof availableCarsModels)[] = [
+  "yellow",
+  "green",
+  "blue",
+  "pink",
+  "red",
+];
 
-const countDownAudioURL = "/assets/guidedtour/sfx_countdown.mp3";
 const CountDownSound = React.memo(
   ({ startTime, pauseTime, volume }: { startTime: number; pauseTime: number; volume: number }) => (
     <m-audio
@@ -108,7 +124,7 @@ const Cars = React.memo(
           <m-model
             key={`car-${index}`}
             id={car}
-            src={availableCarsModels[car] as string}
+            src={availableCarsModels[car]}
             x={-trackLength / 2 + 1}
             y={0.3}
             z={index * carScale * 2 - carScale * 0.75}
@@ -132,7 +148,7 @@ const Cars = React.memo(
             {audio.length === availableCars.length && (
               <m-audio
                 key={`audio-${index}`}
-                src="/assets/guidedtour/sfx_racing.mp3"
+                src={sfxRacing}
                 start-time={audio[index].startTime}
                 pause-time={audio[index].pauseTime}
                 loop={false}
@@ -158,7 +174,7 @@ const RaceTrack = React.memo(() => (
       z={carScale * 3.1}
     >
       <m-image
-        src="/assets/guidedtour/texture_checkered.jpg"
+        src={textureCheckered}
         width={carScale * 10}
         x={trackLength / 2 - 1.4}
         y={0.066}
@@ -296,13 +312,7 @@ export const RaceCars = React.memo(({ x, y, z, ry, visibleTo }: RaceCarsProps) =
           show={countDown === "" && Object.keys(attributes).length !== 0}
         />
         <m-group y={0.9} z={-0.37}>
-          <m-model
-            src="/assets/guidedtour/code_display.glb"
-            sx={0.6}
-            sy={0.6}
-            sz={0.5}
-            ry={180}
-          ></m-model>
+          <m-model src={codeDisplay} sx={0.6} sy={0.6} sz={0.5} ry={180}></m-model>
           <m-group x={-0.3} y={2.03}>
             <TagCodeCanvas
               tagAttributes={attributes}

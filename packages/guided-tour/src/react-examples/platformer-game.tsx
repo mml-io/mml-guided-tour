@@ -1,5 +1,18 @@
 import * as React from "react";
 
+import axesBaseURL from "../assets/models/platformer_axe_base.glb";
+import axesBladeURL from "../assets/models/platformer_axe_blade.glb";
+import axesRodURL from "../assets/models/platformer_axe_rod.glb";
+import platformerEndURL from "../assets/models/platformer_end.glb";
+import hammerURL from "../assets/models/platformer_hammer.glb";
+import hammersBaseURL from "../assets/models/platformer_hammers_base.glb";
+import hammersEdgeURL from "../assets/models/platformer_hammers_edge.glb";
+import heliBladeURL from "../assets/models/platformer_heli_blade.glb";
+import heliBodyURL from "../assets/models/platformer_heli_body.glb";
+import hexagonURL from "../assets/models/platformer_hexagon.glb";
+import platformerSpinnerURL from "../assets/models/platformer_spinner.glb";
+import platformerStartURL from "../assets/models/platformer_start.glb";
+import bgmURL from "../assets/sounds/bgm_kabalevsky.mp3";
 import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
 import { Travelator } from "../components/travelator";
@@ -11,20 +24,6 @@ type PlatformerGameProps = {
   ry?: number;
   visibleTo?: string | number;
 };
-
-const platformerStartURL = "/assets/guidedtour/platformer_start.glb";
-const platformerEndURL = "/assets/guidedtour/platformer_end.glb";
-const platformerSpinnerURL = "/assets/guidedtour/platformer_spinner.glb";
-const hammersBaseURL = "/assets/guidedtour/platformer_hammers_base.glb";
-const hammersEdgeURL = "/assets/guidedtour/platformer_hammers_edge.glb";
-const hammerURL = "/assets/guidedtour/platformer_hammer.glb";
-const hexagonURL = "/assets/guidedtour/platformer_hexagon.glb";
-const axesBaseURL = "/assets/guidedtour/platformer_axe_base.glb";
-const axesRodURL = "/assets/guidedtour/platformer_axe_rod.glb";
-const axesBladeURL = "/assets/guidedtour/platformer_axe_blade.glb";
-const heliBodyURL = "/assets/guidedtour/platformer_heli_body.glb";
-const heliBladeURL = "/assets/guidedtour/platformer_heli_blade.glb";
-const bgmURL = "/assets/guidedtour/bgm_kabalevsky.mp3";
 
 type StartProps = {
   x: number;

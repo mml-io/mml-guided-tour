@@ -1,6 +1,8 @@
 import * as React from "react";
 
-import { botAnimURL, botMeshURL, teleporterBaseURL } from "../../assets";
+import botAnimURL from "../../assets/models/bot_anim_idle.glb";
+import botMeshURL from "../../assets/models/bot_mesh.glb";
+import teleporterBaseURL from "../../assets/models/teleporter_base_plinth.glb";
 import ConwayCubes from "../../react-examples/conway";
 import FirstInteraction from "../../react-examples/first-interaction";
 

@@ -11,6 +11,11 @@ type PlayButtonProps = {
   callback?: () => void;
 };
 
+import baseURL from "../assets/models/floor_button_base.glb";
+import offURL from "../assets/models/floor_question_button_off.glb";
+import onURL from "../assets/models/floor_question_button_on.glb";
+import sfxURL from "../assets/sounds/sfx_button.mp3";
+
 export const InfoButton = memo(
   ({ x, y, z, ry, infoAudioURL, infoAudioDuration, callback }: PlayButtonProps) => {
     const sfxDuration = 1200;
@@ -31,10 +36,6 @@ export const InfoButton = memo(
     const [infoAudioVolume, setInfoAudioVolume] = useState<number>(0);
     const [infoAudioPlaying, setInfoAudioPlaying] = useState<boolean>(false);
 
-    const onURL = "/assets/guidedtour/floor_question_button_on.glb";
-    const offURL = "/assets/guidedtour/floor_question_button_off.glb";
-    const baseURL = "/assets/guidedtour/floor_button_base.glb";
-    const sfxURL = "/assets/guidedtour/sfx_button.mp3";
     const infoAudio = infoAudioURL;
 
     const buttonTravel = 0.03;

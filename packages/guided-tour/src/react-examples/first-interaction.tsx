@@ -1,13 +1,12 @@
 import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
+import plinthURL from "../assets/models/basic_plinth.glb";
+import audio1URL from "../assets/sounds//video-first-interaction-01.mp3";
+import audio2URL from "../assets/sounds/video-first-interaction-02.mp3";
+import video1URL from "../assets/videos//video-first-interaction-01.mp4";
+import video2URL from "../assets/videos/video-first-interaction-02.mp4";
 import { PlayButton } from "../components/play-button";
-
-const plinthURL = "/assets/guidedtour/basic_plinth.glb";
-const video1URL = "/assets/guidedtour/video-first-interaction-01.mp4";
-const video2URL = "/assets/guidedtour/video-first-interaction-02.mp4";
-const audio1URL = "/assets/guidedtour/video-first-interaction-01.mp3";
-const audio2URL = "/assets/guidedtour/video-first-interaction-02.mp3";
 
 type FirstInteractionProps = {
   x?: number;

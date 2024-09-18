@@ -11,13 +11,14 @@ type CinemaScreenProps = {
   ry?: number;
   visibleTo?: string;
 };
+
+import textureVolumeOffSRC from "../assets/images/texture_volume_off.png";
+import textureVolumeOnSRC from "../assets/images/texture_volume_on.png";
+import audioSRC from "../assets/sounds/video_audio_charge.mp3";
+import videoSRC from "../assets/videos/video_charge.mp4";
+
 export const CinemaScreen = React.memo(
   ({ x, y, z, sx, sy, sz, ry, visibleTo }: CinemaScreenProps) => {
-    const videoSRC = "/assets/guidedtour/video_charge.mp4";
-    const audioSRC = "/assets/guidedtour/video_audio_charge.mp3";
-    const textureVolumeOnSRC = "/assets/guidedtour/texture_volume_on.png";
-    const textureVolumeOffSRC = "/assets/guidedtour/texture_volume_off.png";
-
     const videoRef = React.useRef<MVideoElement | null>(null);
     const volumeOnRef = React.useRef<MImageElement | null>(null);
     const volumeOffRef = React.useRef<MImageElement | null>(null);

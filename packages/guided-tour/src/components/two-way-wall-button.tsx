@@ -1,6 +1,11 @@
 import * as React from "react";
 import { useCallback, useState } from "react";
 
+import baseURL from "../assets/models/door_open_button_base.glb";
+import offURL from "../assets/models/door_open_button_off.glb";
+import onURL from "../assets/models/door_open_button_on.glb";
+import sfxURL from "../assets/sounds/sfx_button.mp3";
+
 type TwoWayWallButtonProps = {
   x: number;
   y: number;
@@ -30,11 +35,6 @@ export function TwoWayWallButton({
   const [sfxStartTime, setSFXStartTime] = useState<number>(now - sfxDuration);
   const [sfxPauseTime, setSFXPauseTime] = useState<number>(now);
   const [sfxPlaying, setSFXPlaying] = useState<boolean>(false);
-
-  const onURL = "/assets/guidedtour/door_open_button_on.glb";
-  const offURL = "/assets/guidedtour/door_open_button_off.glb";
-  const baseURL = "/assets/guidedtour/door_open_button_base.glb";
-  const sfxURL = "/assets/guidedtour/sfx_button.mp3";
 
   const buttonTravel = 0.05;
   const thickness = wallThickness / scale;

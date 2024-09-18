@@ -1,6 +1,12 @@
 import { MAttrAnimElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
+import codeDisplay from "../assets/models/code_display.glb";
+import car from "../assets/models/scifi_car.glb";
+import carPlinth from "../assets/models/scifi_car_plinth.glb";
+import carPlinthLeft from "../assets/models/scifi_car_plinth_left.glb";
+import carPlinthRight from "../assets/models/scifi_car_plinth_right.glb";
+import infoAudioURL from "../assets/sounds/sfx_info_placeholder.mp3";
 import { FloatingAnim } from "../components/floating-anim";
 import { InfoButton } from "../components/info-button";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
@@ -16,8 +22,6 @@ type RotatingCarPlinthProps = {
 
 export const RotatingCarPlinth = React.memo(
   ({ x, y, z, ry, visibleTo }: RotatingCarPlinthProps) => {
-    const infoAudioURL = "/assets/guidedtour/sfx_info_placeholder.mp3";
-
     const [animStart, setAnimStart] = React.useState<number>(0);
     const [animEnd, setAnimEnd] = React.useState<number>(360);
     const [startTime, setStartTime] = React.useState<number>(
@@ -94,8 +98,8 @@ export const RotatingCarPlinth = React.memo(
     return (
       <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
         <InfoButton x={-3} z={-5} ry={90} infoAudioURL={infoAudioURL} infoAudioDuration={4300} />
-        <m-model src="/assets/guidedtour/scifi_car_plinth.glb"></m-model>
-        <m-model src="/assets/guidedtour/scifi_car.glb" ry={carRotation}>
+        <m-model src={carPlinth}></m-model>
+        <m-model src={car} ry={carRotation}>
           <FloatingAnim attr="y" start={0.25} end={0.3} duration={13000} />
           <m-attr-anim
             ref={setAnimRef}
@@ -109,16 +113,8 @@ export const RotatingCarPlinth = React.memo(
             loop="true"
           ></m-attr-anim>
         </m-model>
-        <m-model
-          id="button-left"
-          src="/assets/guidedtour/scifi_car_plinth_left.glb"
-          onClick={() => adjustCarAnim(-1)}
-        ></m-model>
-        <m-model
-          id="button-right"
-          src="/assets/guidedtour/scifi_car_plinth_right.glb"
-          onClick={() => adjustCarAnim(+1)}
-        ></m-model>
+        <m-model id="button-left" src={carPlinthLeft} onClick={() => adjustCarAnim(-1)}></m-model>
+        <m-model id="button-right" src={carPlinthRight} onClick={() => adjustCarAnim(+1)}></m-model>
         <m-label
           id="rotation-speed-label"
           color="#505050"
@@ -136,13 +132,7 @@ export const RotatingCarPlinth = React.memo(
           font-size="18"
         ></m-label>
         <m-group x={3} z={-9} ry={-90}>
-          <m-model
-            src="/assets/guidedtour/code_display.glb"
-            sx={0.6}
-            sy={0.6}
-            sz={0.5}
-            ry={180}
-          ></m-model>
+          <m-model src={codeDisplay} sx={0.6} sy={0.6} sz={0.5} ry={180}></m-model>
           <m-group x={-0.3} y={2.03}>
             {animRef && animAttributes && (
               <TagCodeCanvas
