@@ -1,6 +1,11 @@
 import { MVideoElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
+import next from "../assets/images/texture_button_next.png";
+import pause from "../assets/images/texture_button_pause.png";
+import play from "../assets/images/texture_button_play.png";
+import power from "../assets/images/texture_button_power.png";
+import volup from "../assets/images/texture_button_volup.png";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { useAttributes } from "../helpers/use-attributes";
 
@@ -22,16 +27,7 @@ type ControlButton = {
 type ControlButtons = Map<string, ControlButton>;
 
 export const GamingVideo = React.memo(({ x, y, z, ry, visibleTo }: GamingVideoProps) => {
-  const controlIcons = React.useMemo(
-    () => [
-      "/assets/guidedtour/texture_button_power.png",
-      "/assets/guidedtour/texture_button_volup.png",
-      "/assets/guidedtour/texture_button_next.png",
-      "/assets/guidedtour/texture_button_pause.png",
-      "/assets/guidedtour/texture_button_play.png",
-    ],
-    [],
-  );
+  const controlIcons = React.useMemo(() => [power, volup, next, pause, play], []);
   const enabledEmissive = 12;
   const disabledEmissive = 0.1;
   const dimEmissive = 4.0;

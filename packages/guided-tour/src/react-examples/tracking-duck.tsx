@@ -7,6 +7,8 @@ import {
 } from "@mml-io/mml-react-types";
 import * as React from "react";
 
+import duckModelURL from "../assets/models/duck.glb";
+
 type TrackingDuckProps = {
   x?: number;
   y?: number;
@@ -17,10 +19,9 @@ type TrackingDuckProps = {
   ry?: number;
   visibleTo?: string;
 };
+
 export const TrackingDuck = React.memo(
   ({ x, y, z, sx, sy, sz, ry, visibleTo }: TrackingDuckProps) => {
-    const duckModelURL = "/assets/guidedtour/duck.glb";
-
     const positionProbeRef = React.useRef<MPositionProbeElement | null>(null);
     const duckRef = React.useRef<MModelElement | null>(null);
     const [updateInterval, setUpdateInterval] = React.useState<NodeJS.Timeout | null>(null);

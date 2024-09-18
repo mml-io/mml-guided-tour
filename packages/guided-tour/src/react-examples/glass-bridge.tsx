@@ -1,17 +1,19 @@
 import { MCubeElement, MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
-import { Respawner } from "../components/respawner";
-import { Teleporter } from "../components/teleporter";
-
 const start = document.timeline.currentTime as number;
 
 const gameDurationInMinutes = 4;
 
-const bgmSRC = "/assets/guidedtour/bgm_suspense.mp3";
-const semiCylinderSRC = "/assets/guidedtour/semi_cylinder.glb";
-const glassStepSRC = "/assets/guidedtour/glass_step.glb";
-const glassSFX = ["/assets/guidedtour/sfx_glass_A.mp3", "/assets/guidedtour/sfx_glass_B.mp3"];
+import glassStepSRC from "../assets/models/glass_step.glb";
+import semiCylinderSRC from "../assets/models/semi_cylinder.glb";
+import bgmSRC from "../assets/sounds/bgm_suspense.mp3";
+import glassSFXA from "../assets/sounds/sfx_glass_A.mp3";
+import glassSFXB from "../assets/sounds/sfx_glass_B.mp3";
+import { Respawner } from "../components/respawner";
+import { Teleporter } from "../components/teleporter";
+
+const glassSFX = [glassSFXA, glassSFXB];
 const glassSFXDuration = [2328, 2136];
 
 const millisecondsToTimeStamp = (ms: number) => {

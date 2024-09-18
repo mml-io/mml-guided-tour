@@ -1,9 +1,8 @@
 import * as React from "react";
 import { memo } from "react";
 
+import particleTextureURL from "../assets/images/texture_particle.png";
 import { randomFloatBetween } from "../helpers/js-helpers";
-
-const particleTextureURL = "/assets/guidedtour/texture_particle.png";
 
 type ParticlesProps = {
   maxParticles: number;

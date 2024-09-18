@@ -1,27 +1,35 @@
-export const teleporterBaseURL = "/assets/guidedtour/teleporter_base_plinth.glb";
-export const botMeshURL = "/assets/guidedtour/bot_mesh.glb";
-export const botAnimURL = "/assets/guidedtour/bot_anim_idle.glb";
+import poster_animations from "./images/poster_animations.jpeg";
+import poster_audio_video from "./images/poster_audio_video.jpeg";
+import poster_external_api from "./images/poster_external_api.jpeg";
+import poster_games from "./images/poster_games.jpeg";
+import poster_whats_next from "./images/poster_whats_next.jpeg";
+import logo_discord from "./models/3d-icons-discord.glb";
+import logo_github from "./models/3d-icons-github.glb";
+import logo_www from "./models/3d-icons-www.glb";
+import logo_mml from "./models/3d-mml-logo.glb";
+import room from "./models/room.glb";
+import room_1 from "./models/room_1.glb";
 
 export const logos = {
-  discord: "/assets/guidedtour/3d-icons-discord.glb",
-  github: "/assets/guidedtour/3d-icons-github.glb",
-  www: "/assets/guidedtour/3d-icons-www.glb",
-  mml: "/assets/guidedtour/3d-mml-logo.glb",
+  discord: logo_discord,
+  github: logo_github,
+  www: logo_www,
+  mml: logo_mml,
 } as const;
 
 export const posters = {
-  animations: "/assets/guidedtour/poster_animations.jpeg",
-  audioVideo: "/assets/guidedtour/poster_audio_video.jpeg",
-  externalApi: "/assets/guidedtour/poster_external_api.jpeg",
-  games: "/assets/guidedtour/poster_games.jpeg",
-  whatsNext: "/assets/guidedtour/poster_whats_next.jpeg",
+  animations: poster_animations,
+  audioVideo: poster_audio_video,
+  externalApi: poster_external_api,
+  games: poster_games,
+  whatsNext: poster_whats_next,
 } as const;
 
 export type PosterSrc = (typeof posters)[keyof typeof posters];
 
 export const roomModels = {
-  first: "/assets/guidedtour/room_1.glb",
-  default: "/assets/guidedtour/room.glb",
+  first: room_1,
+  default: room,
 } as const;
 
 export type RoomModel = (typeof roomModels)[keyof typeof roomModels];

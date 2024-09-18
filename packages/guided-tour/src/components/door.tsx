@@ -2,6 +2,7 @@ import * as React from "react";
 import { useCallback, useState } from "react";
 
 import { TwoWayWallButton } from "./two-way-wall-button";
+import sfxURL from "../assets/sounds/sfx_door.mp3";
 
 type DoorProps = {
   x: number;
@@ -39,8 +40,6 @@ export function Door({
   const [sfxStartTime, setSFXStartTime] = useState<number>(now - sfxDuration);
   const [sfxPauseTime, setSFXPauseTime] = useState<number>(now);
   const [sfxPlaying, setSFXPlaying] = useState<boolean>(false);
-
-  const sfxURL = "/assets/guidedtour/sfx_door.mp3";
 
   const openTime = 5000;
 
