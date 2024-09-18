@@ -1,5 +1,4 @@
 import src from "mml:.";
-import * as React from "react";
 
 import { RoomFrame } from "../room-frame";
 
