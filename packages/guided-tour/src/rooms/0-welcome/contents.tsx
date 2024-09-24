@@ -1,7 +1,8 @@
 import * as React from "react";
 
 import { botAnimURL, botMeshURL, teleporterBaseURL } from "../../assets";
-import { firstInteraction, gliders } from "../../examples";
+import { firstInteraction } from "../../examples";
+import ConwayCubes from "../../react-examples/conway";
 
 type FloatingAvatarsProps = {
   x: number;
@@ -64,7 +65,7 @@ export function Contents() {
   return (
     <>
       <m-frame src={firstInteraction}></m-frame>
-      <m-frame src={gliders} x={-17.65} y={2.05} sy={2.63} sz={3.14}></m-frame>
+      <ConwayCubes x={-17.8} y={2.05} z={-0.05} sy={2.63} sz={3.14}></ConwayCubes>
       <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
     </>
   );
