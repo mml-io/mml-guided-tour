@@ -1,8 +1,8 @@
 import * as React from "react";
 
 import { botAnimURL, botMeshURL, teleporterBaseURL } from "../../assets";
-import { firstInteraction } from "../../examples";
 import ConwayCubes from "../../react-examples/conway";
+import FirstInteraction from "../../react-examples/first-interaction";
 
 type FloatingAvatarsProps = {
   x: number;
@@ -64,7 +64,7 @@ FloatingAvatars.displayName = "FloatingAvatars";
 export function Contents() {
   return (
     <>
-      <m-frame src={firstInteraction}></m-frame>
+      <FirstInteraction></FirstInteraction>
       <ConwayCubes x={-17.8} y={2.05} z={-0.05} sy={2.63} sz={3.14}></ConwayCubes>
       <FloatingAvatars x={14} y={0} z={0} ry={0}></FloatingAvatars>
     </>
