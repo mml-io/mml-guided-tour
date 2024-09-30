@@ -50,12 +50,14 @@ const __dirname = path.dirname(__filename);
 
 const outdir = path.join(__dirname, "build");
 
-const { MSERVE_PROJECT, MMLHOSTING_PROTOCOL = "wss", MMLHOSTING_HOST } = process.env;
+const {
+  MSERVE_PROJECT,
+  MMLHOSTING_PROTOCOL = "wss",
+  MMLHOSTING_HOST = "mmlhosting.com",
+} = process.env;
 
-if (!local && (!MSERVE_PROJECT || !MMLHOSTING_HOST)) {
-  console.error(
-    "MSERVE_PROJECT and MMLHOSTING_HOST must be provided in the environment for non-local builds.",
-  );
+if (!local && !MSERVE_PROJECT) {
+  console.error("MSERVE_PROJECT must be provided in the environment for non-local builds.");
   process.exit(1);
 }
 
@@ -64,6 +66,7 @@ const buildOptions: esbuild.BuildOptions = {
   outdir,
   bundle: true,
   minify: true,
+  define: { "process.env.NODE_ENV": '"production"' },
   plugins: [
     mml({
       verbose,
@@ -71,8 +74,7 @@ const buildOptions: esbuild.BuildOptions = {
         ? {
             outputProcessor: mserveOutputProcessor(MSERVE_PROJECT!),
             documentPrefix: `${MMLHOSTING_PROTOCOL}://${MMLHOSTING_HOST}/v1/`,
-            assetPrefix: "https://public.mml.io/",
-            assetDir: "",
+            assetPrefix: "https://mml-guided-tour-assets.storage.googleapis.com/",
           }
         : {}),
     }),

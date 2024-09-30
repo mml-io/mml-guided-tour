@@ -1,6 +1,8 @@
 declare const type: unique symbol;
 
-declare type Tagged<Base, Tags extends PropertyKey> = Base & { [type]: { [T in Tags]: void } };
+declare type Tagged<Base, Tags extends PropertyKey> = Base & {
+  [type]: { [T in Tags]: void };
+};
 
 declare module "*.html" {
   const url: Tagged<string, "html">;

@@ -1,0 +1,16 @@
+[
+  {
+    "origin": [
+      "https://guided-tour-9709e5_world-7599b2.mml.world",
+      "https://guided-tour-7f055c_world-7599b2.main.mml.world"
+    ],
+    "method": [
+      "GET",
+      "OPTIONS"
+    ],
+    "responseHeader": [
+      "Content-Type"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

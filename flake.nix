@@ -15,14 +15,17 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = nixpkgs.legacyPackages.${system};
         isAppleSilicon = system == flake-utils.lib.system.aarch64-darwin;
       in
       {
         devShells = {
           default = pkgs.mkShell {
             buildInputs =
-              [ pkgs.nodejs_20 ]
+              [
+                pkgs.nodejs_20
+                pkgs.google-cloud-sdk
+              ]
               # node-canvas builds from source on Apple silicon,
               # so we need these additional deps
               ++ (nixpkgs.lib.lists.optionals isAppleSilicon [

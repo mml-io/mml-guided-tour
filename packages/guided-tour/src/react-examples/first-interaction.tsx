@@ -1,6 +1,7 @@
 import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
+import cubeCodeImgURL from "../assets/images/img_first_cube_code.png";
 import plinthURL from "../assets/models/basic_plinth.glb";
 import audio1URL from "../assets/sounds//video-first-interaction-01.mp3";
 import audio2URL from "../assets/sounds/video-first-interaction-02.mp3";
@@ -303,13 +304,7 @@ const FirstInteraction = React.memo(({ x, y, z, ry, sx, sy }: FirstInteractionPr
               ping-pong="true"
               easing="easeInOutQuad"
             ></m-attr-anim>
-            <m-image
-              src="/assets/guidedtour/img_first_cube_code.png"
-              width="4"
-              ry="110"
-              collide="false"
-              emissive="3"
-            ></m-image>
+            <m-image src={cubeCodeImgURL} width="4" ry="110" collide="false" emissive="3"></m-image>
           </m-group>
           <m-attr-anim
             attr={"y"}
