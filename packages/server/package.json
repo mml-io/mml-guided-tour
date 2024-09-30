@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@mml-io/3d-web-experience-server": "0.0.0-experimental-fec4b51-20240819",
+    "guided-tour": "../guided-tour",
     "canvas": "2.11.2",
     "chokidar": "3.6.0",
     "cors": "2.8.5",

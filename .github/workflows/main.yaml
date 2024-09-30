@@ -1,0 +1,41 @@
+name: Main
+
+on:
+  push:
+    branches: [ main ] 
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to MServe
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "packages/guided-tour"
+    env:
+      MSERVE_API_KEY: '${{ secrets.MSERVE_API_KEY }}'
+      
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.MML_GCP_SERVICE_ACCOUNT_KEY }}'
+
+      - uses: 'google-github-actions/setup-gcloud@v2'
+
+      - run: npm ci
+      - run: npm run build
+
+      - run: 'npm run deploy'
