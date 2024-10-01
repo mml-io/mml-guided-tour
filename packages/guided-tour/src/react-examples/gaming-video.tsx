@@ -6,6 +6,8 @@ import pause from "../assets/images/texture_button_pause.png";
 import play from "../assets/images/texture_button_play.png";
 import power from "../assets/images/texture_button_power.png";
 import volup from "../assets/images/texture_button_volup.png";
+import sonic_ghz from "../assets/videos/sonic_ghz.mp4";
+import sonic_ss from "../assets/videos/sonic_ss.mp4";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
 import { useAttributes } from "../helpers/use-attributes";
 
@@ -43,14 +45,14 @@ export const GamingVideo = React.memo(({ x, y, z, ry, visibleTo }: GamingVideoPr
   const [enabled, setEnabled] = React.useState<boolean>(true);
 
   const attributes = useAttributes(videoRef);
+  if (attributes.src) {
+    attributes.src = attributes.src.replace(/^.*\.com/, "");
+  }
 
   const controlButtons: ControlButtons = React.useMemo(() => new Map(), []);
   const enabledButtons = React.useMemo(() => new Set(["power", "next", "pause"]), []);
 
-  const videosAvailable = React.useMemo(
-    () => ["/assets/guidedtour/sonic_ghz.mp4", "/assets/guidedtour/sonic_ss.mp4"],
-    [],
-  );
+  const videosAvailable = React.useMemo(() => [sonic_ghz, sonic_ss], []);
 
   const [videoIndex, setVideoIndex] = React.useState<number>(0);
   const [videoURL, setVideoURL] = React.useState<string>(videosAvailable[videoIndex]);
