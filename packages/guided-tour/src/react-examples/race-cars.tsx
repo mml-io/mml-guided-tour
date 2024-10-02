@@ -9,7 +9,7 @@ import pinkCarModel from "../assets/models/f1_race_car_pink.glb";
 import redCarModel from "../assets/models/f1_race_car_red.glb";
 import yellowCarModel from "../assets/models/f1_race_car_yellow.glb";
 import countDownAudioURL from "../assets/sounds/sfx_countdown.mp3";
-import infoAudioURL from "../assets/sounds/sfx_info_placeholder.mp3";
+import sfxInfo from "../assets/sounds/sfx_info_m-attr-anim_01.mp3";
 import sfxRacing from "../assets/sounds/sfx_racing.mp3";
 import { InfoButton } from "../components/info-button";
 import { PlayButton } from "../components/play-button";
@@ -295,7 +295,7 @@ export const RaceCars = React.memo(({ x, y, z, ry, visibleTo }: RaceCarsProps) =
 
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
-      <InfoButton x={-3.5} z={-2} infoAudioURL={infoAudioURL} infoAudioDuration={4300} />
+      <InfoButton x={-3.5} z={-2} infoAudioURL={sfxInfo} infoAudioDuration={29000} />
       <PlayButton
         x={-4}
         z={-2}
