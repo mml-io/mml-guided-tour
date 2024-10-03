@@ -18,9 +18,13 @@ export function RoomFrame({
     return (
       <m-group x={x} y={y} z={z}>
         <m-model src={model}></m-model>
-        <PositionProbeLoaded range={32} interval={500} persist={persist}>
+        {persist ? (
           <m-frame src={src}></m-frame>
-        </PositionProbeLoaded>
+        ) : (
+          <PositionProbeLoaded range={32} interval={500} persist={persist}>
+            <m-frame src={src}></m-frame>
+          </PositionProbeLoaded>
+        )}
       </m-group>
     );
   }
