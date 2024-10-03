@@ -12,6 +12,7 @@ import glassSFXA from "../assets/sounds/sfx_glass_A.mp3";
 import glassSFXB from "../assets/sounds/sfx_glass_B.mp3";
 import { Respawner } from "../components/respawner";
 import { Teleporter } from "../components/teleporter";
+import { Travelator } from "../components/travelator";
 
 const glassSFX = [glassSFXA, glassSFXB];
 const glassSFXDuration = [2328, 2136];
@@ -461,10 +462,10 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
         timer={countDown}
       />
       <Teleporter
-        startX={0}
+        startX={-20}
         startY={0}
-        startZ={railsLength + baseDepth / 2}
-        startRY={-90}
+        startZ={-36}
+        startRY={90}
         endX={x ? -x - 15 : -15}
         endY={y ? -y : 0}
         endZ={-2.25}
@@ -508,6 +509,17 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
         range={baseDepth / 2}
         debug={debug}
       ></m-position-probe>
+      <Travelator
+        x={-20}
+        y={0}
+        z={-36.7}
+        ry={0}
+        width={10}
+        depth={133}
+        steps={20}
+        travelTime={15000}
+        reverse={false}
+      />
     </m-group>
   );
 });
