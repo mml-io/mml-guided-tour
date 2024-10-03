@@ -142,7 +142,6 @@ export const Weather = React.memo(({ x, y, z, sx, sy, sz, ry, visibleTo }: Weath
   );
 
   React.useEffect(() => {
-    fetchAPIData(defaultPlace);
     if (mounted.current === false) {
       mounted.current = true;
       fetchAPIData(defaultPlace);
