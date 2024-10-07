@@ -6,7 +6,7 @@ import car from "../assets/models/scifi_car.glb";
 import carPlinth from "../assets/models/scifi_car_plinth.glb";
 import carPlinthLeft from "../assets/models/scifi_car_plinth_left.glb";
 import carPlinthRight from "../assets/models/scifi_car_plinth_right.glb";
-import infoAudioURL from "../assets/sounds/sfx_info_placeholder.mp3";
+import infoAudioURL from "../assets/sounds/sfx_info_m-attr-anim_02.mp3";
 import { FloatingAnim } from "../components/floating-anim";
 import { InfoButton } from "../components/info-button";
 import { TagCodeCanvas } from "../components/tag-code-canvas";
@@ -97,7 +97,7 @@ export const RotatingCarPlinth = React.memo(
 
     return (
       <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
-        <InfoButton x={-3} z={-5} ry={90} infoAudioURL={infoAudioURL} infoAudioDuration={4300} />
+        <InfoButton x={-3} z={-5} ry={90} infoAudioURL={infoAudioURL} infoAudioDuration={21000} />
         <m-model src={carPlinth}></m-model>
         <m-model src={car} ry={carRotation}>
           <FloatingAnim attr="y" start={0.25} end={0.3} duration={13000} />
