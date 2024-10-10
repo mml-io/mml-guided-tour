@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@mml-io/esbuild-plugin-mml": "^0.2.1",
-    "@mml-io/mml-react-types": "0.18.0",
+    "@mml-io/mml-react-types": "0.18.1",
     "@mserve-io/mserve": "^0.3.1",
     "@types/proper-lockfile": "^4.1.4",
     "@types/react": "18.3.2",
