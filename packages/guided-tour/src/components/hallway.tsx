@@ -3,7 +3,7 @@ import * as React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Door } from "./door";
-import hallway from "../assets/models/hallway.glb";
+import hallway from "../assets/models/hallway_enc.glb";
 import secretDoorURL from "../assets/models/hallway_secret_wall.glb";
 
 type HallwayProps = {

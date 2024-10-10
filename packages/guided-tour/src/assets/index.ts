@@ -7,8 +7,8 @@ import logo_discord from "./models/3d-icons-discord.glb";
 import logo_github from "./models/3d-icons-github.glb";
 import logo_www from "./models/3d-icons-www.glb";
 import logo_mml from "./models/3d-mml-logo.glb";
-import room from "./models/room.glb";
-import room_1 from "./models/room_1.glb";
+import room_1 from "./models/room_1_enc.glb";
+import room from "./models/room_enc.glb";
 
 export const logos = {
   discord: logo_discord,
