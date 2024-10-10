@@ -403,19 +403,22 @@ export const PlatformerGame = React.memo(({ x, y, z, ry, visibleTo }: Platformer
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
       <Start x={0} y={yPos} z={0} />
-      <BackgroundMusic
-        x={0}
-        y={yPos + 2}
-        z={0}
-        length={300}
-        speakers={12}
-        rowsDistance={30}
-        volume={3}
-        angle={90}
-        fallOffAngle={130}
-        active={active}
-        debug={false}
-      />
+      {false && (
+        // TODO - disabled to avoid crashing iOS Safari
+        <BackgroundMusic
+          x={0}
+          y={yPos + 2}
+          z={0}
+          length={300}
+          speakers={12}
+          rowsDistance={30}
+          volume={3}
+          angle={90}
+          fallOffAngle={130}
+          active={active}
+          debug={false}
+        />
+      )}
       <Helis y={yPos + 2} z={30} amount={8} rowsDistance={15} active={active} />
       <Spinners x={7.35} y={yPos} z={39.55} width={23} depth={35} active={active} />
       <Hammers x={0} y={yPos} z={75.6} ry={0} difficulty={difficulty} active={active} />

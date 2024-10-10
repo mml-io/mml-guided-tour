@@ -2,7 +2,7 @@ import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import * as React from "react";
 
 import cubeCodeImgURL from "../assets/images/img_first_cube_code.png";
-import plinthURL from "../assets/models/basic_plinth.glb";
+import plinthURL from "../assets/models/basic_plinth_enc.glb";
 import audio1URL from "../assets/sounds//video-first-interaction-01.mp3";
 import audio2URL from "../assets/sounds/video-first-interaction-02.mp3";
 import video1URL from "../assets/videos//video-first-interaction-01.mp4";
