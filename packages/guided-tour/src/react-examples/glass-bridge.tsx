@@ -353,26 +353,45 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
   const timerTick = React.useRef<NodeJS.Timeout | undefined>(undefined);
   const timer = React.useRef<number | null>(null);
 
-  const handleGameEnd = React.useCallback(() => {
-    if (gameEnd === true || resettingGame === true || gameStart === null) {
-      return;
-    }
-    if (timer.current !== null && timerTick.current !== undefined) {
-      setGameEnd(true);
-      setBreakNow(true);
-      setTimeout(() => {
-        setBreakNow(false);
-        setResettingGame(true);
-        setGameEnd(false);
-        setTimeout(() => setResettingGame(false), 2000);
-      }, 4000);
-      clearInterval(timerTick.current);
-      timerTick.current = undefined;
-      timer.current = null;
-      setCountDown(null);
-      setGameStart(null);
-    }
-  }, [gameEnd, gameStart, resettingGame]);
+  const winnersSet = React.useMemo(() => new Set<number>(), []);
+
+  const handleGameEnd = React.useCallback(
+    (event?: any) => {
+      if (gameEnd === true || resettingGame === true || gameStart === null) {
+        return;
+      }
+      if (winnersSet.has(event.detail.connectionId) && event !== undefined) {
+        return;
+      } else if (event !== undefined) {
+        winnersSet.add(event.detail.connectionId);
+      }
+      if (timer.current !== null && timerTick.current !== undefined) {
+        setGameEnd(true);
+        setBreakNow(true);
+        setTimeout(() => {
+          setBreakNow(false);
+          setResettingGame(true);
+          setGameEnd(false);
+          setTimeout(() => setResettingGame(false), 2000);
+        }, 4000);
+        clearInterval(timerTick.current);
+        timerTick.current = undefined;
+        timer.current = null;
+        setCountDown(null);
+        setGameStart(null);
+      }
+    },
+    [gameEnd, gameStart, resettingGame, winnersSet],
+  );
+
+  const handleGameEndLeave = React.useCallback(
+    (e: any) => {
+      if (winnersSet.has(e.detail.connectionId)) {
+        winnersSet.delete(e.detail.connectionId);
+      }
+    },
+    [winnersSet],
+  );
 
   const handleTick = React.useCallback(() => {
     timer.current = timer.current ? timer.current - 1000 : 0;
@@ -403,6 +422,7 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
       startProbe.addEventListener("positionmove", handleGameStart);
       endProbe.addEventListener("positionenter", handleGameEnd);
       endProbe.addEventListener("positionmove", handleGameEnd);
+      endProbe.addEventListener("positionleave", handleGameEndLeave);
     }
 
     return () => {
@@ -411,9 +431,10 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
         startProbe.removeEventListener("positionmove", handleGameStart);
         endProbe.removeEventListener("positionenter", handleGameEnd);
         endProbe.removeEventListener("positionmove", handleGameEnd);
+        endProbe.removeEventListener("positionleave", handleGameEndLeave);
       }
     };
-  }, [handleGameEnd, handleGameStart]);
+  }, [handleGameEnd, handleGameEndLeave, handleGameStart]);
 
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
@@ -517,7 +538,7 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
         width={10}
         depth={133}
         steps={20}
-        travelTime={15000}
+        travelTime={7000}
         reverse={false}
       />
     </m-group>

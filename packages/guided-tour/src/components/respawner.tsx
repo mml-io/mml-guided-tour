@@ -40,7 +40,7 @@ export const Respawner = memo(
   }: RespawnerProps) => {
     const width = 100000;
     const depth = 100000;
-    const totalTransporters = 20;
+    const totalTransporters = 30;
     const transporterThickness = 0.01;
 
     const respawnerRef = useRef<MCubeElement>(null);
