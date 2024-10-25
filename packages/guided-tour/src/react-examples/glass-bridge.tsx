@@ -393,6 +393,15 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
     [winnersSet],
   );
 
+  const handleDisconnect = React.useCallback(
+    (event: any) => {
+      if (winnersSet.has(event.detail.connectionId)) {
+        winnersSet.delete(event.detail.connectionId);
+      }
+    },
+    [winnersSet],
+  );
+
   const handleTick = React.useCallback(() => {
     timer.current = timer.current ? timer.current - 1000 : 0;
     if (timer.current <= 0) {
@@ -423,6 +432,7 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
       endProbe.addEventListener("positionenter", handleGameEnd);
       endProbe.addEventListener("positionmove", handleGameEnd);
       endProbe.addEventListener("positionleave", handleGameEndLeave);
+      window.addEventListener("disconnected", handleDisconnect);
     }
 
     return () => {
@@ -432,9 +442,10 @@ export const GlassBridgeGame = React.memo(({ x, y, z, ry, visibleTo }: GlassBrid
         endProbe.removeEventListener("positionenter", handleGameEnd);
         endProbe.removeEventListener("positionmove", handleGameEnd);
         endProbe.removeEventListener("positionleave", handleGameEndLeave);
+        window.removeEventListener("disconnected", handleDisconnect);
       }
     };
-  }, [handleGameEnd, handleGameEndLeave, handleGameStart]);
+  }, [handleDisconnect, handleGameEnd, handleGameEndLeave, handleGameStart]);
 
   return (
     <m-group x={x} y={y} z={z} ry={ry} visible-to={visibleTo}>
