@@ -48,7 +48,7 @@ LinkElement.displayName = "LinkElement";
 export function WhatsNextContents() {
   const scale = 0.7;
   const socials = [logos.discord, logos.github, logos.www];
-  const URLs = ["http://discord.gg/msquared", "https://github.com/mml-io/mml", "https://mml.io/"];
+  const URLs = ["http://discord.gg/msquaredio", "https://github.com/mml-io/mml", "https://mml.io/"];
   const debug = false;
   return (
     <>
