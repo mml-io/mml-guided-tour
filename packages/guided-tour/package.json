@@ -4,7 +4,7 @@
   "scripts": {
     "build": "MSERVE_PROJECT=guided-tour-9709e5 tsx ./build.ts --build",
     "deploy": "run-p deploy:*",
-    "deploy:mml": "mserve deploy --project guided-tour-9709e5 build",
+    "deploy:mml": "mserve deploy --origin https://api.msquared.io --project guided-tour-9709e5 build",
     "deploy:assets": "gcloud storage rsync build/assets gs://mml-guided-tour-assets/assets --recursive --delete-unmatched-destination-objects",
     "iterate": "tsx ./build.ts --build --local --watch",
     "type-check": "tsc --noEmit",
