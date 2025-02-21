@@ -145,9 +145,9 @@ export const Respawner = memo(
 
     const handleRespawnerCollision = useCallback(
       (event: MMLCollisionStartEvent | MMLCollisionMoveEvent) => {
-        const xPos = event.detail.position.x * depth;
+        const xPos = event.detail.position.x;
         const yPos = -distance;
-        const zPos = event.detail.position.z * width;
+        const zPos = event.detail.position.z;
         let newTransporterIndex = activeTransporterIndex + 1;
         if (newTransporterIndex >= totalTransporters) {
           newTransporterIndex = 0;
