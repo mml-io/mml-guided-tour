@@ -23,7 +23,7 @@ const buildOptions: esbuild.BuildOptions = {
   write: true,
   sourcemap: "linked",
   outdir: "./build/",
-  assetNames: "[dir]/[name]-[hash]",
+  assetNames: "[dir]/[name]",
   preserveSymlinks: true,
   loader: {
     ".svg": "file",
@@ -32,7 +32,7 @@ const buildOptions: esbuild.BuildOptions = {
     ".glb": "file",
     ".hdr": "file",
   },
-  outbase: "./src/",
+  outbase: "../", // This is targeting the parent of the "assets" directory to avoid generated paths including a traversal
   sourceRoot: "./src/",
   publicPath: "/web-client/",
   plugins: [

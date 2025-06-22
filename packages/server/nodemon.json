@@ -4,8 +4,7 @@
     "../packages/*/build/**"
   ],
   "ignore": [
-    "../guided-tour/build/**/*.js",
-    "../web-client/build/world.json"
+    "../guided-tour/build/**/*.js"
   ],
   "ext": "ts,js,json,glb",
   "exec": "node build/index.js"

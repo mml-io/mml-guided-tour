@@ -7,7 +7,8 @@ import { Weather } from "../../react-examples/weather";
 export function ExternalApisContents() {
   return (
     <>
-      <Weather z={22.4} y={2} ry={180} />
+      {/* TODO - add back in when the API is live */}
+      {/* <Weather z={22.4} y={2} ry={180} /> */}
       <RoomPoster src={posters.externalApi} />
     </>
   );
