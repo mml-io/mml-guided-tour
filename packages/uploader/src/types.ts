@@ -1,5 +1,3 @@
-// Types for MSquared API based on OpenAPI spec
-
 import { ComponentTypeFromName } from "@marcuslongmuir/openapi-typescript-helpers";
 
 import { apiSchema } from "./api-schema";
@@ -98,6 +96,11 @@ export type UpdateMMLObjectInstanceBody = ComponentTypeFromName<
 export type PublicBucketFile = ComponentTypeFromName<
   typeof apiSchema,
   "v1_storageService_PublicBucketFile"
+>;
+
+export type CreatePublicBucketBody = ComponentTypeFromName<
+  typeof apiSchema,
+  "v1_storageService_CreatePublicBucketBody"
 >;
 
 export interface Manifest {

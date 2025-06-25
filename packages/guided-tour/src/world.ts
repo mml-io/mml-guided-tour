@@ -1,9 +1,9 @@
 import type { MMLWorldConfig } from "@mml-io/esbuild-plugin-mml";
-import type { World } from "@mml-guided-tour/uploader/src/types";
+import type { World } from "@private/uploader";
 import tour from "mml:./guided-tour";
 
 export default {
-  name: "guided-tour",
+  name: "MML Guided Tour",
   mmlDocumentsConfiguration: {
     mmlDocuments: {
       tour: {
@@ -13,6 +13,5 @@ export default {
   },
   environmentConfiguration: {
     groundPlane: false,
-  }
-
-} satisfies MMLWorldConfig & World;
+  },
+} satisfies MMLWorldConfig & Partial<World>;

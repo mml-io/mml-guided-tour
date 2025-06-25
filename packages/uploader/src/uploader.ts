@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 
@@ -5,24 +6,13 @@ import { createOpenAPIClient, OpenAPIClient } from "@marcuslongmuir/openapi-type
 
 import { apiSchema } from "./api-schema";
 import {
+  ApiError,
+  Manifest,
+  MMLObjectInstance,
+  PublicBucketFile,
   UploadConfig,
   World,
-  Manifest,
-  MMLDocument,
-  ApiError,
-  MMLObjectInstance,
-  CreateMMLObjectInstanceBody,
-  UpdateMMLObjectInstanceBody,
-  WorldAuthConfiguration,
-  WorldMMLDocumentsConfiguration,
-  WorldChatConfiguration,
-  WorldDisplayNameConfiguration,
-  WorldEnvironmentConfiguration,
-  WorldLoadingConfiguration,
-  WorldAvatarConfiguration,
-  PublicBucketFile,
 } from "./types";
-import { createHash } from "crypto";
 
 export class MSquaredUploader {
   private readonly client: OpenAPIClient<typeof apiSchema>;
@@ -42,7 +32,7 @@ export class MSquaredUploader {
         try {
           const response = await fetch(request, { headers });
 
-          // If response is not ok and has a text body (like "Unauthorized"), 
+          // If response is not ok and has a text body (like "Unauthorized"),
           // we should handle it gracefully instead of trying to parse as JSON
           if (!response.ok && response.status === 401) {
             // Create a proper error response that won't cause JSON parsing issues
@@ -237,7 +227,7 @@ export class MSquaredUploader {
 
     // Process all assets in parallel
     const uploadPromises = assetEntries.map(([assetName, assetPath]) =>
-      this.uploadSingleAsset(assetName, assetPath)
+      this.uploadSingleAsset(assetName, assetPath),
     );
 
     // Wait for all assets to complete and collect results
@@ -246,17 +236,19 @@ export class MSquaredUploader {
     // Print grouped logs for each asset
     results.forEach((result, index) => {
       const [assetName] = assetEntries[index];
-      if (result.status === 'fulfilled') {
+      if (result.status === "fulfilled") {
         // Print successful logs
-        result.value.forEach(log => console.log(log));
+        result.value.forEach((log) => console.log(log));
       } else {
         // Print error logs
-        console.error(`❌ Failed to process asset ${assetName}: ${this.formatError(result.reason)}`);
+        console.error(
+          `❌ Failed to process asset ${assetName}: ${this.formatError(result.reason)}`,
+        );
       }
     });
 
     // Check if any assets failed
-    const failedResults = results.filter(result => result.status === 'rejected');
+    const failedResults = results.filter((result) => result.status === "rejected");
     if (failedResults.length > 0) {
       const firstError = (failedResults[0] as PromiseRejectedResult).reason;
       const newError = new Error(
@@ -296,7 +288,9 @@ export class MSquaredUploader {
         logs.push(`  ✅ File already exists with the same checksum: ${assetName} - ${assetPath}`);
         return logs;
       } else {
-        logs.push(`  📄 File checksum mismatch: ${fileChecksum} !== ${fileMetadata.eTag} (${assetName} - ${assetPath})`);
+        logs.push(
+          `  📄 File checksum mismatch: ${fileChecksum} !== ${fileMetadata.eTag} (${assetName} - ${assetPath})`,
+        );
         if (this.config.dryRun) {
           logs.push(`  📄 [DRY RUN] Would upload: ${assetName} - ${assetPath}`);
           return logs;
@@ -319,7 +313,9 @@ export class MSquaredUploader {
         return logs;
       }
     } else {
-      throw new Error(`Failed to get file metadata: ${this.formatError(fileMetadataResponse.body)}`);
+      throw new Error(
+        `Failed to get file metadata: ${this.formatError(fileMetadataResponse.body)}`,
+      );
     }
   }
 
@@ -327,13 +323,16 @@ export class MSquaredUploader {
     const formData = new FormData();
     formData.append("file", new Blob([readFileSync(fullPath)]), assetName);
 
-    const response = await fetch(`${this.config.apiUrl}/v1/storage/${this.config.projectId}/public-buckets/${this.config.bucketId}/upload-file`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${this.config.apiKey}`,
+    const response = await fetch(
+      `${this.config.apiUrl}/v1/storage/${this.config.projectId}/public-buckets/${this.config.bucketId}/upload-file`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.config.apiKey}`,
+        },
+        body: formData,
       },
-      body: formData,
-    });
+    );
     if (!response.ok) {
       throw new Error(`Failed to upload asset ${assetName}: ${response.statusText}`);
     }
@@ -385,7 +384,7 @@ export class MSquaredUploader {
 
     // Process all documents in parallel
     const uploadPromises = documentEntries.map(([documentId, documentPath]) =>
-      this.uploadSingleDocument(documentId, documentPath)
+      this.uploadSingleDocument(documentId, documentPath),
     );
 
     // Wait for all documents to complete and collect results
@@ -394,17 +393,19 @@ export class MSquaredUploader {
     // Print grouped logs for each document
     results.forEach((result, index) => {
       const [documentId] = documentEntries[index];
-      if (result.status === 'fulfilled') {
+      if (result.status === "fulfilled") {
         // Print successful logs
-        result.value.forEach(log => console.log(log));
+        result.value.forEach((log) => console.log(log));
       } else {
         // Print error logs
-        console.error(`❌ Failed to process document ${documentId}: ${this.formatError(result.reason)}`);
+        console.error(
+          `❌ Failed to process document ${documentId}: ${this.formatError(result.reason)}`,
+        );
       }
     });
 
     // Check if any documents failed
-    const failedResults = results.filter(result => result.status === 'rejected');
+    const failedResults = results.filter((result) => result.status === "rejected");
     if (failedResults.length > 0) {
       const firstError = (failedResults[0] as PromiseRejectedResult).reason;
       const newError = new Error(
@@ -456,7 +457,7 @@ export class MSquaredUploader {
                   source: content,
                 },
                 enabled: true,
-              } as any, // Type assertion to work around strict typing
+              },
             });
             if (updateResponse.code === 200) {
               logs.push(`  ✅ Document updated: ${documentId}`);
@@ -486,7 +487,7 @@ export class MSquaredUploader {
                 source: content,
               },
               enabled: true,
-            } as any, // Type assertion to work around strict typing
+            },
           });
           if (createResponse.code === 200) {
             logs.push(`  ✅ Document created: ${documentId}`);
@@ -525,7 +526,10 @@ export class MSquaredUploader {
         console.log(`  ✅ World created: ${worldId}`);
         return createResponse.body as unknown as World;
       } else {
-        console.error(`❌ Failed to create world ${worldId}:`, this.formatError(createResponse.body));
+        console.error(
+          `❌ Failed to create world ${worldId}:`,
+          this.formatError(createResponse.body),
+        );
         throw new Error(
           `Failed to create world ${worldId}: ${this.formatError(createResponse.body)}`,
         );
@@ -547,13 +551,16 @@ export class MSquaredUploader {
           projectId: this.config.projectId,
           worldId,
         },
-        body: worldFromManifest as any, // Type assertion to work around strict typing
+        body: worldFromManifest, // Type assertion to work around strict typing
       });
       if (updateResponse.code === 200) {
         console.log(`  ✅ World updated: ${worldId}`);
         return updateResponse.body as unknown as World;
       } else {
-        console.error(`❌ Failed to update world ${worldId}:`, this.formatError(updateResponse.body));
+        console.error(
+          `❌ Failed to update world ${worldId}:`,
+          this.formatError(updateResponse.body),
+        );
         throw new Error(
           `Failed to update world ${worldId}: ${this.formatError(updateResponse.body)}`,
         );
@@ -595,18 +602,20 @@ export class MSquaredUploader {
     if (typeof error === "object" && error !== null) {
       // Handle errors with validation details
       if ("errors" in error && Array.isArray(error.errors)) {
-        const errorDetails = error.errors.map((err: any) => {
-          if (typeof err === "object" && err !== null) {
-            if ("message" in err) {
-              return err.message;
+        const errorDetails = error.errors
+          .map((err: any) => {
+            if (typeof err === "object" && err !== null) {
+              if ("message" in err) {
+                return err.message;
+              }
+              if ("path" in err && "message" in err) {
+                return `${err.path}: ${err.message}`;
+              }
+              return JSON.stringify(err, null, 2);
             }
-            if ("path" in err && "message" in err) {
-              return `${err.path}: ${err.message}`;
-            }
-            return JSON.stringify(err, null, 2);
-          }
-          return String(err);
-        }).join(", ");
+            return String(err);
+          })
+          .join(", ");
         return `Validation errors: ${errorDetails}`;
       }
 

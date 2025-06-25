@@ -1189,13 +1189,7 @@ export const apiSchema = {
               "application/json": {
                 schema: {
                   type: "object",
-                  required: [
-                    "publicBuckets",
-                    "totalResults",
-                    "offset",
-                    "limit",
-                    "canWrite",
-                  ],
+                  required: ["publicBuckets", "totalResults", "offset", "limit", "canWrite"],
                   properties: {
                     publicBuckets: {
                       type: "array",
@@ -1590,8 +1584,7 @@ export const apiSchema = {
                   },
                   contentType: {
                     type: "string",
-                    description:
-                      "Optional content type to override the file's detected MIME type",
+                    description: "Optional content type to override the file's detected MIME type",
                   },
                 },
                 required: ["file"],
@@ -1769,7 +1762,6 @@ export const apiSchema = {
         oneOf: [
           {
             type: "object",
-            additionalProperties: false,
             required: ["userId", "type"],
             properties: {
               userId: {
@@ -1783,7 +1775,6 @@ export const apiSchema = {
           },
           {
             type: "object",
-            additionalProperties: false,
             required: ["apiKeyId", "type"],
             properties: {
               apiKeyId: {
@@ -1799,7 +1790,6 @@ export const apiSchema = {
       },
       Error: {
         type: "object",
-        additionalProperties: false,
         required: ["message"],
         properties: {
           message: {
@@ -1809,7 +1799,6 @@ export const apiSchema = {
       },
       v1_mmlObjects_CreateMMLObjectInstanceBody: {
         type: "object",
-        additionalProperties: false,
         required: ["name", "source"],
         properties: {
           id: {
@@ -1834,7 +1823,6 @@ export const apiSchema = {
       },
       v1_mmlObjects_UpdateMMLObjectInstanceBody: {
         type: "object",
-        additionalProperties: false,
         properties: {
           name: {
             type: "string",
@@ -1858,7 +1846,6 @@ export const apiSchema = {
       },
       v1_mmlObjects_MMLObjectInstance: {
         type: "object",
-        additionalProperties: false,
         required: ["id", "name", "enabled", "source", "url", "createdAt", "createdBy"],
         properties: {
           id: {
@@ -1897,7 +1884,6 @@ export const apiSchema = {
         oneOf: [
           {
             type: "object",
-            additionalProperties: false,
             required: ["type", "source"],
             properties: {
               type: {
@@ -1917,7 +1903,6 @@ export const apiSchema = {
       },
       v1_mmlObjects_MMLObjectInstanceLogAccess: {
         type: "object",
-        additionalProperties: false,
         required: ["url", "token"],
         properties: {
           url: {
@@ -1930,7 +1915,6 @@ export const apiSchema = {
       },
       v1_mmlObjects_MMLObjectInstanceUsageInterval: {
         type: "object",
-        additionalProperties: false,
         required: ["startTime", "endTime", "connectedClients", "connectedClientMicroseconds"],
         properties: {
           startTime: {
@@ -1951,7 +1935,6 @@ export const apiSchema = {
       },
       v1_mmlObjects_MMLObjectInstanceQuota: {
         type: "object",
-        additionalProperties: false,
         required: ["limit", "current"],
         properties: {
           limit: {
@@ -1997,7 +1980,6 @@ export const apiSchema = {
       },
       v1_worlds_CreateWorldBody: {
         type: "object",
-        additionalProperties: false,
         required: ["name"],
         properties: {
           id: {
@@ -2046,7 +2028,6 @@ export const apiSchema = {
       },
       v1_worlds_UpdateWorldBody: {
         type: "object",
-        additionalProperties: false,
         properties: {
           name: {
             type: "string",
@@ -2090,7 +2071,6 @@ export const apiSchema = {
       },
       v1_worlds_World: {
         type: "object",
-        additionalProperties: false,
         required: [
           "id",
           "name",
@@ -2157,7 +2137,6 @@ export const apiSchema = {
       },
       v1_worlds_WorldGeneralConfiguration: {
         type: "object",
-        additionalProperties: false,
         properties: {
           maxUserConnections: {
             type: "number",
@@ -2167,7 +2146,6 @@ export const apiSchema = {
       v1_worlds_WorldAuthConfiguration: {
         type: "object",
         required: ["allowAnonymous"],
-        additionalProperties: false,
         properties: {
           allowAnonymous: {
             type: "boolean",
@@ -2177,11 +2155,9 @@ export const apiSchema = {
           },
           authProviders: {
             type: "object",
-            additionalProperties: false,
             properties: {
               webhook: {
                 type: "object",
-                additionalProperties: false,
                 required: ["webhookUrl"],
                 properties: {
                   webhookUrl: {
@@ -2191,7 +2167,6 @@ export const apiSchema = {
               },
               google: {
                 type: "object",
-                additionalProperties: false,
                 properties: {
                   allowedOrganizations: {
                     type: "array",
@@ -2209,7 +2184,6 @@ export const apiSchema = {
               },
               discord: {
                 type: "object",
-                additionalProperties: false,
                 properties: {
                   allowedUsers: {
                     type: "array",
@@ -2225,7 +2199,6 @@ export const apiSchema = {
       },
       v1_worlds_WorldDisplayNameConfiguration: {
         type: "object",
-        additionalProperties: false,
         properties: {
           allowCustomDisplayNames: {
             type: "boolean",
@@ -2234,7 +2207,6 @@ export const apiSchema = {
       },
       v1_worlds_WorldMMLDocumentsConfiguration: {
         type: "object",
-        additionalProperties: false,
         required: ["mmlDocuments"],
         properties: {
           mmlDocuments: {
@@ -2247,7 +2219,6 @@ export const apiSchema = {
       },
       v1_worlds_WorldChatConfiguration: {
         type: "object",
-        additionalProperties: false,
         required: ["enabled"],
         properties: {
           enabled: {
@@ -2257,7 +2228,6 @@ export const apiSchema = {
       },
       v1_worlds_WebWorldInstanceUsageInterval: {
         type: "object",
-        additionalProperties: false,
         required: ["startTime", "endTime", "connectedClients", "connectedClientMicroseconds"],
         properties: {
           startTime: {
@@ -2278,7 +2248,6 @@ export const apiSchema = {
       },
       v1_worlds_WorldQuota: {
         type: "object",
-        additionalProperties: false,
         required: ["limit", "current"],
         properties: {
           limit: {
@@ -2291,7 +2260,6 @@ export const apiSchema = {
       },
       v1_worlds_MMLDocument: {
         type: "object",
-        additionalProperties: false,
         required: ["url"],
         properties: {
           url: {
@@ -2310,7 +2278,6 @@ export const apiSchema = {
       },
       v1_worlds_Position: {
         type: "object",
-        additionalProperties: false,
         required: ["x", "y", "z"],
         properties: {
           x: {
@@ -2326,7 +2293,6 @@ export const apiSchema = {
       },
       v1_worlds_Rotation: {
         type: "object",
-        additionalProperties: false,
         required: ["x", "y", "z"],
         properties: {
           x: {
@@ -2342,7 +2308,6 @@ export const apiSchema = {
       },
       v1_worlds_Scale: {
         type: "object",
-        additionalProperties: false,
         required: ["x", "y", "z"],
         properties: {
           x: {
@@ -2474,7 +2439,6 @@ export const apiSchema = {
         oneOf: [
           {
             type: "object",
-            additionalProperties: false,
             required: ["meshFileUrl"],
             properties: {
               meshFileUrl: {
@@ -2490,7 +2454,6 @@ export const apiSchema = {
           },
           {
             type: "object",
-            additionalProperties: false,
             required: ["mmlCharacterString"],
             properties: {
               meshFileUrl: {
@@ -2506,7 +2469,6 @@ export const apiSchema = {
           },
           {
             type: "object",
-            additionalProperties: false,
             required: ["mmlCharacterUrl"],
             properties: {
               meshFileUrl: {
@@ -2524,7 +2486,6 @@ export const apiSchema = {
       },
       v1_worlds_WorldAvatarConfiguration: {
         type: "object",
-        additionalProperties: false,
         properties: {
           availableAvatars: {
             type: "array",
@@ -2544,7 +2505,6 @@ export const apiSchema = {
         oneOf: [
           {
             type: "object",
-            additionalProperties: false,
             required: ["meshFileUrl"],
             properties: {
               isDefaultAvatar: {
@@ -2569,7 +2529,6 @@ export const apiSchema = {
           },
           {
             type: "object",
-            additionalProperties: false,
             required: ["mmlCharacterString"],
             properties: {
               isDefaultAvatar: {
@@ -2594,7 +2553,6 @@ export const apiSchema = {
           },
           {
             type: "object",
-            additionalProperties: false,
             required: ["mmlCharacterUrl"],
             properties: {
               isDefaultAvatar: {
@@ -2621,13 +2579,11 @@ export const apiSchema = {
       },
       v1_worlds_WorldLoadingConfiguration: {
         type: "object",
-        additionalProperties: false,
         properties: {
           overlayLayers: {
             type: "array",
             items: {
               type: "object",
-              additionalProperties: false,
               properties: {
                 overlayImageUrl: {
                   type: "string",
@@ -2641,7 +2597,6 @@ export const apiSchema = {
                 },
                 overlayOffset: {
                   type: "object",
-                  additionalProperties: false,
                   properties: {
                     x: {
                       type: "number",
@@ -2683,7 +2638,6 @@ export const apiSchema = {
       },
       v1_storageService_CreatePublicBucketBody: {
         type: "object",
-        additionalProperties: false,
         required: ["name"],
         properties: {
           id: {
@@ -2702,7 +2656,6 @@ export const apiSchema = {
       },
       v1_storageService_UpdatePublicBucketBody: {
         type: "object",
-        additionalProperties: false,
         properties: {
           name: {
             type: "string",
@@ -2716,16 +2669,7 @@ export const apiSchema = {
       },
       v1_storageService_PublicBucket: {
         type: "object",
-        additionalProperties: false,
-        required: [
-          "id",
-          "name",
-          "description",
-          "storedSizeBytes",
-          "createdAt",
-          "createdBy",
-          "url",
-        ],
+        required: ["id", "name", "description", "storedSizeBytes", "createdAt", "createdBy", "url"],
         properties: {
           id: {
             type: "string",
@@ -2754,16 +2698,7 @@ export const apiSchema = {
       },
       v1_storageService_PublicBucketFile: {
         type: "object",
-        additionalProperties: false,
-        required: [
-          "kind",
-          "fullPath",
-          "name",
-          "url",
-          "size",
-          "createdAt",
-          "eTag",
-        ],
+        required: ["kind", "fullPath", "name", "url", "size", "createdAt", "eTag"],
         properties: {
           kind: {
             type: "string",
@@ -2792,7 +2727,6 @@ export const apiSchema = {
       },
       v1_storageService_PublicBucketDirectory: {
         type: "object",
-        additionalProperties: false,
         required: ["kind", "name", "fullPath"],
         properties: {
           kind: {
@@ -2806,12 +2740,10 @@ export const apiSchema = {
       },
       v1_storageService_PublicBucketQuota: {
         type: "object",
-        additionalProperties: false,
         required: ["bucketCount", "storedBytes"],
         properties: {
           bucketCount: {
             type: "object",
-            additionalProperties: false,
             required: ["limit", "current"],
             properties: {
               limit: {
@@ -2824,7 +2756,6 @@ export const apiSchema = {
           },
           storedBytes: {
             type: "object",
-            additionalProperties: false,
             required: ["limit", "current"],
             properties: {
               limit: {

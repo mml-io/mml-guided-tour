@@ -1,10 +1,13 @@
 import fs from "fs";
-import os from "os";
 import path from "path";
 import url from "url";
 
 import { Networked3dWebExperienceServer } from "@mml-io/3d-web-experience-server";
-import { CharacterDescription, UserNetworkingServer } from "@mml-io/3d-web-user-networking";
+import {
+  CharacterDescription,
+  SERVER_BROADCAST_MESSAGE_TYPE,
+  UserNetworkingServer,
+} from "@mml-io/3d-web-user-networking";
 import { watch } from "chokidar";
 import dotenv from "dotenv";
 import express from "express";
@@ -84,7 +87,6 @@ const networked3dWebExperienceServer = new Networked3dWebExperienceServer({
     documentsDirectoryRoot: MML_DOCUMENT_ROOT,
   },
   webClientServing,
-  chatNetworkPath: "/chat-network",
   assetServing: {
     assetsDir: assetsDir,
     assetsUrl: "/assets/",
@@ -98,7 +100,13 @@ watch(worldJSONPath).on("all", () => {
   webClientServing.indexContent = indexContent;
   (
     (networked3dWebExperienceServer as any).userNetworkingServer as UserNetworkingServer
-  ).broadcastMessage("worldConfig", worldJSON);
+  ).broadcastMessage(
+    SERVER_BROADCAST_MESSAGE_TYPE,
+    JSON.stringify({
+      broadcastType: "worldConfig",
+      payload: JSON.parse(worldJSON),
+    }),
+  );
 });
 
 // Start listening

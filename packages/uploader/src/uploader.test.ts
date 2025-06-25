@@ -103,6 +103,55 @@ const server = setupServer(
       });
     },
   ),
+
+  // Storage Service Handlers
+
+  // Mock GET bucket - return 404 (bucket not found) to trigger creation
+  http.get("*/v1/storage/:projectId/public-buckets/:bucketId", ({ params }) => {
+    console.log(`[MSW] GET bucket: ${params.bucketId}`);
+    return HttpResponse.json({ message: "Bucket not found" }, { status: 404 });
+  }),
+
+  // Mock POST bucket creation
+  http.post("*/v1/storage/:projectId/public-buckets", async ({ request, params }) => {
+    const body = (await request.json()) as any;
+    console.log(`[MSW] POST create bucket: ${body.id}`);
+
+    return HttpResponse.json({
+      id: body.id,
+      name: body.name,
+      description: body.description || "Assets bucket",
+      createdAt: new Date().toISOString(),
+      createdBy: "test@test.com",
+      projectId: params.projectId,
+      isPublic: true,
+    });
+  }),
+
+  // Mock GET file metadata - return 404 (file not found) to trigger upload
+  http.get("*/v1/storage/:projectId/public-buckets/:bucketId/file-metadata", ({ params, request }) => {
+    const url = new URL(request.url);
+    const fullPath = url.searchParams.get('fullPath');
+    console.log(`[MSW] GET file metadata: ${params.bucketId}, file: ${fullPath}`);
+    return HttpResponse.json({ message: "File not found" }, { status: 404 });
+  }),
+
+  // Mock POST file upload
+  http.post("*/v1/storage/:projectId/public-buckets/:bucketId/upload-file", async ({ request, params }) => {
+    console.log(`[MSW] POST upload file to bucket: ${params.bucketId}`);
+
+    // Since this is FormData, we can't easily get the file name, but that's OK for testing
+    return HttpResponse.json({
+      id: "test-file-id",
+      name: "test-asset.png",
+      size: 1024,
+      contentType: "image/png",
+      eTag: "test-etag",
+      url: `https://mock.example.com/storage/${params.bucketId}/test-asset.png`,
+      createdAt: new Date().toISOString(),
+      createdBy: "test@test.com",
+    });
+  }),
 );
 
 describe("MSquaredUploader Integration Tests", () => {
@@ -188,6 +237,7 @@ describe("MSquaredUploader Integration Tests", () => {
       apiKey: "test-api-key",
       apiUrl: "https://api.msquared.io", // MSW will intercept this
       projectId: "test-project",
+      bucketId: "test-bucket",
       worldId: "test-world",
       buildDir: tempDir,
       dryRun: false, // Use real upload mode to test the full flow
@@ -236,6 +286,7 @@ describe("MSquaredUploader Integration Tests", () => {
       apiKey: "test-api-key",
       apiUrl: "https://api.msquared.io",
       projectId: "test-project",
+      bucketId: "test-bucket",
       worldId: "test-world",
       buildDir: tempDir,
       dryRun: true,

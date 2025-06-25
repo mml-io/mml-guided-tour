@@ -49,7 +49,6 @@ const __dirname = path.dirname(__filename);
 
 const outdir = path.join(__dirname, buildType === BuildType.Local ? "build" : "dist");
 
-
 let mmlPluginOptions: MMLPluginOptions;
 if (buildType === BuildType.Dist) {
   const {
@@ -57,6 +56,7 @@ if (buildType === BuildType.Dist) {
     MSQUARED_BUCKET_ID,
     MSQUARED_MML_HOST = "mmlhosting.com",
     MSQUARED_STORAGE_HOST = ".msquaredhosting.com",
+    MSQUARED_ID_PREFIX,
   } = process.env;
 
   if (!MSQUARED_PROJECT_ID) {
@@ -66,6 +66,13 @@ if (buildType === BuildType.Dist) {
 
   if (!MSQUARED_BUCKET_ID) {
     console.error("MSQUARED_BUCKET_ID must be provided in the environment for non-local builds.");
+    process.exit(1);
+  }
+
+  if (MSQUARED_ID_PREFIX === undefined) {
+    console.error(
+      "MSQUARED_ID_PREFIX must be provided in the environment for non-local builds. This should be a unique value to avoid conflicts with other work. You can set it to empty string if you don't need it.",
+    );
     process.exit(1);
   }
 
@@ -83,6 +90,7 @@ if (buildType === BuildType.Dist) {
     assetPrefix,
     assetDir: "assets",
     stripHtmlExtension: true,
+    globalNamePrefix: MSQUARED_ID_PREFIX ?? undefined,
   };
 } else {
   mmlPluginOptions = {

@@ -18,7 +18,6 @@ import ninjaThumbnailFileUrl from "../../assets/models/thumbs/ninja.jpg";
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const host = window.location.host;
 const userNetworkAddress = `${protocol}//${host}/network`;
-const chatNetworkAddress = `${protocol}//${host}/chat-network`;
 
 const worldConfig = (window as any).WORLD_CONFIG;
 
@@ -26,7 +25,6 @@ const holder = Networked3dWebExperienceClient.createFullscreenHolder();
 const app = new Networked3dWebExperienceClient(holder, {
   sessionToken: (window as any).SESSION_TOKEN,
   userNetworkAddress,
-  chatNetworkAddress,
   animationConfig: {
     airAnimationFileUrl,
     idleAnimationFileUrl,
@@ -35,10 +33,11 @@ const app = new Networked3dWebExperienceClient(holder, {
     doubleJumpAnimationFileUrl,
   },
   mmlDocuments: worldConfig.mmlDocumentsConfiguration.mmlDocuments,
-  onServerBroadcast: (broadcast: { broadcastType: string; payload: any; }) => {
+  onServerBroadcast: (broadcast: { broadcastType: string; payload: string }) => {
     console.log("Server broadcast received", broadcast);
     if (broadcast.broadcastType === "worldConfig") {
-      const { mmlDocuments } = JSON.parse(broadcast.payload);
+      const { mmlDocumentsConfiguration } = JSON.parse(broadcast.payload);
+      const { mmlDocuments } = mmlDocumentsConfiguration;
       console.log("Updating MML documents", mmlDocuments);
       app.updateConfig({
         mmlDocuments,

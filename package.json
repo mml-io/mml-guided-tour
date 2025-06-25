@@ -7,9 +7,11 @@
   "scripts": {
     "build": "lerna run --stream build",
     "start": "npm run start -w @mml-guided-tour/server",
+    "deploy": "npm run dist -w @mml-guided-tour/mml-doc && npm run upload -w @mml-guided-tour/mml-doc",
     "iterate": "lerna run --parallel --stream iterate",
     "type-check-all": "lerna run --stream type-check",
     "lint-all": "lerna run --stream lint",
+    "test-all": "lerna run --parallel --stream --no-bail test",
     "lint-fix-all": "lerna run --stream lint-fix"
   },
   "workspaces": [
