@@ -16,9 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: production-deployment
 
-    defaults:
-      run:
-        working-directory: "packages/guided-tour"
     env:
       MSQUARED_API_KEY: '${{ secrets.MSQUARED_API_KEY }}'
       MSQUARED_PROJECT_ID: '${{ secrets.MSQUARED_PROJECT_ID }}'
