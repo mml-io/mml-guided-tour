@@ -1,10 +1,14 @@
 import fs from "fs";
-import os from "os";
 import path from "path";
 import url from "url";
 
 import { Networked3dWebExperienceServer } from "@mml-io/3d-web-experience-server";
-import { CharacterDescription } from "@mml-io/3d-web-user-networking";
+import {
+  CharacterDescription,
+  SERVER_BROADCAST_MESSAGE_TYPE,
+  UserNetworkingServer,
+} from "@mml-io/3d-web-user-networking";
+import { watch } from "chokidar";
 import dotenv from "dotenv";
 import express from "express";
 import enableWs from "express-ws";
@@ -16,25 +20,15 @@ dotenv.config();
 const dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const PORT = process.env.PORT || 8080;
 const webClientBuildDir = path.join(dirname, "../../web-client/build/");
-const staticAssetsDir = path.join(dirname, "../../assets/");
-const indexContent = fs.readFileSync(path.join(webClientBuildDir, "index.html"), "utf8");
+const indexHTMLContent = fs.readFileSync(path.join(webClientBuildDir, "index.html"), "utf8");
 const MML_DOCUMENT_ROOT = path.join(dirname, "../../guided-tour/build/");
 const MML_DOCUMENT_WATCH_PATTERN = "**/*.html";
-const packagedAssetsDir = path.join(dirname, "../../guided-tour/build/assets");
-const assetsDir = fs.mkdtempSync(path.join(os.tmpdir(), "mml-assets-"));
-
-console.log("Copying assets to", assetsDir);
-fs.cpSync(staticAssetsDir, assetsDir, { recursive: true });
-fs.cpSync(packagedAssetsDir, assetsDir, { recursive: true });
-
-fs.cpSync(path.join(MML_DOCUMENT_ROOT, "world.json"), path.join(webClientBuildDir, "world.json"), {
-  force: true,
-});
+const assetsDir = path.join(dirname, "../../guided-tour/build/assets");
 
 // Specify the avatar to use here:
 const characterDescription: CharacterDescription = {
   // Option 1 (Default) - Use a GLB file directly
-  meshFileUrl: "/assets/models/bot.glb", // This is just an address of a GLB file
+  meshFileUrl: "/web-client/assets/models/bot.glb", // This is just an address of a GLB file
   // Option 2 - Use an MML Character from a URL
   // mmlCharacterUrl: "https://...",
   // Option 3 - Use an MML Character from a string
@@ -62,6 +56,28 @@ const userAuthenticator = new BasicUserAuthenticator(characterDescription, {
 const { app } = enableWs(express());
 app.enable("trust proxy");
 
+const worldJSONPath = path.join(MML_DOCUMENT_ROOT, "world.json");
+
+function getIndexWithWorldConfig() {
+  const worldJSON = fs.readFileSync(worldJSONPath, "utf8");
+  const worldConfig = JSON.parse(worldJSON);
+  return {
+    indexContent: indexHTMLContent.replace(
+      `"WORLD_CONFIG.PLACEHOLDER"`,
+      JSON.stringify(worldConfig),
+    ),
+    worldJSON,
+  };
+}
+
+const webClientServing = {
+  indexUrl: "/",
+  indexContent: getIndexWithWorldConfig().indexContent,
+  clientBuildDir: webClientBuildDir,
+  clientUrl: "/web-client/",
+  clientWatchWebsocketPath: process.env.NODE_ENV !== "production" ? "/web-client-build" : undefined,
+};
+
 const networked3dWebExperienceServer = new Networked3dWebExperienceServer({
   networkPath: "/network",
   userAuthenticator,
@@ -70,21 +86,28 @@ const networked3dWebExperienceServer = new Networked3dWebExperienceServer({
     documentsUrl: "/",
     documentsDirectoryRoot: MML_DOCUMENT_ROOT,
   },
-  webClientServing: {
-    indexUrl: "/",
-    indexContent,
-    clientBuildDir: webClientBuildDir,
-    clientUrl: "/web-client/",
-    clientWatchWebsocketPath:
-      process.env.NODE_ENV !== "production" ? "/web-client-build" : undefined,
-  },
-  chatNetworkPath: "/chat-network",
+  webClientServing,
   assetServing: {
-    assetsDir,
+    assetsDir: assetsDir,
     assetsUrl: "/assets/",
   },
 });
 networked3dWebExperienceServer.registerExpressRoutes(app);
+
+watch(worldJSONPath).on("all", () => {
+  console.log("World config changed, reloading");
+  const { indexContent, worldJSON } = getIndexWithWorldConfig();
+  webClientServing.indexContent = indexContent;
+  (
+    (networked3dWebExperienceServer as any).userNetworkingServer as UserNetworkingServer
+  ).broadcastMessage(
+    SERVER_BROADCAST_MESSAGE_TYPE,
+    JSON.stringify({
+      broadcastType: "worldConfig",
+      payload: JSON.parse(worldJSON),
+    }),
+  );
+});
 
 // Start listening
 console.log("Listening on port", PORT);

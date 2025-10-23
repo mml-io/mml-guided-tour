@@ -1,50 +1,46 @@
 declare const type: unique symbol;
 
-declare type Tagged<Base, Tags extends PropertyKey> = Base & {
-  [type]: { [T in Tags]: void };
-};
-
 declare module "*.html" {
-  const url: Tagged<string, "html">;
+  const url: string;
   export default url;
 }
 
 declare module "mml:*" {
-  const url: Tagged<string, "mml">;
+  const url: string;
   export default url;
 }
 
 declare module "*.glb" {
-  const url: Tagged<string, "glb" | "model">;
+  const url: string;
   export default url;
 }
 
 declare module "*.jpg" {
-  const url: Tagged<string, "jpeg" | "image">;
+  const url: string;
   export default url;
 }
 
 declare module "*.jpeg" {
-  const url: Tagged<string, "jpeg" | "image">;
+  const url: string;
   export default url;
 }
 
 declare module "*.png" {
-  const url: Tagged<string, "png" | "image">;
+  const url: string;
   export default url;
 }
 
 declare module "*.mp3" {
-  const url: Tagged<string, "mp3" | "audio">;
+  const url: string;
   export default url;
 }
 
 declare module "*.wav" {
-  const url: Tagged<string, "wav" | "audio">;
+  const url: string;
   export default url;
 }
 
 declare module "*.mp4" {
-  const url: Tagged<string, "mp4" | "video">;
+  const url: string;
   export default url;
 }

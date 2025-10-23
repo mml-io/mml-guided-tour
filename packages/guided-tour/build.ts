@@ -1,91 +1,136 @@
 import path from "node:path";
 import url from "node:url";
 
-import { mml } from "@mml-io/esbuild-plugin-mml";
-import { mserveOutputProcessor } from "@mserve-io/mserve";
+import { mml, MMLPluginOptions } from "@mml-io/esbuild-plugin-mml";
 import * as esbuild from "esbuild";
 
-const buildMode = "--build";
-const watchMode = "--watch";
-const verboseFlag = "--verbose";
+const buildModeFlag = "--build";
+const watchModeFlag = "--watch";
 const localFlag = "--local";
+const distFlag = "--dist";
 
 const args = process.argv.splice(2);
 
-const helpString = `Mode must be provided as one of ${buildMode} or ${watchMode}`;
+const helpString = `Mode must be provided as one of ${buildModeFlag} or ${watchModeFlag}`;
 
 if (args.length === 0) {
   console.error(helpString);
   process.exit(1);
 }
 
-const [mode, verbose, local] = args.reduce<[string, boolean, boolean]>(
-  (
-    [mode, verbose, local]: [string, boolean, boolean],
-    arg: string,
-  ):
-    | ["--build", boolean, boolean]
-    | ["--watch", boolean, boolean]
-    | [string, true, boolean]
-    | [string, boolean, true] => {
-    switch (arg) {
-      case buildMode:
-        return [arg, verbose, local];
-      case watchMode:
-        return [arg, verbose, local];
-      case verboseFlag:
-        return [mode, true, local];
-      case localFlag:
-        return [mode, verbose, true];
-      default:
-        console.error("Unknown flag:", arg);
-        process.exit(1);
-    }
-  },
-  [buildMode, false, false],
-);
+const buildMode = args.includes(buildModeFlag);
+const watchMode = args.includes(watchModeFlag);
+if (buildMode && watchMode) {
+  console.error("Cannot use both build and watch mode at the same time");
+  process.exit(1);
+}
+
+const localMode = args.includes(localFlag);
+const distMode = args.includes(distFlag);
+if (localMode && distMode) {
+  console.error("Cannot use both local and dist mode at the same time");
+  process.exit(1);
+}
+
+enum Mode {
+  Build = "build",
+  Watch = "watch",
+}
+const mode = buildMode ? Mode.Build : watchMode ? Mode.Watch : Mode.Build;
+
+enum BuildType {
+  Local = "local",
+  Dist = "dist",
+}
+const buildType = localMode ? BuildType.Local : distMode ? BuildType.Dist : BuildType.Local;
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const outdir = path.join(__dirname, "build");
+const outdir = path.join(__dirname, buildType === BuildType.Local ? "build" : "dist");
 
-const {
-  MSERVE_PROJECT,
-  MMLHOSTING_PROTOCOL = "wss",
-  MMLHOSTING_HOST = "mmlhosting.com",
-} = process.env;
+let mmlPluginOptions: MMLPluginOptions;
+if (buildType === BuildType.Dist) {
+  const {
+    MSQUARED_PROJECT_ID,
+    MSQUARED_BUCKET_ID,
+    MSQUARED_MML_HOST = "mmlhosting.com",
+    MSQUARED_STORAGE_HOST = ".msquaredhosting.com",
+    MSQUARED_ID_PREFIX,
+  } = process.env;
 
-if (!local && !MSERVE_PROJECT) {
-  console.error("MSERVE_PROJECT must be provided in the environment for non-local builds.");
-  process.exit(1);
+  if (!MSQUARED_PROJECT_ID) {
+    console.error("MSQUARED_PROJECT_ID must be provided in the environment for non-local builds.");
+    process.exit(1);
+  }
+
+  if (!MSQUARED_BUCKET_ID) {
+    console.error("MSQUARED_BUCKET_ID must be provided in the environment for non-local builds.");
+    process.exit(1);
+  }
+
+  if (MSQUARED_ID_PREFIX === undefined) {
+    console.error(
+      "MSQUARED_ID_PREFIX must be provided in the environment for non-local builds. This should be a unique value to avoid conflicts with other work. You can set it to empty string if you don't need it.",
+    );
+    process.exit(1);
+  }
+
+  const documentPrefix = `wss://${MSQUARED_MML_HOST}/v1/${MSQUARED_PROJECT_ID}_`;
+  const assetPrefix = `https://${MSQUARED_BUCKET_ID}--${MSQUARED_PROJECT_ID}${MSQUARED_STORAGE_HOST}/`;
+  console.log("Document prefix (where MML documents are expected to be publicly accessible):");
+  console.log(` - "${documentPrefix}"`);
+  console.log(` - e.g. "${documentPrefix}my-document.mml"`);
+  console.log("Asset prefix (where assets are expected to be publicly accessible):");
+  console.log(` - "${assetPrefix}"`);
+  console.log(` - e.g. "${assetPrefix}my-asset.glb"`);
+
+  mmlPluginOptions = {
+    documentPrefix,
+    assetPrefix,
+    assetDir: "assets",
+    stripHtmlExtension: true,
+    globalNamePrefix: MSQUARED_ID_PREFIX ?? undefined,
+  };
+} else {
+  mmlPluginOptions = {
+    assetPrefix: "/assets/",
+    assetDir: "assets",
+  };
 }
 
 const buildOptions: esbuild.BuildOptions = {
-  entryPoints: ["src/world.ts"],
+  entryPoints: ["./src/world.ts"],
   outdir,
   bundle: true,
-  minify: true,
+  sourceRoot: "./src",
   define: { "process.env.NODE_ENV": '"production"' },
+  logLevel: "info",
+  format: "esm",
+  loader: {
+    ".svg": "file",
+    ".png": "file",
+    ".jpg": "file",
+    ".jpeg": "file",
+    ".glb": "file",
+    ".hdr": "file",
+    ".mp3": "file",
+    ".mp4": "file",
+    ".wav": "file",
+  },
   plugins: [
     mml({
-      verbose,
-      ...(!local
-        ? {
-            outputProcessor: mserveOutputProcessor(MSERVE_PROJECT!),
-            documentPrefix: `${MMLHOSTING_PROTOCOL}://${MMLHOSTING_HOST}/v1/`,
-            assetPrefix: "https://mml-guided-tour-assets.storage.googleapis.com/",
-          }
-        : {}),
+      verbose: true,
+      ...mmlPluginOptions,
     }),
   ],
 };
 
 switch (mode) {
-  case buildMode:
+  case Mode.Build:
     esbuild.build(buildOptions).catch(() => process.exit(1));
     break;
-  case watchMode:
+  case Mode.Watch:
     esbuild
       .context({ ...buildOptions })
       .then((context) => context.watch())

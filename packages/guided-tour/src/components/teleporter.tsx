@@ -124,8 +124,8 @@ export const Teleporter = memo(
       }
       return () => {
         if (startProbe) {
-          startProbe.removeEventListener("positionenter", () => { });
-          startProbe.removeEventListener("positionmove", () => { });
+          startProbe.removeEventListener("positionenter", () => {});
+          startProbe.removeEventListener("positionmove", () => {});
         }
       };
     }, [startProbeRef, teleportToEnd]);

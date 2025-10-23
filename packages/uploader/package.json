@@ -1,0 +1,73 @@
+{
+  "name": "@private/uploader",
+  "version": "0.0.1",
+  "description": "Upload tool for MML projects to MSquared platform",
+  "main": "dist/index.js",
+  "types": "src/types.ts",
+  "bin": {
+    "mml-uploader": "bin/index.js"
+  },
+  "scripts": {
+    "build": "tsx build.ts --build",
+    "iterate": "tsx build.ts --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint \"./src/**/*.{ts,}\" --max-warnings 0",
+    "lint-fix": "eslint \"./src/**/*.{ts,}\" --fix"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.ts",
+      "**/?(*.)+(spec|test).ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts",
+      "!src/cli.ts"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/test-setup.ts"
+    ],
+    "testTimeout": 30000
+  },
+  "keywords": [
+    "mml",
+    "msquared",
+    "upload",
+    "3d",
+    "metaverse"
+  ],
+  "files": [
+    "dist/",
+    "bin/",
+    "README.md",
+    "config.example"
+  ],
+  "dependencies": {
+    "@marcuslongmuir/openapi-typescript-helpers": "^0.1.2",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.13.14",
+    "@types/yargs": "^17.0.32",
+    "esbuild": "^0.23.0",
+    "jest": "^29.7.0",
+    "msw": "^2.10.2",
+    "ts-jest": "^29.1.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

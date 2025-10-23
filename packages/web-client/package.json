@@ -11,14 +11,13 @@
     "iterate": "tsx ./build.ts --watch",
     "type-check": "tsc --noEmit",
     "lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings 0",
-    "lint:fix": "eslint \"./src/**/*.{ts,tsx}\" --fix"
+    "lint-fix": "eslint \"./src/**/*.{ts,tsx}\" --fix"
   },
   "dependencies": {
-    "@mml-io/3d-web-experience-client": "0.21.3",
-    "@mml-io/esbuild-plugin-mml": "0.0.0-experimental-6000822-20241022",
-    "three": "0.163.0"
+    "@mml-io/3d-web-experience-client": "0.24.2",
+    "three": "0.178.0"
   },
   "devDependencies": {
-    "@types/three": "0.163.0"
+    "@types/three": "0.178.0"
   }
 }

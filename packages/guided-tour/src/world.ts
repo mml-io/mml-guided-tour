@@ -1,11 +1,17 @@
 import type { MMLWorldConfig } from "@mml-io/esbuild-plugin-mml";
-/*eslint import/no-unresolved: [2, { ignore: ['^mml:'] }]*/
+import type { World } from "@private/uploader";
 import tour from "mml:./guided-tour";
 
 export default {
-  mmlDocuments: {
-    tour: {
-      url: tour,
+  name: "MML Guided Tour",
+  mmlDocumentsConfiguration: {
+    mmlDocuments: {
+      tour: {
+        url: tour,
+      },
     },
   },
-} satisfies MMLWorldConfig;
+  environmentConfiguration: {
+    groundPlane: false,
+  },
+} satisfies MMLWorldConfig & Partial<World>;
