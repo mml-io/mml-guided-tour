@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsx ./build.ts --build --local",
     "dist": "dotenv -e .env.local -- tsx ./build.ts --dist",
-    "upload": "dotenv -e .env.local -- mml-uploader --build-dir ./dist",
+    "upload": "dotenv -e .env.local -- node ../uploader/bin/index.js --build-dir ./dist",
     "iterate": "tsx ./build.ts --local --watch",
     "type-check": "tsc --noEmit",
     "lint": "eslint -c ./.eslintrc.cjs \"./src/**/*.{js,jsx,ts,tsx}\" --max-warnings 0",
