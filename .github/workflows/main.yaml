@@ -18,9 +18,9 @@ jobs:
 
     env:
       MSQUARED_API_KEY: '${{ secrets.MSQUARED_API_KEY }}'
-      MSQUARED_PROJECT_ID: '${{ secrets.MSQUARED_PROJECT_ID }}'
-      MSQUARED_WORLD_ID: '${{ secrets.MSQUARED_WORLD_ID }}'
-      MSQUARED_BUCKET_ID: '${{ secrets.MSQUARED_BUCKET_ID }}'
+      MSQUARED_PROJECT_ID: '${{ vars.MSQUARED_PROJECT_ID }}'
+      MSQUARED_WORLD_ID: '${{ vars.MSQUARED_WORLD_ID }}'
+      MSQUARED_BUCKET_ID: '${{ vars.MSQUARED_BUCKET_ID }}'
       MSQUARED_ID_PREFIX: ''
 
     steps:
